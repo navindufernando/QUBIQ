@@ -64,7 +64,6 @@ Remote software development teams face several challenges in today's distributed
 ## Contributors
 - Navindu Fernando
 - Ashini Hewagamage
-- Dulina Batagoda
 - Inuthi Shakya
 - Jaith Sathnindu
 - Manula Jayabodhi
