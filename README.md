@@ -51,11 +51,11 @@ Remote software development teams face several challenges in today's distributed
 - Learning and development coordinators in tech firms
 
 ## Technology Stack
-- Frontend: React/Angular with Material-UI/Bootstrap
-- Backend: Node.js/Django/ASP.NET Core
-- Database: PostgreSQL/MySQL and MongoDB
+- Frontend: React with Material-UI
+- Backend: Node.js/ASP.NET Core
+- Database: MySQL and MongoDB
 - Authentication: Auth0/Firebase
-- Cloud Services: AWS/Google Cloud/Azure
+- Cloud Services: AWS
 - API Integrations: SonarQube, Code Climate
 
 ## Project Status
