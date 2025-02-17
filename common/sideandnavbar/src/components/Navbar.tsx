@@ -1,9 +1,13 @@
 // components/Navbar.jsx
 import React, { useState } from 'react'
 
-const Navbar = ({ toggleSidebar }) => {
+interface NavBarProps {
+    toggleSidebar: () => void;
+}
+
+const Navbar: React.FC<NavBarProps> = ({ toggleSidebar }) => {
   // State to track if the dropdown is open or closed
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false)
 
   // Toggle the dropdown visibility
   const toggleDropdown = () => {
