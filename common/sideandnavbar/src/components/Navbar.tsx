@@ -1,21 +1,24 @@
-// components/Navbar.jsx
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 interface NavBarProps {
     toggleSidebar: () => void;
 }
 
 const Navbar: React.FC<NavBarProps> = ({ toggleSidebar }) => {
-  // State to track if the dropdown is open or closed
+  const navigate = useNavigate()
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false)
 
-  // Toggle the dropdown visibility
   const toggleDropdown = () => {
     setIsDropdownOpen((prevState) => !prevState)
   }
 
-  // Convert the hex color to rgba with opacity
-  const backgroundColor = 'rgba(123, 104, 238, 0.38)' // #7B68EE with 38% opacity
+  const handleProfileClick = () => {
+    navigate('/profile')
+    setIsDropdownOpen(false)
+  }
+
+  const backgroundColor = 'rgba(123, 104, 238, 0.38)'
 
   return (
     <nav className='px-6 py-3 flex items-center' style={{ backgroundColor, borderBottom: '1px solid #E5E5E5' }}>
@@ -92,14 +95,12 @@ const Navbar: React.FC<NavBarProps> = ({ toggleSidebar }) => {
                 {isDropdownOpen && (
                     <div className='absolute z-10 mt-2 bg-white rounded-lg shadow w-32 group focus-black top-full right-0'>
                         <ul className='text-[#1A1A1A]'>
-                            <li className='px-4 py-2 hover:bg-gray-100'>
-                                <a href="">Profile</a>
+                            <li className='px-4 py-2 hover:bg-gray-100 cursor-pointer' onClick={handleProfileClick}>
+                                Profile
                             </li>
-
                             <li className='px-4 py-2 hover:bg-gray-100'>
                                 <a href="">Logout</a>
                             </li>
-
                         </ul>
                     </div>
                 )}

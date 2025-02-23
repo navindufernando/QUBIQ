@@ -1,4 +1,3 @@
-// App.jsx
 import { useState } from 'react'
 import './App.css'
 import Home from './pages/Home/Home'
@@ -12,6 +11,7 @@ import ProjectReview from './pages/ProjectReview/ProjectReview'
 import Settings from './pages/Settings/Settings'
 import { UserType } from './enums/userType'
 import PMDashboard from './pages/Dashboard-pm/PMDashboard'
+import Profile from './pages/Profile/Profile'
 
 const App = () => {
   const [isSidebarVisible, setIsSidebarVisible] = useState<boolean>(true)
@@ -39,6 +39,7 @@ const App = () => {
               <Route path="/members" element={<Members />} />
               <Route path="/review" element={<ProjectReview />} />
               <Route path="/settings" element={<Settings />} />
+              <Route path="/profile" element={<Profile />} />
             </Routes>
           </div>
         </div>
