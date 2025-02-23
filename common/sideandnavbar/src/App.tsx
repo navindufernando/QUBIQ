@@ -11,7 +11,7 @@ import ProjectReview from './pages/ProjectReview/ProjectReview'
 import Settings from './pages/Settings/Settings'
 import { UserType } from './enums/userType'
 import PMDashboard from './pages/Dashboard-pm/PMDashboard'
-import Profile from './pages/Profile/Profile'
+import Profile from './pages/profile/profile'
 
 const App = () => {
   const [isSidebarVisible, setIsSidebarVisible] = useState<boolean>(true)
