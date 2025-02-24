@@ -1,0 +1,66 @@
+/* Calendar container */
+.react-calendar {
+  width: 300px;  /* Adjust width as needed */
+  background: #d7c2f2; /* Light purple background */
+  border-radius: 10px;
+  padding: 15px;
+  font-family: 'Arial', sans-serif;
+  border: none;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Month and year navigation */
+.react-calendar__navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.react-calendar__navigation button {
+  background: transparent;
+  border: none;
+  color: #5a4b81; /* Dark purple text */
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* Weekday names */
+.react-calendar__month-view__weekdays {
+  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: bold;
+  color: #5a4b81;
+}
+
+/* Individual day cells */
+.react-calendar__tile {
+  padding: 10px;
+  text-align: center;
+  border-radius: 5px;
+  background: transparent;
+  color: #5a4b81; /* Dark purple text */
+  font-size: 16px;
+  font-weight: bold;
+}
+
+/* Today's date */
+.react-calendar__tile--now {
+  background: #9ccf47 !important; /* Light green */
+  color: white !important;
+  font-weight: bold;
+  border-radius: 5px;
+}
+
+/* Selected date */
+.react-calendar__tile--active {
+  background: #7bdb5a !important;
+  color: white !important;
+  border-radius: 5px;
+}
+
+/* Hover effect */
+.react-calendar__tile:hover {
+  background: #c1a7f2 !important; /* Slightly darker purple */
+  color: white;
+}
