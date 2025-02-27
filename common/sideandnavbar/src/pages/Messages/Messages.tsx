@@ -105,9 +105,9 @@ const ChatInbox = () => {
   );
 
   return (
-    <div className="flex bg-purple-50 h-[650px]">
+    <div className="flex w-full h-[650px]">
       {/* Chat Inbox */}
-      <div className="flex flex-col w-3/4">
+      <div className="flex flex-col w-3/4 bg-white">
         {/* Chat Header */}
         <div className="flex items-center justify-between p-3 border-b bg-white">
           <span className="text-gray-600 text-sm">
@@ -121,7 +121,7 @@ const ChatInbox = () => {
         </div>
 
         {/* Messages Container */}
-        <div className="flex-1 overflow-y-auto p-3 space-y-3">
+        <div className="flex-1 overflow-y-auto p-3 space-y-3 bg-white">
           {selectedChat ? (
             selectedChat.messages.map((message) => (
               <div
@@ -130,7 +130,7 @@ const ChatInbox = () => {
               >
                 <div
                   className={`max-w-[70%] rounded-lg p-2 ${
-                    message.sender === 'user' ? 'bg-white text-black' : 'bg-white text-black'
+                    message.sender === 'user' ? 'bg-white text-black border border-gray-200' : 'bg-white text-black border border-gray-200'
                   }`}
                 >
                   {/* ✅ Display chat person's name instead of "ASANA" */}
@@ -160,7 +160,7 @@ const ChatInbox = () => {
                 onChange={(e) => setNewMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="Write a message..."
-                className="flex-1 resize-none rounded-lg p-2 focus:outline-none min-h-[36px] max-h-[100px] text-sm"
+                className="flex-1 resize-none rounded-lg p-2 focus:outline-none min-h-[36px] max-h-[100px] text-sm border border-gray-200"
                 rows={1}
               />
               <button
@@ -174,10 +174,10 @@ const ChatInbox = () => {
         )}
       </div>
 
-      {/*Right Sidebar */}
-      <div className="w-1/4 bg-[#E2DDFF] ">
-        {/* Search Bar */}
-        <div className="p-3 border-b">
+      {/*Right Sidebar*/}
+      <div className="w-1/4 h-100% bg-[#E2DDFF] ">
+      
+        <div className="p-3 ">
           <div className="flex items-center space-x-2 bg-white rounded-lg p-2">
             <Search size={18} className="text-gray-500" />
             <input
@@ -206,29 +206,29 @@ const ChatInbox = () => {
         </div>
 
         {/* Options Section */}
-        <div className="flex flex-col p-6 bg-white rounded-lg m-3">
-  {/* Options Heading */}
-  <div className="mb-3">
-    <h1 className="font-semibold text-xl text-left mr-2"><b>Options</b></h1> 
-    <img src = "/assets/logo.png" alt="Logo" className='w-5 h-4'/>
-  </div>
+        <div className="flex flex-col p-6 bg-white rounded-lg mx-3 mb-3">
+          {/* Options Heading */}
+          <div className="mb-3">
+            <h1 className="font-semibold text-xl text-left mr-2"><b>Options</b></h1> 
+            <img src = "/assets/logo.png" alt="Logo" className='w-5 h-4'/>
+          </div>
 
-  {/* Buttons */}
-  <div className="w-full space-y-4.5">
-    <button className="w-full p-2.5 bg-[#C3BAFF] text-left rounded-lg hover:bg-[#A9A0FF]">
-      <center><b>Create a group</b></center>
-    </button>
-    <button className="w-full p-2.5 bg-[#C3BAFF] text-left rounded-lg hover:bg-[#A9A0FF]">
-      <center><b>Delete messages</b></center>
-    </button>
-    <button className="w-full p-2.5 bg-[#C3BAFF] text-left rounded-lg hover:bg-[#A9A0FF]">
-      <center><b>Personal chats</b></center>
-    </button>
-    <button className="w-full p-2.5 bg-[#C3BAFF] text-left rounded-lg hover:bg-[#A9A0FF]">
-      <center><b>Board meetings</b></center>
-    </button>
-  </div>
-</div>
+          {/* Buttons */}
+          <div className="w-full space-y-4.5">
+            <button className="w-full p-2.5 bg-[#C3BAFF] text-left rounded-lg hover:bg-[#A9A0FF]">
+              <center><b>Create a group</b></center>
+            </button>
+            <button className="w-full p-2.5 bg-[#C3BAFF] text-left rounded-lg hover:bg-[#A9A0FF]">
+              <center><b>Delete messages</b></center>
+            </button>
+            <button className="w-full p-2.5 bg-[#C3BAFF] text-left rounded-lg hover:bg-[#A9A0FF]">
+              <center><b>Personal chats</b></center>
+            </button>
+            <button className="w-full p-2.5 bg-[#C3BAFF] text-left rounded-lg hover:bg-[#A9A0FF]">
+              <center><b>Board meetings</b></center>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

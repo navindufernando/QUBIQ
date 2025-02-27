@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 
-// Type definitions
+
+
 interface TeamMemberType {
   id: number;
   imageUrl: string;
@@ -13,7 +14,7 @@ interface PaginationProps {
   onPageChange: (page: number) => void;
 }
 
-// Individual team member component
+
 const TeamMember: React.FC<{ member: TeamMemberType }> = ({ member }) => {
   return (
     <div className="member">
@@ -22,9 +23,9 @@ const TeamMember: React.FC<{ member: TeamMemberType }> = ({ member }) => {
   );
 };
 
-// Grid of team members
+
 const TeamMembersGrid: React.FC = () => {
-  // Generate 8 placeholder members per row
+
   const members: TeamMemberType[] = Array.from({ length: 8 }, (_, index) => ({
     id: index,
     imageUrl: '/api/placeholder/50/50',
@@ -40,7 +41,7 @@ const TeamMembersGrid: React.FC = () => {
   );
 };
 
-// Pagination component
+
 const Pagination: React.FC<PaginationProps> = ({ 
   currentPage, 
   totalPages, 
@@ -89,17 +90,16 @@ const Pagination: React.FC<PaginationProps> = ({
   );
 };
 
-// Team section component
+
 const TeamSection: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [currentPage, setCurrentPage] = useState<number>(1);
   
-  // Mock data for team members - in a real app, this would come from an API
   const totalMembers = 39;
   
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
-    setCurrentPage(1); // Reset to first page when searching
+    setCurrentPage(1); 
   };
   
   return (
@@ -122,12 +122,10 @@ const TeamSection: React.FC = () => {
         <a href="#" className="view-all">View all</a>
       </div>
       
-      {/* Team members grid - 3 rows */}
       <TeamMembersGrid />
       <TeamMembersGrid />
       <TeamMembersGrid />
       
-      {/* Pagination */}
       <Pagination 
         currentPage={currentPage} 
         totalPages={3} 
@@ -137,7 +135,6 @@ const TeamSection: React.FC = () => {
   );
 };
 
-// Hero section component
 const HeroSection: React.FC = () => {
   return (
     <div className="hero-section">
@@ -146,14 +143,13 @@ const HeroSection: React.FC = () => {
       </div>
       <div className="hero-images">
         {/* Dashboard screenshots */}
-        <img src="/api/placeholder/400/220" alt="Dashboard" className="dashboard-img img-1" />
+        <img src="" alt="Dashboard" className="dashboard-img img-1" />
         <img src="/api/placeholder/300/150" alt="Dashboard" className="dashboard-img img-2" />
         <img src="/api/placeholder/200/100" alt="Dashboard" className="dashboard-img img-3" />
         
-        {/* Profile bubbles around the images */}
         <div className="profile-bubbles">
           <div className="profile-bubble" style={{ top: '20%', left: '0' }}>
-            <img src="/api/placeholder/40/40" alt="Team member" />
+            <img src="/api/placeholder/40/40" alt="1 member" />
           </div>
           <div className="profile-bubble" style={{ top: '10%', right: '10%' }}>
             <img src="/api/placeholder/40/40" alt="Team member" />
@@ -173,13 +169,13 @@ const HeroSection: React.FC = () => {
   );
 };
 
-// Main App component
+
 const TeamDashboard: React.FC = () => {
   return (
     <div className="content-area">
       <style>{`
         :root {
-          --light-purple: #e0d6ff;
+          --light-purple:rgb(255, 255, 255);
           --medium-purple: #c8b6ff;
           --dark-purple: #9f86ff;
           --text-dark: #222;
