@@ -76,12 +76,12 @@ const Sidebar = () => {
             <div className="mt-8">
                 <div className="flex items-center justify-between px-3 mb-2">
                     <h3 className="uppercase text-xs font-semibold text-gray-600">PROJECTS</h3>
-                    <button className="text-gray-600">
+                    <Link to="/project" className="text-gray-600">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-5">
                             <line x1="12" y1="5" x2="12" y2="19"></line>
                             <line x1="5" y1="12" x2="19" y2="12"></line>
                         </svg>
-                    </button>
+                    </Link>
                 </div>
                 
                 <ul className="mt-2">

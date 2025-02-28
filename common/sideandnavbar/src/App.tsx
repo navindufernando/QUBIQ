@@ -12,6 +12,7 @@ import Settings from './pages/Settings/Settings'
 import { UserType } from './enums/userType'
 import PMDashboard from './pages/Dashboard-pm/PMDashboard'
 import Profile from './pages/profile/profile'
+import Project from './pages/Projects/Project'
 
 const App = () => {
   const [isSidebarVisible, setIsSidebarVisible] = useState<boolean>(true)
@@ -40,6 +41,7 @@ const App = () => {
               <Route path="/review" element={<ProjectReview />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/project" element={<Project />} />
             </Routes>
           </div>
         </div>
