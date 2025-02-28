@@ -1,7 +1,33 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link } from "react-router-dom";
 
 const Sidebar = () => {
+  const [projects, setProjects] = useState([]);
+  
+  // Load projects from localStorage on component mount
+  useEffect(() => {
+    const loadProjects = () => {
+      const savedProjects = localStorage.getItem('projects');
+      if (savedProjects) {
+        setProjects(JSON.parse(savedProjects));
+      }
+    };
+    
+    // Load immediately on mount
+    loadProjects();
+    
+    // Set up event listener for storage changes (in case projects are updated in another tab)
+    window.addEventListener('storage', loadProjects);
+    
+    // Also check for updates every few seconds (in case of changes within the same tab)
+    const interval = setInterval(loadProjects, 2000);
+    
+    return () => {
+      window.removeEventListener('storage', loadProjects);
+      clearInterval(interval);
+    };
+  }, []);
+
   return (
     <div className='w-80' style={{ backgroundColor: '#E2DDFF', height: '100vh', display: 'flex', flexDirection: 'column' }}>
         <div className='py-3 pl-3 flex items-center' style={{ height: '64px' }}>
@@ -84,32 +110,22 @@ const Sidebar = () => {
                     </Link>
                 </div>
                 
-                <ul className="mt-2">
-                    <li className='mb-2'>
+                {projects.length > 0 ? (
+                  <ul className="mt-2">
+                    {projects.map(project => (
+                      <li key={project.id} className='mb-2'>
                         <a href="#" className='flex items-center px-3 py-2 space-x-3 rounded-lg transition duration-300 hover:bg-[#D1CEDB] hover:text-[#1A1A1A]'>
-                            <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                            <span>Mobile App</span>
+                            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: project.color }}></span>
+                            <span>{project.name}</span>
                         </a>
-                    </li>
-                    <li className='mb-2'>
-                        <a href="#" className='flex items-center px-3 py-2 space-x-3 rounded-lg transition duration-300 hover:bg-[#D1CEDB] hover:text-[#1A1A1A]'>
-                            <span className="w-2 h-2 rounded-full bg-orange-500"></span>
-                            <span>Website Redesign</span>
-                        </a>
-                    </li>
-                    <li className='mb-2'>
-                        <a href="#" className='flex items-center px-3 py-2 space-x-3 rounded-lg transition duration-300 hover:bg-[#D1CEDB] hover:text-[#1A1A1A]'>
-                            <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                            <span>Design System</span>
-                        </a>
-                    </li>
-                    <li className='mb-2'>
-                        <a href="#" className='flex items-center px-3 py-2 space-x-3 rounded-lg transition duration-300 hover:bg-[#D1CEDB] hover:text-[#1A1A1A]'>
-                            <span className="w-2 h-2 rounded-full bg-blue-400"></span>
-                            <span>Wireframes</span>
-                        </a>
-                    </li>
-                </ul>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <div className="text-gray-500 text-sm px-3 py-2">
+                    No projects yet. Click the + icon to create one.
+                  </div>
+                )}
             </div>
 
             {/* Thoughts Time section */}
