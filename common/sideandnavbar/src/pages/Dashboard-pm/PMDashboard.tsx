@@ -10,11 +10,6 @@ const PMDashboard = () => {
     <div className='p-2'>
       <Grid2 container spacing={3}>
         <Grid2 size={{ xs: 12, md: 8 }}>
-          <Paper elevation={2} sx={{ padding: 2, margin: 1 }}>
-          <Typography variant='h6' gutterBottom>
-              My Dashboard
-            </Typography>
-          </Paper>
             <DashboardTabs/>
         </Grid2>
         <Grid2 size={{ xs: 12, md: 4 }}>
