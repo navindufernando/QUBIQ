@@ -548,6 +548,72 @@ const Settings = () => {
             </div>
           </div>
         );
+      case "integrations":
+        return (
+          <div>
+            <h2 className="text-xl font-medium text-gray-800 mb-6">
+              Integrations
+            </h2>
+
+            <div className="mb-8 space-y-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <div className="w-12 h-12 flex items-center justify-center rounded-md bg-blue-100 mr-4">
+                    <TrelloIcon className="h-8 w-8 text-blue-500" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-gray-900">Trello</h3>
+                    <p className="text-gray-500 text-sm">
+                      Import and sync Trello boards
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center">
+                  <span className="mr-2 text-sm text-green-700 font-medium">
+                    Connected
+                  </span>
+                  <button className="text-red-600 text-sm font-medium hover:text-red-700">
+                    Disconnect
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <div className="w-12 h-12 flex items-center justify-center rounded-md bg-purple-100 mr-4">
+                    <GitHubIcon className="h-8 w-8 text-purple-500" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-gray-900">GitHub</h3>
+                    <p className="text-gray-500 text-sm">
+                      Link repositories and track issues
+                    </p>
+                  </div>
+                </div>
+                <button className="px-4 py-2 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-700">
+                  Connect
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <div className="w-12 h-12 flex items-center justify-center rounded-md bg-red-100 mr-4">
+                    <VideocamIcon className="h-8 w-8 text-red-500" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-gray-900">Zoom</h3>
+                    <p className="text-gray-500 text-sm">
+                      Schedule and join meetings
+                    </p>
+                  </div>
+                </div>
+                <button className="px-4 py-2 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-700">
+                  Connect
+                </button>
+              </div>
+            </div>
+          </div>
+        );
       default:
         return null;
     }
