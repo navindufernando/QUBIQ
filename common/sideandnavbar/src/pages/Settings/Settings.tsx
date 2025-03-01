@@ -118,6 +118,136 @@ const Settings = () => {
             </div>
           </div>
         )
+      case "notifications":
+        return (
+          <div>
+            <h2 className="text-xl font-medium text-gray-800 mb-6">Notification Preferences</h2>
+
+            <div className="mb-8">
+              <h3 className="font-medium text-gray-900 mb-4">Email Notifications</h3>
+
+              <div className="space-y-4">
+                <div className="flex items-start">
+                  <div className="flex items-center h-5">
+                    <input
+                      id="comments"
+                      type="checkbox"
+                      className="h-4 w-4 text-indigo-600 rounded border-gray-300"
+                      defaultChecked
+                    />
+                  </div>
+                  <div className="ml-3">
+                    <label htmlFor="comments" className="font-medium text-gray-700">
+                      Comments
+                    </label>
+                    <p className="text-gray-500 text-sm">Get notified when someone comments on your projects</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start">
+                  <div className="flex items-center h-5">
+                    <input
+                      id="mentions"
+                      type="checkbox"
+                      className="h-4 w-4 text-indigo-600 rounded border-gray-300"
+                      defaultChecked
+                    />
+                  </div>
+                  <div className="ml-3">
+                    <label htmlFor="mentions" className="font-medium text-gray-700">
+                      Mentions
+                    </label>
+                    <p className="text-gray-500 text-sm">Get notified when someone mentions you</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start">
+                  <div className="flex items-center h-5">
+                    <input
+                      id="tasks"
+                      type="checkbox"
+                      className="h-4 w-4 text-indigo-600 rounded border-gray-300"
+                      defaultChecked
+                    />
+                  </div>
+                  <div className="ml-3">
+                    <label htmlFor="tasks" className="font-medium text-gray-700">
+                      Task assignments
+                    </label>
+                    <p className="text-gray-500 text-sm">Get notified when tasks are assigned to you</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start">
+                  <div className="flex items-center h-5">
+                    <input
+                      id="deadlines"
+                      type="checkbox"
+                      className="h-4 w-4 text-indigo-600 rounded border-gray-300"
+                      defaultChecked
+                    />
+                  </div>
+                  <div className="ml-3">
+                    <label htmlFor="deadlines" className="font-medium text-gray-700">
+                      Deadlines
+                    </label>
+                    <p className="text-gray-500 text-sm">Get reminded about upcoming deadlines</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mb-8">
+              <h3 className="font-medium text-gray-900 mb-4">Push Notifications</h3>
+              <p className="text-gray-500 text-sm mb-4">These are delivered via SMS to your mobile phone.</p>
+
+              <div className="space-y-4">
+                <div className="flex items-center">
+                  <input
+                    id="push-everything"
+                    name="push-notifications"
+                    type="radio"
+                    className="h-4 w-4 text-indigo-600 border-gray-300"
+                    defaultChecked
+                  />
+                  <label htmlFor="push-everything" className="ml-3 font-medium text-gray-700">
+                    Everything
+                  </label>
+                </div>
+
+                <div className="flex items-center">
+                  <input
+                    id="push-email"
+                    name="push-notifications"
+                    type="radio"
+                    className="h-4 w-4 text-indigo-600 border-gray-300"
+                  />
+                  <label htmlFor="push-email" className="ml-3 font-medium text-gray-700">
+                    Same as email
+                  </label>
+                </div>
+
+                <div className="flex items-center">
+                  <input
+                    id="push-nothing"
+                    name="push-notifications"
+                    type="radio"
+                    className="h-4 w-4 text-indigo-600 border-gray-300"
+                  />
+                  <label htmlFor="push-nothing" className="ml-3 font-medium text-gray-700">
+                    No push notifications
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end">
+              <button className="px-4 py-2 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-700">
+                Save preferences
+              </button>
+            </div>
+          </div>
+        )
       
       default:
         return null
