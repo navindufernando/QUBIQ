@@ -614,6 +614,142 @@ const Settings = () => {
             </div>
           </div>
         );
+      case "billing":
+        return (
+          <div>
+            <h2 className="text-xl font-medium text-gray-800 mb-6">
+              Billing & Subscription
+            </h2>
+
+            <div className="mb-8">
+              <h3 className="font-medium text-gray-900 mb-4">Current Plan</h3>
+
+              <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h4 className="text-lg font-medium text-gray-900">
+                      Pro Plan
+                    </h4>
+                    <p className="text-gray-500">$29/month</p>
+                  </div>
+                  <span className="px-3 py-1 text-sm text-green-700 bg-green-100 rounded-full">
+                    Active
+                  </span>
+                </div>
+                <div className="space-y-1 text-sm text-gray-500">
+                  <p>• Unlimited projects</p>
+                  <p>• Advanced analytics</p>
+                  <p>• Priority support</p>
+                  <p>• Custom integrations</p>
+                </div>
+                <div className="mt-4">
+                  <button className="text-indigo-600 hover:text-indigo-700 font-medium text-sm">
+                    Change plan
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="mb-8">
+              <h3 className="font-medium text-gray-900 mb-4">Payment Method</h3>
+
+              <div className="bg-white p-4 rounded-lg border border-gray-200">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div className="w-12 h-8 bg-gray-100 rounded flex items-center justify-center mr-3">
+                      <CreditCardIcon className="h-6 w-6 text-gray-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900">
+                        Visa ending in 4242
+                      </p>
+                      <p className="text-sm text-gray-500">Expires 12/24</p>
+                    </div>
+                  </div>
+                  <button className="text-gray-600 hover:text-gray-900">
+                    <EditIcon className="h-5 w-5" />
+                  </button>
+                </div>
+              </div>
+
+              <button className="mt-4 text-indigo-600 hover:text-indigo-700 font-medium text-sm">
+                Add payment method
+              </button>
+            </div>
+
+            <div className="mb-8">
+              <h3 className="font-medium text-gray-900 mb-4">
+                Billing History
+              </h3>
+
+              <div className="bg-white shadow overflow-hidden rounded-md">
+                <ul role="list" className="divide-y divide-gray-200">
+                  <li className="px-4 py-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium text-gray-900">
+                          Pro Plan - Monthly
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          February 1, 2024
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-medium text-gray-900">$29.00</p>
+                        <a
+                          href="#"
+                          className="text-indigo-600 hover:text-indigo-700 text-sm"
+                        >
+                          Download
+                        </a>
+                      </div>
+                    </div>
+                  </li>
+                  <li className="px-4 py-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium text-gray-900">
+                          Pro Plan - Monthly
+                        </p>
+                        <p className="text-sm text-gray-500">January 1, 2024</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-medium text-gray-900">$29.00</p>
+                        <a
+                          href="#"
+                          className="text-indigo-600 hover:text-indigo-700 text-sm"
+                        >
+                          Download
+                        </a>
+                      </div>
+                    </div>
+                  </li>
+                  <li className="px-4 py-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium text-gray-900">
+                          Pro Plan - Monthly
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          December 1, 2023
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-medium text-gray-900">$29.00</p>
+                        <a
+                          href="#"
+                          className="text-indigo-600 hover:text-indigo-700 text-sm"
+                        >
+                          Download
+                        </a>
+                      </div>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        );
       default:
         return null;
     }
