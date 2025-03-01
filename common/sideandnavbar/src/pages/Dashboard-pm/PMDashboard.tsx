@@ -1,4 +1,3 @@
-import React from 'react'
 import { Paper, Typography, Button, Grid2 } from '@mui/material';
 import Calendar from './Components/Calendar';
 import Activity from './Components/Activity';
