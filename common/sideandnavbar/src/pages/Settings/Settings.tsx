@@ -248,7 +248,109 @@ const Settings = () => {
             </div>
           </div>
         )
-      
+        case "security":
+          return (
+            <div>
+              <h2 className="text-xl font-medium text-gray-800 mb-6">Security & Privacy</h2>
+  
+              <div className="mb-8">
+                <h3 className="font-medium text-gray-900 mb-4">Change Password</h3>
+  
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Current password</label>
+                    <input type="password" className="w-full border border-gray-300 rounded-md px-3 py-2" />
+                  </div>
+  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">New password</label>
+                    <input type="password" className="w-full border border-gray-300 rounded-md px-3 py-2" />
+                  </div>
+  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Confirm new password</label>
+                    <input type="password" className="w-full border border-gray-300 rounded-md px-3 py-2" />
+                  </div>
+                </div>
+  
+                <div className="mt-4">
+                  <button className="px-4 py-2 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-700">
+                    Update password
+                  </button>
+                </div>
+              </div>
+  
+              <div className="mb-8">
+                <h3 className="font-medium text-gray-900 mb-4">Two-Factor Authentication</h3>
+                <p className="text-gray-500 text-sm mb-4">Add an extra layer of security to your account</p>
+  
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-md">
+                  <div>
+                    <p className="font-medium text-gray-700">Two-factor authentication is disabled</p>
+                    <p className="text-gray-500 text-sm">Protect your account by enabling 2FA</p>
+                  </div>
+                  <button className="px-4 py-2 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-700">
+                    Enable
+                  </button>
+                </div>
+              </div>
+  
+              <div className="mb-8">
+                <h3 className="font-medium text-gray-900 mb-4">Sessions</h3>
+                <p className="text-gray-500 text-sm mb-4">Manage your active sessions</p>
+  
+                <div className="bg-white shadow overflow-hidden rounded-md">
+                  <ul role="list" className="divide-y divide-gray-200">
+                    <li className="px-4 py-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-medium text-gray-700">Chrome on Windows</p>
+                          <div className="flex items-center text-sm text-gray-500">
+                            <p>192.168.1.123</p>
+                            <span className="mx-2">•</span>
+                            <p>Current session</p>
+                          </div>
+                        </div>
+                        <span className="px-2 py-1 text-xs text-green-800 bg-green-100 rounded-full">Active now</span>
+                      </div>
+                    </li>
+                    <li className="px-4 py-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-medium text-gray-700">Safari on Mac</p>
+                          <div className="flex items-center text-sm text-gray-500">
+                            <p>86.75.30.9</p>
+                            <span className="mx-2">•</span>
+                            <p>2 days ago</p>
+                          </div>
+                        </div>
+                        <button className="text-red-600 text-sm font-medium hover:text-red-700">Revoke</button>
+                      </div>
+                    </li>
+                    <li className="px-4 py-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-medium text-gray-700">Mobile App on iPhone</p>
+                          <div className="flex items-center text-sm text-gray-500">
+                            <p>104.214.139.88</p>
+                            <span className="mx-2">•</span>
+                            <p>5 days ago</p>
+                          </div>
+                        </div>
+                        <button className="text-red-600 text-sm font-medium hover:text-red-700">Revoke</button>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+  
+              <div className="flex justify-end">
+                <button className="px-4 py-2 bg-red-600 text-white rounded-md text-sm hover:bg-red-700">
+                  Log out all other sessions
+                </button>
+              </div>
+            </div>
+          )
       default:
         return null
     }
