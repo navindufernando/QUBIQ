@@ -137,4 +137,10 @@ const ChatInbox = () => {
       setNewMessage('');
     }
   };
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
 
