@@ -3,6 +3,7 @@ import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import "./Calendar.css";
 import ProjectsCard from "./ProjectsCard";
+import SkillImprovementCard from "./SkillImprovementCard";
 
 const DevDashboard = () => {
   const [date, setDate] = useState(new Date());
@@ -68,6 +69,7 @@ const DevDashboard = () => {
       <div className="flex-grow p-6">
         <div className="grid grid-cols-2 gap-4">
           <ProjectsCard></ProjectsCard>
+          <SkillImprovementCard></SkillImprovementCard>
           {/* Tile 2 */}
           <div style={tileStyle}>
             <div style={headerStyle}>
