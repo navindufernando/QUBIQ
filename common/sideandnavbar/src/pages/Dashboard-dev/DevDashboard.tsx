@@ -67,7 +67,7 @@ const DevDashboard = () => {
     <div className="flex">
       {/* Main Section */}
       <div className="flex-grow p-6">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-8">
           <ProjectsCard></ProjectsCard>
           <SkillImprovementCard></SkillImprovementCard>
           {/* Tile 2 */}
@@ -85,7 +85,7 @@ const DevDashboard = () => {
         </div>
       </div>
       {/* Side Panel */}
-      <div className="w-1/4 p-6"></div>
+      <div className="w-1/3 p-6"></div>
     </div>
   );
 };
