@@ -19,7 +19,8 @@ import {
 } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import SearchIcon from '@mui/icons-material/Search';
-
+import AttachFileIcon from '@mui/icons-material/AttachFile';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 
 const theme = createTheme({
   palette: {
@@ -48,6 +49,7 @@ const theme = createTheme({
     },
   },
 });
+
 interface Message {
   id: number;
   text: string;
@@ -137,6 +139,7 @@ const ChatInbox = () => {
       setNewMessage('');
     }
   };
+
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -150,7 +153,7 @@ const ChatInbox = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <Box sx={{ display: 'flex', width: '100%', height: 650 }}>
+      <Box sx={{ display: 'flex', width: '100%', height: 650, boxShadow: '0 0 10px rgba(0,0,0,0.1)' }}>
         {/* Chat Inbox */}
         <Box sx={{ display: 'flex', flexDirection: 'column', width: '75%', bgcolor: 'background.paper' }}>
           {/* Chat Header */}
@@ -158,29 +161,40 @@ const ChatInbox = () => {
             display: 'flex', 
             alignItems: 'center', 
             justifyContent: 'space-between', 
-            p: 1.5, 
+            p: 2, 
             borderBottom: 1, 
             borderColor: 'divider',
             bgcolor: 'background.paper'
           }}>
-            <Typography variant="body2" color="text.secondary">
-              {selectedChat ? `${selectedChat.name} - last seen 25 min ago` : 'Select a chat'}
-            </Typography>
-            <Avatar 
-              src="" // Replace with your logo URL
-              alt="Profile"
-              sx={{ width: 32, height: 32 }}
-            />
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Avatar 
+                src="" 
+                alt={selectedChat?.name}
+                sx={{ width: 40, height: 40, mr: 1.5 }}
+              />
+              <Box>
+                <Typography variant="subtitle1" fontWeight="medium">
+                  {selectedChat ? selectedChat.name : 'Select a chat'}
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  {selectedChat ? 'Last seen 25 min ago' : ''}
+                </Typography>
+              </Box>
+            </Box>
+            <IconButton>
+              <MoreVertIcon />
+            </IconButton>
           </Box>
-{/* Messages Container */}
-<Box sx={{ 
+
+          {/* Messages Container */}
+          <Box sx={{ 
             flexGrow: 1, 
             overflowY: 'auto', 
-            p: 1.5, 
-            bgcolor: 'background.paper', 
+            p: 2, 
+            bgcolor: '#f8f9fa', 
             display: 'flex', 
             flexDirection: 'column', 
-            gap: 1.5 
+            gap: 2
           }}>
             {selectedChat ? (
               selectedChat.messages.map((message) => (
@@ -191,34 +205,40 @@ const ChatInbox = () => {
                     justifyContent: message.sender === 'user' ? 'flex-end' : 'flex-start',
                   }}
                 >
+                  {message.sender !== 'user' && (
+                    <Avatar 
+                      src="" 
+                      alt={selectedChat.name}
+                      sx={{ 
+                        width: 32, 
+                        height: 32, 
+                        mr: 1,
+                        alignSelf: 'flex-end',
+                        mb: 0.5
+                      }}
+                    />
+                  )}
                   <Paper 
                     elevation={0}
                     sx={{ 
                       maxWidth: '70%', 
-                      p: 1, 
+                      p: 1.5, 
                       borderRadius: 2,
-                      border: 1,
-                      borderColor: 'divider'
+                      bgcolor: message.sender === 'user' ? '#9f86ff' : 'white',
+                      color: message.sender === 'user' ? 'white' : 'inherit',
+                      boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
                     }}
                   >
-                    {message.sender !== 'user' && (
-                      <Typography 
-                        variant="subtitle2" 
-                        sx={{ color: 'orange', fontWeight: 600, mb: 0.5 }}
-                      >
-                        {selectedChat?.name}
-                      </Typography>
-                    )}
                     <Typography 
                       variant="body2" 
-                      sx={{ whiteSpace: 'pre-wrap' }}
+                      sx={{ whiteSpace: 'pre-wrap', lineHeight: 1.5 }}
                     >
                       {message.text}
                     </Typography>
                     <Typography 
                       variant="caption" 
-                      color="text.secondary" 
-                      sx={{ mt: 0.5, display: 'block' }}
+                      color={message.sender === 'user' ? 'rgba(255,255,255,0.8)' : 'text.secondary'} 
+                      sx={{ mt: 0.5, display: 'block', textAlign: 'right' }}
                     >
                       {message.timestamp}
                     </Typography>
@@ -226,44 +246,63 @@ const ChatInbox = () => {
                 </Box>
               ))
             ) : (
-              <Typography variant="body2">Select a chat to view messages</Typography>
+              <Typography variant="body2" sx={{ textAlign: 'center', color: 'text.secondary', mt: 4 }}>
+                Select a chat to view messages
+              </Typography>
             )}
             <div ref={messagesEndRef} />
           </Box>
- {/* Message Input */}
- {selectedChat && (
+
+          {/* Message Input */}
+          {selectedChat && (
             <Box sx={{ 
-              p: 1.5, 
+              p: 2, 
               bgcolor: 'background.paper', 
               borderTop: 1, 
               borderColor: 'divider' 
             }}>
-              <Box sx={{ display: 'flex', gap: 1 }}>
+              <Box sx={{ 
+                display: 'flex', 
+                gap: 1, 
+                alignItems: 'flex-end', 
+                bgcolor: '#f5f5f5', 
+                borderRadius: 2, 
+                p: 0.5, 
+                pl: 2 
+              }}>
                 <TextField
                   multiline
                   maxRows={4}
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder="Write a message..."
+                  placeholder="Type a message..."
                   fullWidth
-                  size="small"
+                  variant="standard"
                   InputProps={{
+                    disableUnderline: true,
                     sx: { 
-                      fontSize: '0.875rem', 
+                      fontSize: '0.9rem', 
+                      fontFamily: "'Segoe UI', sans-serif",
                       minHeight: '36px',
-                      maxHeight: '100px'
+                      maxHeight: '100px',
+                      pt: 0.75,
+                      pb: 0.75
                     }
                   }}
                 />
+                <IconButton size="small" sx={{ color: 'text.secondary', mr: 0.5 }}>
+                  <AttachFileIcon fontSize="small" />
+                </IconButton>
                 <IconButton 
                   onClick={handleSendMessage}
                   sx={{ 
-                    bgcolor: 'primary.light', 
-                    color: 'primary.dark',
+                    bgcolor: 'primary.main', 
+                    color: 'white',
+                    borderRadius: 1.5,
                     p: 1,
                     '&:hover': {
-                      bgcolor: 'primary.main',
+                      bgcolor: 'primary.dark',
                     }
                   }}
                 >
@@ -274,31 +313,41 @@ const ChatInbox = () => {
           )}
         </Box>
 
-{/* Right Sidebar */}
-<Box sx={{ 
+        {/* Right Sidebar */}
+        <Box sx={{ 
           width: '25%', 
           height: '100%', 
           bgcolor: '#E2DDFF',
           display: 'flex',
           flexDirection: 'column'
         }}>
-          <Box sx={{ p: 1.5 }}>
+          <Box sx={{ p: 1 }}>
             <TextField
               placeholder="Search chats..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              fullWidth
               size="small"
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <SearchIcon fontSize="small" />
+                    <SearchIcon sx={{ fontSize: '0.8rem' }} />
                   </InputAdornment>
                 ),
                 sx: { 
                   bgcolor: 'background.paper', 
-                  borderRadius: 2,
-                  fontSize: '0.875rem'
+                  borderRadius: 1.5,
+                  fontSize: '0.7rem',
+                  height: '28px',
+                  '& .MuiOutlinedInput-input': {
+                    padding: '4px 8px 4px 0'
+                  }
+                }
+              }}
+              sx={{
+                width: '90%',
+                maxWidth: '160px',
+                '& .MuiInputAdornment-root': {
+                  marginRight: 0
                 }
               }}
             />
@@ -323,8 +372,15 @@ const ChatInbox = () => {
                   }
                 }}
               >
+                <Avatar sx={{ mr: 1.5, width: 36, height: 36 }} />
                 <ListItemText 
                   primary={<Typography fontWeight="bold">{chat.name}</Typography>} 
+                  secondary={
+                    <Typography variant="caption" color="text.secondary" noWrap>
+                      {chat.messages[chat.messages.length-1]?.text.substring(0, 25)}
+                      {chat.messages[chat.messages.length-1]?.text.length > 25 ? '...' : ''}
+                    </Typography>
+                  }
                 />
               </ListItem>
             ))}
