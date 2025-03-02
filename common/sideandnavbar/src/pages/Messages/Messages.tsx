@@ -106,3 +106,9 @@ const ChatInbox = () => {
       ]
     }
   ]);
+
+  const [selectedChat, setSelectedChat] = useState<Chat | null>(chats[0]);
+  const [newMessage, setNewMessage] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
