@@ -48,3 +48,15 @@ const theme = createTheme({
     },
   },
 });
+interface Message {
+  id: number;
+  text: string;
+  timestamp: string;
+  sender: 'user' | 'ASANA';
+}
+
+interface Chat {
+  id: number;
+  name: string;
+  messages: Message[];
+}
