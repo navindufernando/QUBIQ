@@ -3,7 +3,7 @@ import CardWrapper from "./CardWrapper";
 
 const ProjectsCard = () => {
   return (
-    <CardWrapper title="Projects" showDropdown={true}>
+    <CardWrapper title="Projects" showDropdown={false}>
       <div className="flex">
         <div className="bg-white min-h-82 rounded-xl grow">
           <div>Project 1</div>
