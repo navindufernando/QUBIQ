@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "main": "dist/server.js",
   "scripts": {
-    "build": "npx tsc",
+    "build": "tsc --project tsconfig.json && tsc-alias -p tsconfig.json",
     "start": "node dist/server.js",
-    "dev": "nodemon src/server.ts"
+    "dev": "nodemon -r tsconfig-paths/register src/server.ts"
   },
   "keywords": [],
   "author": "",
@@ -18,7 +18,8 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
-    "prisma": "^6.4.1"
+    "prisma": "^6.4.1",
+    "tsconfig-paths": "^4.2.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
@@ -27,6 +28,7 @@
     "eslint": "^9.21.0",
     "nodemon": "^3.1.9",
     "ts-node": "^10.9.2",
+    "tsc-alias": "^1.8.11",
     "typescript": "^5.8.2"
   }
 }
