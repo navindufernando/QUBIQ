@@ -1,12 +1,21 @@
 import React, { useState } from "react";
 import Calendar from "react-calendar";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
+import dayjs, { Dayjs } from "dayjs";
+
 import "react-calendar/dist/Calendar.css";
 import "./Calendar.css";
 import ProjectsCard from "./ProjectsCard";
 import SkillImprovementCard from "./SkillImprovementCard";
 
 const DevDashboard = () => {
-  const [date, setDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
+
+  const handleDateChange = (newDate: Dayjs) => {
+    setSelectedDate(newDate);
+  };
 
   const cardStyle = {
     width: "300px",
@@ -85,7 +94,11 @@ const DevDashboard = () => {
         </div>
       </div>
       {/* Side Panel */}
-      <div className="w-1/3 p-6"></div>
+      <div className="w-1/3 p-6">
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <DateCalendar value={selectedDate} onChange={handleDateChange} />
+        </LocalizationProvider>
+      </div>
     </div>
   );
 };
