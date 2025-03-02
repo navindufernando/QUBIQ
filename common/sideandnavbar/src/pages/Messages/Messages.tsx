@@ -120,3 +120,21 @@ const ChatInbox = () => {
     scrollToBottom();
   }, [selectedChat?.messages]);
 
+  const handleSendMessage = () => {
+    if (newMessage.trim() && selectedChat) {
+      const message: Message = {
+        id: selectedChat.messages.length + 1,
+        text: newMessage,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        sender: 'user'
+      };
+      const updatedChat = {
+        ...selectedChat,
+        messages: [...selectedChat.messages, message]
+      };
+      setChats(chats.map(chat => chat.id === updatedChat.id ? updatedChat : chat));
+      setSelectedChat(updatedChat);
+      setNewMessage('');
+    }
+  };
+
