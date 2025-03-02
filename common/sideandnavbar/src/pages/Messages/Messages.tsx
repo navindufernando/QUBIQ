@@ -329,3 +329,105 @@ const ChatInbox = () => {
               </ListItem>
             ))}
           </List>
+
+          {/* Options Section */}
+          <Paper sx={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            p: 3, 
+            borderRadius: 2, 
+            mx: 1.5, 
+            mb: 1.5,
+            mt: 'auto'
+          }}>
+            {/* Options Heading */}
+            <Box sx={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              mb: 1.5
+            }}>
+              <Typography variant="h6" fontWeight="bold" sx={{ mr: 1 }}>
+                Options
+              </Typography>
+              <Avatar 
+                src="/assets/logo.png" 
+                alt="Logo" 
+                sx={{ width: 20, height: 16 }}
+              />
+            </Box>
+
+            {/* Buttons */}
+            <Stack spacing={1.5}>
+              <Button 
+                fullWidth 
+                sx={{ 
+                  p: 1.25, 
+                  bgcolor: '#C3BAFF', 
+                  textAlign: 'center',
+                  borderRadius: 2,
+                  fontWeight: 'bold',
+                  justifyContent: 'center',
+                  '&:hover': {
+                    bgcolor: '#A9A0FF'
+                  }
+                }}
+              >
+                Create a group
+              </Button>
+              <Button 
+                fullWidth 
+                sx={{ 
+                  p: 1.25, 
+                  bgcolor: '#C3BAFF', 
+                  textAlign: 'center',
+                  borderRadius: 2,
+                  fontWeight: 'bold',
+                  justifyContent: 'center',
+                  '&:hover': {
+                    bgcolor: '#A9A0FF'
+                  }
+                }}
+              >
+                Delete messages
+              </Button>
+              <Button 
+                fullWidth 
+                sx={{ 
+                  p: 1.25, 
+                  bgcolor: '#C3BAFF', 
+                  textAlign: 'center',
+                  borderRadius: 2,
+                  fontWeight: 'bold',
+                  justifyContent: 'center',
+                  '&:hover': {
+                    bgcolor: '#A9A0FF'
+                  }
+                }}
+              >
+                Personal chats
+              </Button>
+              <Button 
+                fullWidth 
+                sx={{ 
+                  p: 1.25, 
+                  bgcolor: '#C3BAFF', 
+                  textAlign: 'center',
+                  borderRadius: 2,
+                  fontWeight: 'bold',
+                  justifyContent: 'center',
+                  '&:hover': {
+                    bgcolor: '#A9A0FF'
+                  }
+                }}
+              >
+                Board meetings
+              </Button>
+            </Stack>
+          </Paper>
+        </Box>
+      </Box>
+    </ThemeProvider>
+  );
+};
+
+export default ChatInbox;
