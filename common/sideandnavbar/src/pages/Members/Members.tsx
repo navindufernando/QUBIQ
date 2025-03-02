@@ -279,3 +279,19 @@ const HeroSection: React.FC = () => {
     </Box>
   );
 };
+const TeamDashboard: React.FC = () => {
+  return (
+    <ThemeProvider theme={theme}>
+      <Box sx={{ bgcolor: 'background.default', minHeight: '100vh' }}>
+        <Container maxWidth="lg" sx={{ py: 3 }}>
+          <Stack spacing={4}>
+            <HeroSection />
+            <TeamSection />
+          </Stack>
+        </Container>
+      </Box>
+    </ThemeProvider>
+  );
+};
+
+export default TeamDashboard;
