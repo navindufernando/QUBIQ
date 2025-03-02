@@ -1,1 +1,0 @@
-// Defines database schema
