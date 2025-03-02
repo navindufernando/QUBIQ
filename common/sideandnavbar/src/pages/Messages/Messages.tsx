@@ -274,3 +274,58 @@ const ChatInbox = () => {
           )}
         </Box>
 
+{/* Right Sidebar */}
+<Box sx={{ 
+          width: '25%', 
+          height: '100%', 
+          bgcolor: '#E2DDFF',
+          display: 'flex',
+          flexDirection: 'column'
+        }}>
+          <Box sx={{ p: 1.5 }}>
+            <TextField
+              placeholder="Search chats..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              fullWidth
+              size="small"
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon fontSize="small" />
+                  </InputAdornment>
+                ),
+                sx: { 
+                  bgcolor: 'background.paper', 
+                  borderRadius: 2,
+                  fontSize: '0.875rem'
+                }
+              }}
+            />
+          </Box>
+
+          {/* Chat List */}
+          <List sx={{ 
+            overflowY: 'auto', 
+            height: 'calc(100% - 400px)',
+            padding: 0
+          }}>
+            {filteredChats.map(chat => (
+              <ListItem 
+                key={chat.id}
+                onClick={() => setSelectedChat(chat)}
+                sx={{ 
+                  p: 1.5, 
+                  cursor: 'pointer',
+                  bgcolor: selectedChat?.id === chat.id ? '#D1C8FF' : 'transparent',
+                  '&:hover': {
+                    bgcolor: '#D1C8FF'
+                  }
+                }}
+              >
+                <ListItemText 
+                  primary={<Typography fontWeight="bold">{chat.name}</Typography>} 
+                />
+              </ListItem>
+            ))}
+          </List>
