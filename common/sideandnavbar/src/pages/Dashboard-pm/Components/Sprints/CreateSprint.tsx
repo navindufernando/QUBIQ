@@ -3,6 +3,7 @@ import AddIcon from '@mui/icons-material/Add';
 import { createSprint } from '../../../../services/SprintAPI';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { CalendarTodayOutlined, CloseOutlined, ErrorOutline, Flag, SpeedOutlined } from '@mui/icons-material';
+import PastSprints from './PastSprints';
 
 const CreateSprint = () => {
     const [openModal, setOpenModal] = useState(false);
@@ -115,6 +116,17 @@ const CreateSprint = () => {
                         </Box>
                     </Paper>
                 </Grid2>
+                
+                <Grid2 sx={{ xs: 12, md: 8 }}>
+                    <Paper elevation={3} sx={{
+                        padding: 3,
+                        borderRadius: 2,
+                        background: 'linear-gradient(to right, #f5f7fa, #ffffff)',
+                        height: '100%'
+                    }}>
+                        <PastSprints/>
+                    </Paper>
+                </Grid2>
                 <Grid2 sx={{ xs: 12, md: 4 }}>
                     <Paper elevation={3} sx={{
                         padding: 3,
@@ -146,20 +158,6 @@ const CreateSprint = () => {
                             }}>
                             Create New Sprint
                         </Button>
-                    </Paper>
-                </Grid2>
-                <Grid2 sx={{ xs: 12, md: 4 }}>
-                <Paper elevation={3} sx={{
-                        padding: 3,
-                        borderRadius: 2,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        height: '100%',
-                        background: 'linear-gradient(to bottom right, #f0f4f8, #d1e3fa)'
-                    }}>
-                        
                     </Paper>
                 </Grid2>
             </Grid2>
