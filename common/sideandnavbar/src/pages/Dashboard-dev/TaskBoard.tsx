@@ -1,4 +1,5 @@
 import React from "react";
+import TaskSection from "./TaskSection";
 
 const TaskBoard = () => {
   const tasksInProgress = [
@@ -35,7 +36,11 @@ const TaskBoard = () => {
     },
   ];
 
-  return <div></div>;
+  return (
+    <div className="px-12">
+      <TaskSection sectionType="to-do"></TaskSection>
+    </div>
+  );
 };
 
 export default TaskBoard;

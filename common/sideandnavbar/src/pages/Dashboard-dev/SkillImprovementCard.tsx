@@ -3,7 +3,7 @@ import CardWrapper from "./CardWrapper";
 
 const SkillImprovementCard = () => {
   return (
-    <CardWrapper title="Skills need to improve" showDropdown={true}>
+    <CardWrapper title="Skills to Improve" showDropdown={true}>
       <div className="flex">
         <div className="bg-white min-h-82 rounded-xl grow">
           <div>Suggestion 1</div>

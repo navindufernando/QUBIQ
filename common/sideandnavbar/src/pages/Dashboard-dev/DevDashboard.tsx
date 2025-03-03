@@ -77,49 +77,51 @@ const DevDashboard = () => {
     //   className="row flex items-center container-fluid px-6 pt-6"
     //   style={{ backgroundColor: "#E2DDFF", minHeight: "100vh" }}
     // >
-    <div className="flex">
-      {/* Main Section */}
-      <div className="flex-grow p-6 pt-0">
-        <div className="grid grid-cols-2 gap-8">
-          <ProjectsCard></ProjectsCard>
-          <SkillImprovementCard></SkillImprovementCard>
-          <CodeSuggestionCard></CodeSuggestionCard>
-          <CodeAnalysisCard></CodeAnalysisCard>
-          {/* Tile 2 */}
-          <div style={tileStyle}>
-            <div style={headerStyle}>
-              <h5 style={titleStyle}>Skills need to improve</h5>
-              <span style={dropdownStyle}>This Week ▼</span>
+    <div>
+      <div className="flex">
+        {/* Main Section */}
+        <div className="flex-grow p-6 pt-0">
+          <div className="grid grid-cols-2 gap-8">
+            <ProjectsCard></ProjectsCard>
+            <SkillImprovementCard></SkillImprovementCard>
+            <CodeSuggestionCard></CodeSuggestionCard>
+            <CodeAnalysisCard></CodeAnalysisCard>
+            {/* Tile 2 */}
+            <div style={tileStyle}>
+              <div style={headerStyle}>
+                <h5 style={titleStyle}>Skills need to improve</h5>
+                <span style={dropdownStyle}>This Week ▼</span>
+              </div>
+              <div style={bodyStyle}></div>
             </div>
-            <div style={bodyStyle}></div>
+            <div>02</div>
+            <div>03</div>
+            <div>04</div>
+            <div>05</div>
           </div>
-          <div>02</div>
-          <div>03</div>
-          <div>04</div>
-          <div>05</div>
         </div>
-      </div>
-      {/* Side Panel */}
-      <div className="w-1/3 ">
-        <div className="p-6 bg-[#D7C2F2] shadow-md rounded-xl h-auto">
-          {/* Calendar */}
-          <h2 className="text-lg font-semibold ml-3">Calendar</h2>
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DateCalendar value={selectedDate} onChange={handleDateChange} />
-          </LocalizationProvider>
+        {/* Side Panel */}
+        <div className="w-1/3 ">
+          <div className="p-6 bg-[#D7C2F2] shadow-md rounded-xl h-auto">
+            {/* Calendar */}
+            <h2 className="text-lg font-semibold ml-3">Calendar</h2>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DateCalendar value={selectedDate} onChange={handleDateChange} />
+            </LocalizationProvider>
 
-          {/* Activity List */}
-          <div className="flex justify-between items-center mb-3">
-            <h2 className="text-lg font-semibold ml-3">Activity</h2>
-            {/* <div>View All</div> */}
-            <Button href="#text-buttons" className="text-sm">
-              View All
-            </Button>
-          </div>
-          <div className="bg-white min-h-50 max-h-82 rounded-xl grow mx-2">
-            <div>Project 1</div>
-            <div>Project 2</div>
-            <div>Project 3</div>
+            {/* Activity List */}
+            <div className="flex justify-between items-center mb-3">
+              <h2 className="text-lg font-semibold ml-3">Activity</h2>
+              {/* <div>View All</div> */}
+              <Button href="#text-buttons" className="text-sm">
+                View All
+              </Button>
+            </div>
+            <div className="bg-white min-h-50 max-h-82 rounded-xl grow mx-2">
+              <div>Project 1</div>
+              <div>Project 2</div>
+              <div>Project 3</div>
+            </div>
           </div>
         </div>
       </div>
