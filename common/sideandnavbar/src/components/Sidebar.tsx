@@ -315,6 +315,163 @@ const Sidebar = () => {
             </div>
           )}
         </div>
+
+        {/* Thoughts Time section */}
+        <div className="mt-8 pb-8 relative">
+          <div className="bg-white rounded-xl p-6 shadow-lg relative min-h-64">
+            <div className="absolute -top-6 left-1/2 transform -translate-x-1/2">
+              <div className="bg-yellow-300 rounded-full p-3 shadow-md">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  className="w-6 h-6 text-yellow-600"
+                >
+                  <path d="M12 .75a8.25 8.25 0 0 0-4.135 15.39c.686.398 1.115 1.008 1.134 1.623a.75.75 0 0 0 .577.706c.352.083.71.148 1.074.195.323.041.6-.218.6-.544v-4.661a6.75 6.75 0 1 1 1.5 0v4.661c0 .326.277.585.6.544.364-.047.722-.112 1.074-.195a.75.75 0 0 0 .577-.706c.02-.615.448-1.225 1.134-1.623A8.25 8.25 0 0 0 12 .75Z" />
+                  <path
+                    fillRule="evenodd"
+                    d="M9.013 19.9a.75.75 0 0 1 .877-.597 11.319 11.319 0 0 0 4.22 0 .75.75 0 1 1 .28 1.473 12.819 12.819 0 0 1-4.78 0 .75.75 0 0 1-.597-.876ZM9.754 22.344a.75.75 0 0 1 .824-.668 13.682 13.682 0 0 0 2.844 0 .75.75 0 1 1 .156 1.492 15.156 15.156 0 0 1-3.156 0 .75.75 0 0 1-.668-.824Z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+            </div>
+            <h4 className="font-bold text-center text-lg mb-4 mt-4">
+              Thoughts Time
+            </h4>
+            <p className="text-sm text-center text-gray-600 mb-6 px-4">
+              We don't have any notice for you, till then you can share your
+              thoughts with your peers.
+            </p>
+
+            {/* Thoughts Content */}
+            <div className="space-y-4 mb-6 max-h-64 overflow-y-auto">
+              {isWriting ? (
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                      <span className="text-green-600 font-medium text-sm">
+                        YO
+                      </span>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">You</p>
+                      <p className="text-xs text-gray-500">Just now</p>
+                    </div>
+                  </div>
+                  <textarea
+                    className="w-full p-2 border rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                    rows="3"
+                    placeholder="Write your thought here..."
+                    value={newThought}
+                    onChange={(e) => setNewThought(e.target.value)}
+                    autoFocus
+                  ></textarea>
+                  <div className="flex justify-end space-x-2 mt-2">
+                    <button
+                      onClick={() => setIsWriting(false)}
+                      className="px-3 py-1 rounded-lg bg-gray-200 text-gray-700 text-sm hover:bg-gray-300 transition"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={addThought}
+                      className="px-3 py-1 rounded-lg bg-yellow-400 text-white text-sm hover:bg-yellow-500 transition"
+                    >
+                      Post
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {thoughts.length > 0 ? (
+                    thoughts.map((thought) => (
+                      <div
+                        key={thought.id}
+                        className="bg-gray-50 rounded-lg p-4 relative group"
+                      >
+                        <div className="flex items-center space-x-2 mb-2">
+                          <div
+                            className={`w-8 h-8 ${thought.avatarColor} rounded-full flex items-center justify-center`}
+                          >
+                            <span
+                              className={`${thought.textColor} font-medium text-sm`}
+                            >
+                              {thought.initials}
+                            </span>
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium">
+                              {thought.author}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {formatTimestamp(thought.timestamp)}
+                            </p>
+                          </div>
+
+                          {/* Delete button - Only show for your own messages */}
+                          {thought.author === "You" && (
+                            <button
+                              onClick={() => deleteThought(thought.id)}
+                              className="absolute right-2 top-2 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                              title="Delete message"
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                strokeWidth={1.5}
+                                stroke="currentColor"
+                                className="w-5 h-5"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
+                                />
+                              </svg>
+                            </button>
+                          )}
+                        </div>
+                        <p className="text-sm text-gray-700">
+                          {thought.content}
+                        </p>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center text-gray-500 py-4">
+                      No thoughts yet. Write your first message!
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+
+            {/* Button to add new thought */}
+            {!isWriting && (
+              <button
+                onClick={() => setIsWriting(true)}
+                className="w-full py-3 bg-gradient-to-r from-yellow-400 to-yellow-500 text-white rounded-lg text-sm font-medium shadow-md hover:from-yellow-500 hover:to-yellow-600 transition duration-300 flex items-center justify-center"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4 mr-2"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4v16m8-8H4"
+                  />
+                </svg>
+                Write a message
+              </button>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
