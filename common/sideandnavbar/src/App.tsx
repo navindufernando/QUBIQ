@@ -1,34 +1,35 @@
-import { useState } from 'react'
-import './App.css'
-import Home from './pages/Home/Home'
-import Navbar from './components/Navbar'
-import Sidebar from './components/Sidebar'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import DevDashboard from './pages/Dashboard-dev/DevDashboard'
-import Messages from './pages/Messages/Messages'
-import Members from './pages/Members/Members'
-import ProjectReview from './pages/ProjectReview/ProjectReview'
-import Settings from './pages/Settings/Settings'
-import { UserType } from './enums/userType'
-import PMDashboard from './pages/Dashboard-pm/PMDashboard'
-import Profile from './pages/profile/profile'
-import Project from './pages/Projects/Project'
+import { useState } from "react";
+import "./App.css";
+import Home from "./pages/Home/Home";
+import Navbar from "./components/Navbar";
+import Sidebar from "./components/Sidebar";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import DevDashboard from "./pages/Dashboard-dev/DevDashboard";
+import Messages from "./pages/Messages/Messages";
+import Members from "./pages/Members/Members";
+import ProjectReview from "./pages/ProjectReview/ProjectReview";
+import Settings from "./pages/Settings/Settings";
+import { UserType } from "./enums/userType";
+import PMDashboard from "./pages/Dashboard-pm/PMDashboard";
+import Profile from "./pages/profile/profile";
+import Project from "./pages/Projects/Project";
+import ProjectDetail from "./pages/Projects/ProjectDetail";
 
 const App = () => {
-  const [isSidebarVisible, setIsSidebarVisible] = useState<boolean>(true)
-  const [user, setUser] = useState<UserType>(UserType.DEV)
+  const [isSidebarVisible, setIsSidebarVisible] = useState<boolean>(true);
+  const [user, setUser] = useState<UserType>(UserType.DEV);
 
   const toggleSidebar = () => {
-    setIsSidebarVisible(!isSidebarVisible)
-  }
+    setIsSidebarVisible(!isSidebarVisible);
+  };
 
   return (
     <BrowserRouter>
-      <div className='flex'>
+      <div className="flex">
         {isSidebarVisible && <Sidebar />}
-        <div className='flex-1'>
+        <div className="flex-1">
           <Navbar toggleSidebar={toggleSidebar} />
-          <div className='flex-1 p-6'>
+          <div className="flex-1 p-6">
             <Routes>
               <Route path="/" element={<Home />} />
               {user === UserType.DEV ? (
@@ -42,12 +43,13 @@ const App = () => {
               <Route path="/settings" element={<Settings />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/project" element={<Project />} />
+              <Route path="/project/:id" element={<ProjectDetail />} />
             </Routes>
           </div>
         </div>
       </div>
     </BrowserRouter>
-  )
-}
+  );
+};
 
-export default App
+export default App;
