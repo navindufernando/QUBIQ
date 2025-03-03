@@ -1,41 +1,116 @@
-import React, { useState, useEffect } from "react";
+"use client";
+
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
 const Sidebar = () => {
   const [projects, setProjects] = useState([]);
+  const [thoughts, setThoughts] = useState([]);
+  const [newThought, setNewThought] = useState("");
+  const [isWriting, setIsWriting] = useState(false);
 
-  // Load projects from localStorage on component mount
+  // Load projects and thoughts from localStorage on component mount
   useEffect(() => {
-    const loadProjects = () => {
+    const loadData = () => {
+      // Load projects
       const savedProjects = localStorage.getItem("projects");
       if (savedProjects) {
         setProjects(JSON.parse(savedProjects));
       }
+
+      // Load thoughts but filter out any default/John Doe messages
+      const savedThoughts = localStorage.getItem("thoughts");
+      if (savedThoughts) {
+        const allThoughts = JSON.parse(savedThoughts);
+        // Filter out John Doe messages
+        const filteredThoughts = allThoughts.filter(
+          (thought) => thought.author !== "John Doe"
+        );
+        setThoughts(filteredThoughts);
+        // Save the filtered thoughts back to localStorage
+        localStorage.setItem("thoughts", JSON.stringify(filteredThoughts));
+      } else {
+        // Initialize with empty array
+        setThoughts([]);
+        localStorage.setItem("thoughts", JSON.stringify([]));
+      }
     };
 
     // Load immediately on mount
-    loadProjects();
+    loadData();
 
-    // Set up event listener for storage changes (in case projects are updated in another tab)
-    window.addEventListener("storage", loadProjects);
+    // Set up event listener for storage changes (in case data is updated in another tab)
+    window.addEventListener("storage", loadData);
 
     // Also check for updates every few seconds (in case of changes within the same tab)
-    const interval = setInterval(loadProjects, 2000);
+    const interval = setInterval(loadData, 2000);
 
     return () => {
-      window.removeEventListener("storage", loadProjects);
+      window.removeEventListener("storage", loadData);
       clearInterval(interval);
     };
   }, []);
 
+  const addThought = () => {
+    if (newThought.trim() === "") return;
+
+    // Create a new thought
+    const thought = {
+      id: Date.now().toString(),
+      author: "You",
+      initials: "YO",
+      avatarColor: "bg-green-100",
+      textColor: "text-green-600",
+      content: newThought,
+      timestamp: new Date().toISOString(),
+    };
+
+    // Add to state
+    const updatedThoughts = [thought, ...thoughts];
+    setThoughts(updatedThoughts);
+
+    // Save to localStorage
+    localStorage.setItem("thoughts", JSON.stringify(updatedThoughts));
+
+    // Reset form
+    setNewThought("");
+    setIsWriting(false);
+  };
+
+  // New function to delete a thought
+  const deleteThought = (id) => {
+    // Filter out the thought with the matching id
+    const updatedThoughts = thoughts.filter((thought) => thought.id !== id);
+    setThoughts(updatedThoughts);
+
+    // Update localStorage
+    localStorage.setItem("thoughts", JSON.stringify(updatedThoughts));
+  };
+
+  // Format timestamp to "X time ago" format
+  const formatTimestamp = (timestamp) => {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now - date) / 1000);
+
+    if (diffInSeconds < 60) return `${diffInSeconds} seconds ago`;
+    if (diffInSeconds < 3600)
+      return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+    if (diffInSeconds < 86400)
+      return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+    return `${Math.floor(diffInSeconds / 86400)} days ago`;
+  };
+
   return (
     <div
-      className="w-80"
+      className="w-80 min-h-screen"
       style={{
         backgroundColor: "#E2DDFF",
-        height: "100vh",
+        height: "auto",
         display: "flex",
         flexDirection: "column",
+        position: "sticky",
+        top: 0,
       }}
     >
       <div className="py-3 pl-3 flex items-center" style={{ height: "64px" }}>
@@ -220,8 +295,9 @@ const Sidebar = () => {
             <ul className="mt-2">
               {projects.map((project) => (
                 <li key={project.id} className="mb-2">
-                  <a
-                    href="#"
+                  <Link
+                    to={`/project/${project.id}`}
+                    state={{ projectId: project.id }}
                     className="flex items-center px-3 py-2 space-x-3 rounded-lg transition duration-300 hover:bg-[#D1CEDB] hover:text-[#1A1A1A]"
                   >
                     <span
@@ -229,7 +305,7 @@ const Sidebar = () => {
                       style={{ backgroundColor: project.color }}
                     ></span>
                     <span>{project.name}</span>
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -238,37 +314,6 @@ const Sidebar = () => {
               No projects yet. Click the + icon to create one.
             </div>
           )}
-        </div>
-
-        {/* Thoughts Time section */}
-        <div className="mt-8 pb-8 relative">
-          <div className="bg-white rounded-xl p-4 relative">
-            <div className="absolute -top-5 left-1/2 transform -translate-x-1/2">
-              <div className="bg-yellow-300 rounded-full p-2">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  className="w-5 h-5 text-yellow-600"
-                >
-                  <path d="M12 .75a8.25 8.25 0 0 0-4.135 15.39c.686.398 1.115 1.008 1.134 1.623a.75.75 0 0 0 .577.706c.352.083.71.148 1.074.195.323.041.6-.218.6-.544v-4.661a6.75 6.75 0 1 1 1.5 0v4.661c0 .326.277.585.6.544.364-.047.722-.112 1.074-.195a.75.75 0 0 0 .577-.706c.02-.615.448-1.225 1.134-1.623A8.25 8.25 0 0 0 12 .75Z" />
-                  <path
-                    fillRule="evenodd"
-                    d="M9.013 19.9a.75.75 0 0 1 .877-.597 11.319 11.319 0 0 0 4.22 0 .75.75 0 1 1 .28 1.473 12.819 12.819 0 0 1-4.78 0 .75.75 0 0 1-.597-.876ZM9.754 22.344a.75.75 0 0 1 .824-.668 13.682 13.682 0 0 0 2.844 0 .75.75 0 1 1 .156 1.492 15.156 15.156 0 0 1-3.156 0 .75.75 0 0 1-.668-.824Z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </div>
-            </div>
-            <h4 className="font-bold text-center mb-2 mt-2">Thoughts Time</h4>
-            <p className="text-xs text-center text-gray-600">
-              We don't have any notice for you, till then you can share your
-              thoughts with your peers.
-            </p>
-            <button className="mt-3 w-full py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium">
-              Write a message
-            </button>
-          </div>
         </div>
       </div>
     </div>
