@@ -12,6 +12,7 @@ import ProjectsCard from "./ProjectsCard";
 import SkillImprovementCard from "./SkillImprovementCard";
 import CodeSuggestionCard from "./CodeSuggestionCard";
 import CodeAnalysisCard from "./CodeAnalysisCard";
+import TaskBoard from "./TaskBoard";
 
 const DevDashboard = () => {
   const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
@@ -122,6 +123,7 @@ const DevDashboard = () => {
           </div>
         </div>
       </div>
+      <TaskBoard></TaskBoard>
     </div>
   );
 };
