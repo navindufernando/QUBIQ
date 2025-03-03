@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Button,
   TextField,
@@ -10,7 +11,6 @@ import {
   Box,
   Chip,
   Tooltip,
-  Paper,
   Avatar,
   Grid,
   LinearProgress,
@@ -35,6 +35,7 @@ const Project = () => {
     { id: string; name: string; color: string }[]
   >([]);
   const [isFormVisible, setIsFormVisible] = useState(false);
+  const navigate = useNavigate();
 
   // Load existing projects on component mount
   useEffect(() => {
@@ -343,7 +344,13 @@ const Project = () => {
                       transform: "translateY(-4px)",
                       boxShadow: 6,
                     },
+                    cursor: "pointer", // Add cursor pointer to indicate it's clickable
                   }}
+                  onClick={() =>
+                    navigate(`/project/${project.id}`, {
+                      state: { projectId: project.id },
+                    })
+                  }
                 >
                   <Box
                     sx={{
