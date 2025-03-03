@@ -1,13 +1,16 @@
-// https://blog.logrocket.com/how-to-set-up-node-typescript-express/
-// src/server.ts
-import express, { Express, Request, Response } from "express";
-import dotenv from "dotenv";
-import app from "./app";
+import express, { Request, Response } from 'express';
+import { PrismaClient } from '@prisma/client';
 
-dotenv.config();
+const app = express();
+const prisma = new PrismaClient();
 
-const port = process.env.PORT || 3000;
+app.use(express.json());
 
-app.listen(port, () => {
-  console.log(`🚀 Server is running at http://localhost:${port}`);
+app.get('/', (req: Request, res: Response) => {
+  res.send('Hello, Prisma with Express & Node!');
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
