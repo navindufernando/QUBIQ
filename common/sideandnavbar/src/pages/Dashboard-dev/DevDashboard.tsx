@@ -10,6 +10,7 @@ import "react-calendar/dist/Calendar.css";
 import "./Calendar.css";
 import ProjectsCard from "./ProjectsCard";
 import SkillImprovementCard from "./SkillImprovementCard";
+import CodeSuggestionCard from "./CodeSuggestionCard";
 
 const DevDashboard = () => {
   const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
@@ -80,6 +81,7 @@ const DevDashboard = () => {
         <div className="grid grid-cols-2 gap-8">
           <ProjectsCard></ProjectsCard>
           <SkillImprovementCard></SkillImprovementCard>
+          <CodeSuggestionCard></CodeSuggestionCard>
           {/* Tile 2 */}
           <div style={tileStyle}>
             <div style={headerStyle}>
