@@ -11,6 +11,7 @@ import "./Calendar.css";
 import ProjectsCard from "./ProjectsCard";
 import SkillImprovementCard from "./SkillImprovementCard";
 import CodeSuggestionCard from "./CodeSuggestionCard";
+import CodeAnalysisCard from "./CodeAnalysisCard";
 
 const DevDashboard = () => {
   const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
@@ -82,6 +83,7 @@ const DevDashboard = () => {
           <ProjectsCard></ProjectsCard>
           <SkillImprovementCard></SkillImprovementCard>
           <CodeSuggestionCard></CodeSuggestionCard>
+          <CodeAnalysisCard></CodeAnalysisCard>
           {/* Tile 2 */}
           <div style={tileStyle}>
             <div style={headerStyle}>
