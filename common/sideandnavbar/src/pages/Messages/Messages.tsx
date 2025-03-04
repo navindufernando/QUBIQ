@@ -5,15 +5,14 @@ import {
   TextField, 
   Button, 
   Paper, 
-  Divider,
   List,
   ListItem,
   ListItemText,
   InputAdornment,
   Avatar,
-  Container,
   IconButton,
-  Stack,
+  Menu,
+  MenuItem,
   ThemeProvider,
   createTheme
 } from '@mui/material';
@@ -113,6 +112,18 @@ const ChatInbox = () => {
   const [newMessage, setNewMessage] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  
+  // Menu state
+  const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
+  const open = Boolean(menuAnchorEl);
+  
+  const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
+    setMenuAnchorEl(event.currentTarget);
+  };
+  
+  const handleMenuClose = () => {
+    setMenuAnchorEl(null);
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -321,7 +332,12 @@ const ChatInbox = () => {
           display: 'flex',
           flexDirection: 'column'
         }}>
-          <Box sx={{ p: 1 }}>
+          <Box sx={{ 
+            p: 1, 
+            display: 'flex', 
+            alignItems: 'center',
+            justifyContent: 'space-between'
+          }}>
             <TextField
               placeholder="Search chats..."
               value={searchQuery}
@@ -344,19 +360,68 @@ const ChatInbox = () => {
                 }
               }}
               sx={{
-                width: '90%',
+                width: '75%',
                 maxWidth: '160px',
                 '& .MuiInputAdornment-root': {
                   marginRight: 0
                 }
               }}
             />
+            <IconButton 
+              size="small"
+              onClick={handleMenuClick}
+              aria-controls={open ? "options-menu" : undefined}
+              aria-haspopup="true"
+              aria-expanded={open ? "true" : undefined}
+              sx={{ 
+                color: 'primary.dark',
+                bgcolor: 'background.paper',
+                width: 28,
+                height: 28
+              }}
+            >
+              <MoreVertIcon fontSize="small" />
+            </IconButton>
+            <Menu
+              id="options-menu"
+              anchorEl={menuAnchorEl}
+              open={open}
+              onClose={handleMenuClose}
+              MenuListProps={{
+                'aria-labelledby': 'options-button',
+              }}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'right',
+              }}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              PaperProps={{
+                sx: {
+                  bgcolor: '#f5f5f5',
+                  width: 180,
+                  mt: 0.5,
+                  boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+                  '& .MuiMenuItem-root': {
+                    fontSize: '0.9rem',
+                    py: 1
+                  }
+                }
+              }}
+            >
+              <MenuItem onClick={handleMenuClose}>Create a group</MenuItem>
+              <MenuItem onClick={handleMenuClose}>Delete messages</MenuItem>
+              <MenuItem onClick={handleMenuClose}>Personal chats</MenuItem>
+              <MenuItem onClick={handleMenuClose}>Board meetings</MenuItem>
+            </Menu>
           </Box>
 
           {/* Chat List */}
           <List sx={{ 
             overflowY: 'auto', 
-            height: 'calc(100% - 400px)',
+            flexGrow: 1,
             padding: 0
           }}>
             {filteredChats.map(chat => (
@@ -385,101 +450,6 @@ const ChatInbox = () => {
               </ListItem>
             ))}
           </List>
-
-          {/* Options Section */}
-          <Paper sx={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
-            p: 3, 
-            borderRadius: 2, 
-            mx: 1.5, 
-            mb: 1.5,
-            mt: 'auto'
-          }}>
-            {/* Options Heading */}
-            <Box sx={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              mb: 1.5
-            }}>
-              <Typography variant="h6" fontWeight="bold" sx={{ mr: 1 }}>
-                Options
-              </Typography>
-              <Avatar 
-                src="/assets/logo.png" 
-                alt="Logo" 
-                sx={{ width: 20, height: 16 }}
-              />
-            </Box>
-
-            {/* Buttons */}
-            <Stack spacing={1.5}>
-              <Button 
-                fullWidth 
-                sx={{ 
-                  p: 1.25, 
-                  bgcolor: '#C3BAFF', 
-                  textAlign: 'center',
-                  borderRadius: 2,
-                  fontWeight: 'bold',
-                  justifyContent: 'center',
-                  '&:hover': {
-                    bgcolor: '#A9A0FF'
-                  }
-                }}
-              >
-                Create a group
-              </Button>
-              <Button 
-                fullWidth 
-                sx={{ 
-                  p: 1.25, 
-                  bgcolor: '#C3BAFF', 
-                  textAlign: 'center',
-                  borderRadius: 2,
-                  fontWeight: 'bold',
-                  justifyContent: 'center',
-                  '&:hover': {
-                    bgcolor: '#A9A0FF'
-                  }
-                }}
-              >
-                Delete messages
-              </Button>
-              <Button 
-                fullWidth 
-                sx={{ 
-                  p: 1.25, 
-                  bgcolor: '#C3BAFF', 
-                  textAlign: 'center',
-                  borderRadius: 2,
-                  fontWeight: 'bold',
-                  justifyContent: 'center',
-                  '&:hover': {
-                    bgcolor: '#A9A0FF'
-                  }
-                }}
-              >
-                Personal chats
-              </Button>
-              <Button 
-                fullWidth 
-                sx={{ 
-                  p: 1.25, 
-                  bgcolor: '#C3BAFF', 
-                  textAlign: 'center',
-                  borderRadius: 2,
-                  fontWeight: 'bold',
-                  justifyContent: 'center',
-                  '&:hover': {
-                    bgcolor: '#A9A0FF'
-                  }
-                }}
-              >
-                Board meetings
-              </Button>
-            </Stack>
-          </Paper>
         </Box>
       </Box>
     </ThemeProvider>
