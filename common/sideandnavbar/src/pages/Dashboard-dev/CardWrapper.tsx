@@ -20,7 +20,7 @@ const CardWrapper: React.FC<CardWrapperProps> = ({
   return (
     <div className="bg-[#D7C2F2] rounded-xl shadow-md p-4">
       <div className="flex justify-between items-center mb-3">
-        <h2 className="text-lg font-semibold">{title}</h2>
+        <h2 className="text-lg font-semibold text-[#5A4B81]">{title}</h2>
         {showDropdown && (
           <form action="">
             <select
@@ -28,7 +28,7 @@ const CardWrapper: React.FC<CardWrapperProps> = ({
               id="Period"
               value={selectedPeriod}
               onChange={handleSelectChange}
-              className="bg-[#A3B0EB] rounded-xl p-0.5 cursor-pointer text-[12px] focus:outline-none focus:ring-0"
+              className="text-[#5A4B81] hover:bg-[#C2B3E7] rounded-xl p-0.5 cursor-pointer text-[12px] focus:outline-none focus:ring-0"
             >
               <option value="this week">This Week</option>
               <option value="last week">Last Week</option>

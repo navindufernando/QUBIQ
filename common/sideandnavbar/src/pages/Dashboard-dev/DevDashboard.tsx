@@ -1,13 +1,10 @@
 import React, { useState } from "react";
-import Calendar from "react-calendar";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
 import dayjs, { Dayjs } from "dayjs";
 import Button from "@mui/material/Button/Button";
 
-import "react-calendar/dist/Calendar.css";
-import "./Calendar.css";
 import ProjectsCard from "./ProjectsCard";
 import SkillImprovementCard from "./SkillImprovementCard";
 import CodeSuggestionCard from "./CodeSuggestionCard";
@@ -21,62 +18,7 @@ const DevDashboard = () => {
     setSelectedDate(newDate);
   };
 
-  const cardStyle = {
-    width: "300px",
-    height: "400px",
-    boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  };
-
-  // 🔹 Styles
-  const tileStyle = {
-    width: "300px",
-    height: "400px",
-    backgroundColor: "#d7c2f2",
-    borderRadius: "15px",
-    padding: "15px",
-    minHeight: "180px",
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "space-between",
-  };
-
-  const headerStyle = {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-  };
-
-  const titleStyle = {
-    margin: 0,
-    color: "#5a4b81",
-  };
-
-  const fileCountStyle = {
-    fontSize: "12px",
-    color: "#5a4b81",
-  };
-
-  const dropdownStyle = {
-    fontSize: "12px",
-    color: "#5a4b81",
-    cursor: "pointer",
-  };
-
-  const bodyStyle = {
-    backgroundColor: "white",
-    borderRadius: "10px",
-    flexGrow: 1,
-    marginTop: "10px",
-  };
-
   return (
-    // <div
-    //   className="row flex items-center container-fluid px-6 pt-6"
-    //   style={{ backgroundColor: "#E2DDFF", minHeight: "100vh" }}
-    // >
     <div className="bg-[#E2DDFF] -m-6 p-6">
       <div className="flex">
         {/* Main Section */}
@@ -86,14 +28,6 @@ const DevDashboard = () => {
             <SkillImprovementCard></SkillImprovementCard>
             <CodeSuggestionCard></CodeSuggestionCard>
             <CodeAnalysisCard></CodeAnalysisCard>
-            {/* Tile 2 */}
-            <div style={tileStyle}>
-              <div style={headerStyle}>
-                <h5 style={titleStyle}>Skills need to improve</h5>
-                <span style={dropdownStyle}>This Week ▼</span>
-              </div>
-              <div style={bodyStyle}></div>
-            </div>
           </div>
         </div>
         {/* Side Panel */}

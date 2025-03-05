@@ -16,7 +16,7 @@ interface Task {
   assignees: string[]; // if the images are URLs (change later if necessary)
   dueDate: string;
   priority: string;
-  status: string; // change this later
+  status: string;
 }
 
 interface TaskListProps {

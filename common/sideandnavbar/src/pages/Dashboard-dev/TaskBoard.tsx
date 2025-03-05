@@ -44,7 +44,7 @@ const TaskBoard = () => {
   ];
 
   return (
-    <div className="px-12 space-y-10 mb-8">
+    <div className="px-12 space-y-10 mt-4 mb-8">
       <TaskSection tasks={tasksInProgress} inProgress={true} />
       <TaskSection tasks={tasksToDo} inProgress={false} />
     </div>
