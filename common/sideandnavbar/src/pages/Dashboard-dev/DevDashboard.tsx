@@ -77,7 +77,7 @@ const DevDashboard = () => {
     //   className="row flex items-center container-fluid px-6 pt-6"
     //   style={{ backgroundColor: "#E2DDFF", minHeight: "100vh" }}
     // >
-    <div>
+    <div className="bg-[#E2DDFF] -m-6 p-6">
       <div className="flex">
         {/* Main Section */}
         <div className="flex-grow p-6 pt-0">
@@ -94,10 +94,6 @@ const DevDashboard = () => {
               </div>
               <div style={bodyStyle}></div>
             </div>
-            <div>02</div>
-            <div>03</div>
-            <div>04</div>
-            <div>05</div>
           </div>
         </div>
         {/* Side Panel */}

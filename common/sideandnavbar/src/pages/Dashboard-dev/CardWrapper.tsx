@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 interface CardWrapperProps {
-  title: String;
+  title: string;
   children: React.ReactNode;
   showDropdown?: boolean;
 }
