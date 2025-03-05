@@ -38,7 +38,7 @@ const TaskBoard = () => {
 
   return (
     <div className="px-12">
-      <TaskSection sectionType="to-do"></TaskSection>
+      <TaskSection tasks={tasksToDo} />
     </div>
   );
 };

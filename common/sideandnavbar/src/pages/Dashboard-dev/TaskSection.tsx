@@ -1,10 +1,21 @@
 import React from "react";
+import TaskItem from "./TaskItem";
 
-interface TaskSectionProps {
-  sectionType: String;
+// type Status = "IN_PROGRESS" | "COMPLETED" | "TODO";
+
+interface Task {
+  taskName: String;
+  assignees: String[]; // if the images are URLs (change later if necessary)
+  dueDate: String;
+  priority: String;
+  statusType: String; // change this later
 }
 
-const TaskSection: React.FC<TaskSectionProps> = ({ sectionType }) => {
+interface TaskListProps {
+  tasks: Task[];
+}
+
+const TaskSection: React.FC<TaskListProps> = ({ tasks }) => {
   return (
     <div>
       <div className="flex justify-between items-center px-8">
@@ -33,7 +44,11 @@ const TaskSection: React.FC<TaskSectionProps> = ({ sectionType }) => {
           </tr>
         </thead>
       </table>
-      <div>{sectionType}</div>
+      <div>
+        {tasks.map((task, i) => (
+          <TaskItem key={i} {...task} />
+        ))}
+      </div>
     </div>
   );
 };
