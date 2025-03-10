@@ -12,6 +12,8 @@ import CodeAnalysisCard from "./CodeAnalysisCard";
 import TaskBoard from "./TaskBoard";
 import Calendar from "./Components/Calendar";
 import Activity from "./Components/Activity";
+import { Grid2 } from "@mui/material";
+import DashboardTabs from "./Components/DashboardTabs";
 
 const DevDashboard = () => {
   const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
@@ -21,9 +23,18 @@ const DevDashboard = () => {
   };
 
   return (
-    <div className="bg-[#E2DDFF] -m-6 p-6">
-      <div className="flex">
-        {/* Main Section */}
+    <div className="bg-[#E2DDFF] -m-6 p-2">
+      <Grid2 container spacing={3}>
+        <Grid2 size={{ xs: 12, md: 8 }}>
+          <DashboardTabs />
+        </Grid2>
+        <Grid2 size={{ xs: 12, md: 4 }}>
+          <Calendar />
+          <Activity />
+        </Grid2>
+      </Grid2>
+      {/* <div className="flex">
+        
         <div className="flex-grow p-6 pt-0">
           <div className="grid grid-cols-2 gap-8">
             <ProjectsCard></ProjectsCard>
@@ -32,17 +43,7 @@ const DevDashboard = () => {
             <CodeAnalysisCard></CodeAnalysisCard>
           </div>
         </div>
-        {/* Side Panel */}
-        <div className="w-1/3 ">
-          <div className="p-6 bg-[#D7C2F2] shadow-md rounded-xl h-auto">
-            {/* Calendar */}
-            <Calendar />
-
-            {/* Activity List */}
-            <Activity />
-          </div>
-        </div>
-      </div>
+      </div> */}
       <TaskBoard></TaskBoard>
     </div>
   );
