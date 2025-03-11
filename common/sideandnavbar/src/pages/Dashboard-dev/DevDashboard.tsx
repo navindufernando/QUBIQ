@@ -44,7 +44,6 @@ const DevDashboard = () => {
           </div>
         </div>
       </div> */}
-      <TaskBoard></TaskBoard>
     </div>
   );
 };

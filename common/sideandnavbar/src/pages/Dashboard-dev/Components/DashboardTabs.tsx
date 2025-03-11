@@ -1,6 +1,6 @@
 import { Box, Tab, Tabs } from "@mui/material";
 import { SyntheticEvent, useState } from "react";
-import TaskWrapper from "./Tasks/TaskWrapper";
+import Tasks from "./Tasks/Tasks";
 
 const DashboardTabs = () => {
   const [displayTab, setDisplayTab] = useState(0);
@@ -12,7 +12,7 @@ const DashboardTabs = () => {
   const renderTabContent = () => {
     switch (displayTab) {
       case 0:
-        return <TaskWrapper />;
+        return <Tasks />;
       case 1:
         return <div></div>;
       case 2:
