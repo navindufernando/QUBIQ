@@ -15,7 +15,7 @@ import Profile from './pages/profile/profile'
 
 const App = () => {
   const [isSidebarVisible, setIsSidebarVisible] = useState<boolean>(true)
-  const [user, setUser] = useState<UserType>(UserType.PM)
+  const [user, setUser] = useState<UserType>(UserType.DEV)
 
   const toggleSidebar = () => {
     setIsSidebarVisible(!isSidebarVisible)
