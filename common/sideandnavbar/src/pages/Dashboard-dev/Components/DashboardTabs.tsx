@@ -1,6 +1,8 @@
 import { Box, Tab, Tabs } from "@mui/material";
 import { SyntheticEvent, useState } from "react";
 import Tasks from "./Tasks/Tasks";
+import CodeImprovements from "./Improvements/CodeImprovements";
+import SkillImprovements from "./Improvements/SkillImprovements";
 
 const DashboardTabs = () => {
   const [displayTab, setDisplayTab] = useState(0);
@@ -14,12 +16,15 @@ const DashboardTabs = () => {
       case 0:
         return <Tasks />;
       case 1:
-        return <div></div>;
+        return (
+          <div>
+            <CodeImprovements />
+            <SkillImprovements />
+          </div>
+        );
       case 2:
         return <div></div>;
       case 3:
-        return <div></div>;
-      case 4:
         return <div></div>;
       default:
         return null;
@@ -38,10 +43,9 @@ const DashboardTabs = () => {
       >
         <Tabs value={displayTab} onChange={handleChange} centered>
           <Tab label="Tasks" />
-          <Tab label="Work" />
-          <Tab label="pending" />
-          <Tab label="pending" />
-          <Tab label="pending" />
+          <Tab label="Improvements" />
+          <Tab label="Analysis" />
+          <Tab label="Code Suggestions" />
         </Tabs>
       </Box>
       <Box sx={{ p: 2 }}>{renderTabContent()}</Box>
