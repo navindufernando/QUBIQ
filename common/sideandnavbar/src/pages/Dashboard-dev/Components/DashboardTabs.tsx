@@ -3,6 +3,9 @@ import { SyntheticEvent, useState } from "react";
 import Tasks from "./Tasks/Tasks";
 import CodeImprovements from "./Improvements/CodeImprovements";
 import SkillImprovements from "./Improvements/SkillImprovements";
+// import CodeQuality from "./CodeQuality/CodeQuality";
+import CodeTimePercentageChart from "./CodeQuality/CodeTimePercentageChart";
+import DailyCodeChart from "./CodeQuality/DailyCodeChart";
 
 const DashboardTabs = () => {
   const [displayTab, setDisplayTab] = useState(0);
@@ -23,7 +26,12 @@ const DashboardTabs = () => {
           </div>
         );
       case 2:
-        return <div></div>;
+        return (
+          <div>
+            <DailyCodeChart />
+            <CodeTimePercentageChart />
+          </div>
+        );
       case 3:
         return <div></div>;
       default:
@@ -44,8 +52,8 @@ const DashboardTabs = () => {
         <Tabs value={displayTab} onChange={handleChange} centered>
           <Tab label="Tasks" />
           <Tab label="Improvements" />
-          <Tab label="Analysis" />
-          <Tab label="Code Suggestions" />
+          <Tab label="Coding Quality" />
+          <Tab label="Developer Insights" />
         </Tabs>
       </Box>
       <Box sx={{ p: 2 }}>{renderTabContent()}</Box>
