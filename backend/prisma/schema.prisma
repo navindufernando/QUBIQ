@@ -17,6 +17,8 @@ model Project {
   id          String       @id @default(uuid())
   projectName String
   description String
+  phase       String?
+  progress    Int?
   startDate   String
   endDate     String
   createdAt   DateTime     @default(now())
