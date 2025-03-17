@@ -6,6 +6,8 @@ import SkillImprovements from "./Improvements/SkillImprovements";
 // import CodeQuality from "./CodeQuality/CodeQuality";
 import CodeTimePercentageChart from "./CodeQuality/CodeTimePercentageChart";
 import DailyCodeChart from "./CodeQuality/DailyCodeChart";
+import WorkTimeChart from "./DevInsights/WorkTimeChart";
+import TaskChart from "./DevInsights/TaskChart";
 
 const DashboardTabs = () => {
   const [displayTab, setDisplayTab] = useState(0);
@@ -33,7 +35,12 @@ const DashboardTabs = () => {
           </div>
         );
       case 3:
-        return <div></div>;
+        return (
+          <div>
+            <WorkTimeChart />
+            <TaskChart />
+          </div>
+        );
       default:
         return null;
     }
