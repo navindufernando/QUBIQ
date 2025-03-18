@@ -7,6 +7,7 @@ import ProjectRouter from './routes/project.route';
 import Taskrouter from './routes/task.route';
 import MemberRoute from './routes/member.route';
 import cors from 'cors';
+import { MetricsClient } from '@prisma/client/runtime/library';
 
 const app = express();
 const prisma = new PrismaClient();

@@ -1,185 +1,228 @@
-import React, { useState } from 'react';
-import { 
-  Box, 
-  Typography, 
-  Card, 
-  CardContent, 
-  Grid, 
-  LinearProgress, 
-  Chip, 
-  Select, 
-  MenuItem, 
-  FormControl, 
-  InputLabel,
-  SelectChangeEvent
-} from '@mui/material';
+import React, { useEffect, useState } from 'react'
+import { getAllSprints } from '../../../../services/SprintAPI';
+import { Box, Card, CardActionArea, CardContent, Chip, FormControl, Grid2, IconButton, InputLabel, LinearProgress, MenuItem, Select, Skeleton, Tooltip, Typography } from '@mui/material';
+import { AssessmentOutlined, Refresh } from '@mui/icons-material';
 
-interface Sprint {
-  id: number;
-  title: string;
+// Enhanced sprint interface to include all required fields
+interface Sprints {
+  id: string;
+  sprintName: string;
+  description: string;
+  goal: string;
+  status: 'Completed' | 'In Progress' | 'Planned';
   startDate: string;
   endDate: string;
-  team: string;
-  storyPoints: number;
-  completionPercentage: number;
-  tasks: number;
-  bugsFound: number;
-  status: 'Completed' | 'In Progress' | 'Planned';
+  projectId: string;
 }
 
 const PastSprints: React.FC = () => {
-  // Sample data
-  const sprintData: Sprint[] = [
-    {
-      id: 1,
-      title: 'UI Redesign Sprint',
-      startDate: 'Jan 1, 2025',
-      endDate: 'Jan 14, 2025',
-      team: 'Frontend',
-      storyPoints: 38,
-      completionPercentage: 95,
-      tasks: 15,
-      bugsFound: 2,
-      status: 'Completed'
-    },
-    {
-      id: 2,
-      title: 'Backend Optimization Sprint',
-      startDate: 'Jan 15, 2025',
-      endDate: 'Jan 28, 2025',
-      team: 'Backend',
-      storyPoints: 42,
-      completionPercentage: 100,
-      tasks: 12,
-      bugsFound: 0,
-      status: 'Completed'
+  const [sprints, setSprints] = useState<Sprints[]>([]);
+  const [filsteredSprints, setFilteredSprints] = useState<Sprints[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [sortOrder, setSortOrder] = useState<string>('DateDesc');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(5);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchSprints();
+  }, []);
+
+  const fetchSprints = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await getAllSprints();
+      
+      // Filter to show only the completed sprints
+      const completedSprints = data.filter((sprint: Sprints) => sprint.status === 'Completed');
+      setSprints(completedSprints);
+      setFilteredSprints(completedSprints);
+
+    } catch (error) {
+      console.error('Failed to fetch sprints:', error);
+      setError('Failed to load sprints. Please try again later.');
+    } finally {
+      setLoading(false);
     }
-  ];
+  }
 
-  const [sprintFilter, setSprintFilter] = useState<string>('All Sprints');
-  const [sortOrder, setSortOrder] = useState<string>('Date');
+  // Apply sorting and filtering
+  useEffect(() => {
+    let sorted = [...sprints];
 
-  const handleSprintFilterChange = (event: SelectChangeEvent) => {
-    setSprintFilter(event.target.value);
+    // Apply sorting
+    switch (sortOrder) {
+      case 'DateAsc':
+        sorted.sort((a,b) => new Date(a.endDate).getTime() - new Date(b.endDate).getTime());
+        break;
+      case 'DateDesc':
+        sorted.sort((a,b) => new Date(b.endDate).getTime() - new Date(a.endDate).getTime());
+        break;
+      case 'NameAsc':
+        sorted.sort((a,b) => a.sprintName.localeCompare(b.sprintName));
+        break;
+        case 'NameDesc':
+          sorted.sort((a,b) => b.sprintName.localeCompare(a.sprintName));
+          break;
+      default:
+        break;
+    }
+
+    setFilteredSprints(sorted);
+    setCurrentPage(1);
+  }, [sortOrder, sprints]);
+
+  // Get current sprints for pagination
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentSprints = filsteredSprints.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filsteredSprints.length / itemsPerPage);
+
+  // Handle page change
+  const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
+    setCurrentPage(value);
   };
 
-  const handleSortOrderChange = (event: SelectChangeEvent) => {
-    setSortOrder(event.target.value);
+  // Format date to be more readable
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
   };
 
   return (
     <Box sx={{ p: 3 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, width: '100%' }}>
-        <Typography variant="h5" sx={{ fontWeight: 'bold', marginRight: 14 }}>
-          Past Sprints
+      <Box sx={{ display: 'flex', flexDirection: {xs: 'column', md: 'row'}, justifyContent: 'space-between', alignItems: { xs: 'stretch', md: 'center' }, mb: 3, width: '100%', gap: 2 }}>
+        <Typography variant='h5' sx={{ fontWeight: 'bold' }}>
+          Past Sptrints
         </Typography>
-        
-        <Box sx={{ display: 'flex', gap: 2 }}>
-          <FormControl sx={{ minWidth: 150 }}>
+
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, width: { xs: '100%', md: 'auto' } }}>
+          <FormControl sx={{ minWidth: {xs: '100%', sm: '200px'}}} size='small'>
+            <InputLabel id='sort-order-label'>Sort By</InputLabel>
             <Select
-              value={sprintFilter}
-              onChange={handleSprintFilterChange}
-              displayEmpty
-              size="small"
+              labelId='sort-order-label'
+              id='sort-order'
+              value={sortOrder}
+              label='Sort By'
+              onChange={(e) => setSortOrder(e.target.value)}
             >
-              <MenuItem value="All Sprints">All Sprints</MenuItem>
-              <MenuItem value="Frontend">Frontend</MenuItem>
-              <MenuItem value="Backend">Backend</MenuItem>
+              <MenuItem value='DateAsc'>Date (Oldest)</MenuItem>
+              <MenuItem value='DateDesc'>Date (Newest)</MenuItem>
+              <MenuItem value='NameAsc'>Name (A-Z)</MenuItem>
+              <MenuItem value='NameDesc'>Name (Z-A)</MenuItem>
             </Select>
           </FormControl>
 
-          <FormControl sx={{ minWidth: 150 }}>
-            <Select
-              value={sortOrder}
-              onChange={handleSortOrderChange}
-              displayEmpty
-              size="small"
-            >
-              <MenuItem value="Date">Sort by Date</MenuItem>
-              <MenuItem value="Team">Sort by Team</MenuItem>
-              <MenuItem value="Story Points">Sort by Story Points</MenuItem>
-            </Select>
-          </FormControl>
+          <Tooltip title='Refresh'>
+            <IconButton onClick={fetchSprints} color='primary' sx={{display: {xs: 'none', sm: 'inline-flex'}}}>
+              <Refresh/>
+            </IconButton>
+          </Tooltip>
         </Box>
       </Box>
 
-      {sprintData.map((sprint) => (
-        <Card key={sprint.id} sx={{ mb: 2, borderRadius: 2, boxShadow: 1 }}>
-          <CardContent>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                {sprint.title}
-              </Typography>
-              <Chip 
-                label={sprint.status} 
-                color={sprint.status === 'Completed' ? 'success' : 'primary'} 
-                variant="filled"
-                size="small"
-              />
-            </Box>
+      {/* display error if occured */}
+      {error && (
+        <Box sx={{ bgcolor: 'error.lighter', p: 2, borderRadius: 1, mb: 2 }}>
+          <Typography color='error'>{error}</Typography>
+        </Box>
+      )}
+      
+      {/* loading state */}
+      {loading ? (
+        Array.from(new Array(3)).map((_, index) => (
+          <Card key={index} sx={{ mb: 2, borderRadius: 2, boxShadow: 1 }}>
+            <CardContent>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                <Skeleton variant="text" width="60%" height={40} />
+                <Skeleton variant="rounded" width="15%" height={28} />
+              </Box>
+              <Skeleton variant="text" width="40%" />
+              <Skeleton variant="rectangular" height={20} sx={{ my: 2 }} />
+              <Grid2 container spacing={2}>
+                {Array.from(new Array(4)).map((_, idx) => (
+                  <Grid2 sx={{ xs: 6, sm: 3}}key={idx}>
+                    <Skeleton variant="text" height={30} />
+                    <Skeleton variant="text" width="60%" />
+                  </Grid2>
+                ))}
+              </Grid2>
+            </CardContent>
+          </Card> 
+        ))
+      ) : filsteredSprints.length === 0 ? (
+        <Box sx={{ textAlign: 'center', py: 6, bgcolor: 'lightskyblue', borderRadius: 2 }}>
+          <AssessmentOutlined sx={{ fontSize: 60, mb: 2}}/>
+          <Typography variant='h6'>
+            No completed sprints found
+          </Typography>
+          <Typography variant='body2' sx={{ mt: 2 }}>
+            Completed sprints will appear here
+          </Typography>
+        </Box>
+      ) : (
+        // Sptrint cards
+        <>
+          {currentSprints.map((sprint) => (
+            <Card key={sprint.id} sx={{ mb: 2, borderRadius: 2, boxShadow: 1, '&:hover': { boxShadow: 3, transition: 'box-shadow 0.3s' } }}>
+              <CardActionArea>
+                <CardContent>
+                  {/* Sprint header */}
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                    <Typography variant='h6' sx={{ fontWeight: 'bold' }}>{sprint.sprintName}</Typography>
+                    <Chip 
+                      label={sprint.status} 
+                      color={sprint.status === 'Completed' ? 'success' : 'primary'} 
+                      variant="filled"
+                      size="small"
+                      sx={{ fontWeight: 'medium', marginLeft: 15 }}
+                    />
+                  </Box>
 
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-              <Typography variant="body2" color="text.secondary">
-                {sprint.startDate} - {sprint.endDate}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Team: {sprint.team}
-              </Typography>
-            </Box>
+                  {/* Sprint dates */}
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                    <Typography variant='body2' color='text.secondary'>
+                      {formatDate(sprint.startDate)} - {formatDate(sprint.endDate)}
+                    </Typography>
+                  </Box>
 
-            <LinearProgress 
-              variant="determinate" 
-              value={sprint.completionPercentage} 
-              sx={{ 
-                height: 10, 
-                borderRadius: 5, 
-                mb: 2,
-                backgroundColor: '#e0e0e0',
-                '& .MuiLinearProgress-bar': {
-                  backgroundColor: '#4caf50'
-                }
-              }} 
-            />
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                    <Typography variant='body2' color='text.secondary'>
+                      {sprint.description}
+                    </Typography>
+                  </Box>
 
-            <Grid container spacing={2} textAlign="center">
-              <Grid item xs={3}>
-                <Typography variant="h6" color="primary" sx={{ fontWeight: 'bold' }}>
-                  {sprint.storyPoints}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Story Points
-                </Typography>
-              </Grid>
-              <Grid item xs={3}>
-                <Typography variant="h6" color="primary" sx={{ fontWeight: 'bold' }}>
-                  {sprint.completionPercentage}%
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Completed
-                </Typography>
-              </Grid>
-              <Grid item xs={3}>
-                <Typography variant="h6" color="primary" sx={{ fontWeight: 'bold' }}>
-                  {sprint.tasks}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Tasks
-                </Typography>
-              </Grid>
-              <Grid item xs={3}>
-                <Typography variant="h6" color="primary" sx={{ fontWeight: 'bold' }}>
-                  {sprint.bugsFound}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Bugs Found
-                </Typography>
-              </Grid>
-            </Grid>
-          </CardContent>
-        </Card>
-      ))}
+                  {/* Completion progress bar */}
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                    <LinearProgress
+                      variant='determinate'
+                      value={90}
+                      sx={{ 
+                        height: 10, 
+                        borderRadius: 5, 
+                        width: '100%',
+                        mr: 2,
+                        backgroundColor: '#e0e0e0',
+                        '& .MuiLinearProgress-bar': {backgroundColor: '#4caf50'}
+                        }
+                      }
+                    />
+                    <Typography variant="body2" fontWeight="bold" width="50px" textAlign="right">
+                      %
+                    </Typography>
+                  </Box>
+                </CardContent>
+              </CardActionArea>
+            </Card>
+          ))}
+        </>
+      )}
     </Box>
-  );
-};
+  )
+}
 
-export default PastSprints;
+export default PastSprints

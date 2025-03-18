@@ -1,70 +1,88 @@
-import { Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Grid, Grid2, IconButton, MenuItem, Paper, Stack, TextField, Tooltip, Typography } from '@mui/material'
+import { Box, Button, Chip, Divider, Grid2, IconButton, Paper, Tooltip, Typography } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add';
-import { createSprint } from '../../../../services/SprintAPI';
-import { ChangeEvent, useEffect, useState } from 'react';
-import { CalendarTodayOutlined, CloseOutlined, ErrorOutline, Flag, SpeedOutlined } from '@mui/icons-material';
+import { getActiveSprint, getSprintById, updateSprint } from '../../../../services/SprintAPI';
+import { useCallback, useEffect, useState } from 'react';
+import { CalendarTodayOutlined, Flag, SpeedOutlined, EditNote, CheckCircle, Warning } from '@mui/icons-material';
 import PastSprints from './PastSprints';
+import CreateModal from './CreateModal';
+import { Sprintdata } from './CreateModal';
 
-const CreateSprint = () => {
+const CreateSprint: React.FC = () => {
     const [openModal, setOpenModal] = useState(false);
-    const [sprintData, setSprintData] = useState({
-        sprintName: '',
-        description: '',
-        goal: '',
-        status: '',
-        startDate: '',
-        endDate: '',
-        projectId: ''
-    });
-    // Handle validation for required fields
-    const [errors, setErrors] = useState({
-        sprintName: '',
-        dates: '',
-        general: ''
-    });
 
-    // Handle input changes for the form fields
-    const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setSprintData((prevState) => ({
-            ...prevState,
-            [name]: value
-        }));
-    };
-
-    const handleOpen = () => {
+    const handleOpen = useCallback(() => {
         setOpenModal(true);
-    }
+    }, [])
 
-    const handleClose = () => {
+    const handleClose = useCallback(() => {
         setOpenModal(false);
-    }
+    }, [])
 
-    const handleCreateSprint = async () => {
-        setErrors({
-            sprintName: '',
-            dates: '',
-            general: ''
-        });
+    const [sprintData, setSprintData] = useState<{
+        id: string;
+        sprintName: string;
+        description: string;
+        status: string;
+        goal: string;
+        startDate: string;
+        endDate: string;
+        projectId: string;
+    } | null>(null);;
 
+    const [loading, setLoading] = useState(true);
+    const [daysRemaining, setDaysRemaining] = useState<number | null>(null);
+    const [sprintToUpdate, setSprintToUpdate] = useState<Sprintdata | null>(null);
+    const [sprintDateRange, setSprintDateRange] = useState('');
+
+    // Function to open the modal in update mode
+    const handleOpenUpdateModal = async (sprintId: string) => {
         try {
-            const response = await createSprint(sprintData);
-
-            handleClose();
-            console.log('Sprint created:', response);
-        } catch (error: any) {
-            if (error.response && error.response.data) {
-                const backendErrors = error.response.data.error || {};
-
-                setErrors({
-                    sprintName: backendErrors.sprintName || '',
-                    dates: backendErrors.dates || '',
-                    general: backendErrors.general || ''
-                });
-            }
+            const sprintDetails = await getSprintById(sprintId);
+            setSprintToUpdate(sprintDetails);
+            setOpenModal(true);
+        } catch (error) {
+            console.error('Error fetching sprint details: ', error)
         }
-
     }
+
+    // Fetch the active sprint details
+    useEffect(() => {
+        const fetchSprint = async () => {
+            try {
+                setLoading(true);
+
+                const data = await getActiveSprint();
+                console.log('Fetched sprint data: ', data);
+
+                if (data) {
+                    setSprintData(data);
+
+                    // Calculate days remaining in the active sprint
+                    if (data.endDate) {
+                        const endDate = new Date(data.endDate);
+                        const currentDate = new Date();
+                        const timeDifference = endDate.getTime() - currentDate.getTime();
+                        const days = Math.ceil(timeDifference / (1000 * 3600 * 24));
+                        setDaysRemaining(days);
+
+                        const startDate = new Date(data.startDate);
+                        setSprintDateRange(
+                            `${startDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })} - ${endDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}`
+                        );
+                    }
+                } else {
+                    setSprintData(null);
+                }
+
+            } catch (error) {
+                console.error('Failed to fetch project: ', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchSprint();
+    }, []);
 
     return (
         <Box sx={{ padding: 3 }}>
@@ -79,44 +97,103 @@ const CreateSprint = () => {
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 2 }}>
                             <Typography variant='h5' fontWeight='600'>
                                 Sprint Overview
+
                             </Typography>
                             <Chip
-                                icon={<CalendarTodayOutlined />}
-                                label="March 1 - March 14, 2025"
-                                variant="outlined"
-                                color="primary"
+                                sx={{ marginLeft: 'auto', marginRight: 1 }}
+                                label='Active'
+                                color='primary'
+                                variant='filled'
                             />
+                            {sprintData && (
+                                <Chip
+                                    icon={<CalendarTodayOutlined fontSize='small' />}
+                                    label={sprintDateRange}
+                                    variant="outlined"
+                                    color="info"
+                                />
+                            )}
                         </Box>
                         <Divider sx={{ marginBottom: 3 }} />
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 2 }}>
-                            <Box>
-                                <Typography variant='h6'>
-                                    Sprint Release Name <Chip sx={{ marginLeft: 1 }} label="Active" color="success" variant="filled" size='small' />
-                                </Typography>
-                                <Box sx={{ display: 'flex', alignItems: 'center', marginTop: 1 }}>
-                                    <Typography variant="body2" color="text.secondary">
-                                        Current sprint in progress
-                                    </Typography>
-                                </Box>
-                            </Box>
-                            <Tooltip title={`15 days until sprint end`}>
-                                <Chip icon={<SpeedOutlined />} label={`15 days until sprint end`} color='warning' variant='filled' sx={{ fontWeight: 'bold' }} />
-                            </Tooltip>
-                        </Box>
-                        <Box sx={{ mb: 3 }}>
-                            <Typography variant="body1">
-                                Sprint Goal: Complete the core functionality for the user dashboard and implement the new notification system.
-                            </Typography>
-                        </Box>
 
-                        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                            <Chip icon={<Flag />} label="6 tasks completed" color="info" variant="outlined" />
-                            <Chip label="8 tasks in progress" color="primary" variant="outlined" />
-                            <Chip label="3 tasks blocked" color="error" variant="outlined" />
-                        </Box>
+                        {loading ? (
+                            <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+                                <Typography>Loading sprint data...</Typography>
+                            </Box>
+                        ) : sprintData ? (
+                            <>
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 2 }}>
+                                    <Box>
+                                        <Typography variant='h6'>
+                                            {sprintData.sprintName}
+                                        </Typography>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', marginTop: 1 }}>
+                                            <Typography variant="body2" color="text.secondary">
+                                                Current sprint in progress
+                                            </Typography>
+                                        </Box>
+                                    </Box>
+
+                                    {daysRemaining !== null && sprintData.status === 'Ongoing' && (
+                                        <Tooltip title={`${daysRemaining} days until sprint end`}>
+                                            <Chip icon={<SpeedOutlined />} label={`${daysRemaining} days until sprint end`} color='warning' variant='filled' sx={{ fontWeight: 'bold' }} />
+                                        </Tooltip>
+                                    )}
+
+                                </Box>
+
+                                <Box sx={{ mb: 3 }}>
+                                    <Typography variant="body1" sx={{ mb: 1 }}>
+                                        <strong>Sprint Goal:</strong> {sprintData.goal}
+                                    </Typography>
+                                    {sprintData.description && (
+                                        <Typography variant="body2" color="text.secondary">
+                                            {sprintData.description}
+                                        </Typography>
+                                    )}
+                                </Box>
+
+                                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                                    <Chip
+                                        icon={<CheckCircle />}
+                                        label={`12 tasks completed`}
+                                        color="success"
+                                        variant="outlined"
+                                    />
+                                    <Chip
+                                        label={`20 tasks in progress`}
+                                        color="primary"
+                                        variant="outlined"
+                                    />
+                                    <Chip
+                                        icon={<Warning />}
+                                        label={`2 tasks blocked`}
+                                        color="error"
+                                        variant="outlined"
+                                    />
+                                    {sprintData.status === 'Ongoing' && (
+                                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginLeft: 7 }}>
+                                            <IconButton
+                                                size='medium'
+                                                color='primary'
+                                                sx={{ backgroundColor: 'lightblue'}}
+                                                onClick={() => handleOpenUpdateModal(sprintData.id)}
+                                            >
+                                                <EditNote />
+                                            </IconButton>
+                                        </Box>
+                                    )}
+                                </Box>
+
+                            </>
+                        ) : (
+                            <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+                                <Typography>No active sprint found. Create a new sprint to get started.</Typography>
+                            </Box>
+                        )}
                     </Paper>
                 </Grid2>
-                
+
                 <Grid2 sx={{ xs: 12, md: 8 }}>
                     <Paper elevation={3} sx={{
                         padding: 3,
@@ -124,7 +201,7 @@ const CreateSprint = () => {
                         background: 'linear-gradient(to right, #f5f7fa, #ffffff)',
                         height: '100%'
                     }}>
-                        <PastSprints/>
+                        <PastSprints />
                     </Paper>
                 </Grid2>
                 <Grid2 sx={{ xs: 12, md: 4 }}>
@@ -162,202 +239,12 @@ const CreateSprint = () => {
                 </Grid2>
             </Grid2>
 
-            <Dialog
-                open={openModal}
-                onClose={handleClose}
-                maxWidth="sm"
-                fullWidth
-                slotProps={{
-                    paper: {
-                        sx: {
-                            borderRadius: 2,
-                            boxShadow: '0 3px 5px rgba(0,0,0,0.1)',
-                            overflow: 'hidden'
-                        }
-                    }
-                }}
-            >
-                <DialogTitle
-                    sx={{
-                        borderBottom: '1px solid',
-                        borderColor: 'divider',
-                        padding: 3,
-                    }}
-                >
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Typography variant='h5' fontWeight={600}>
-                            Start New Sprint
-                        </Typography>
-                        <IconButton
-                            onClick={handleClose}
-                            size="small"
-                        >
-                            <CloseOutlined />
-                        </IconButton>
-                    </Box>
-                </DialogTitle>
-
-                <DialogContent sx={{ padding: 3, marginTop: 2 }}>
-                    <Grid2 spacing={3}>
-                        <Grid2 sx={{ xs: 12 }}>
-                            <TextField
-                                label='Sprint Name'
-                                fullWidth
-                                margin='dense'
-                                name='sprintName'
-                                value={sprintData.sprintName}
-                                onChange={handleInputChange}
-                                variant='outlined'
-                                slotProps={{
-                                    input: { sx: { borderRadius: 1.5, marginBottom: 2 } }
-                                }}
-                                error={!!errors.sprintName}
-                                helperText={errors.sprintName || ''}
-                            />
-                        </Grid2>
-
-                        <Grid2 sx={{ xs: 12 }}>
-                            <TextField
-                                label='Description'
-                                fullWidth
-                                name='description'
-                                multiline
-                                rows={3}
-                                value={sprintData.description}
-                                onChange={handleInputChange}
-                                variant='outlined'
-                                slotProps={{
-                                    input: { sx: { borderRadius: 1.5, marginBottom: 2 } }
-                                }}
-                            />
-                        </Grid2>
-
-                        <Grid2 sx={{ xs: 12 }}>
-                            <TextField
-                                label='Sprint Goal'
-                                fullWidth
-                                name='goal'
-                                value={sprintData.goal}
-                                onChange={handleInputChange}
-                                variant='outlined'
-                                slotProps={{
-                                    input: { sx: { borderRadius: 1.5, marginBottom: 2 } }
-                                }}
-                            />
-                        </Grid2>
-
-                        <Grid2 sx={{ xs: 12, md: 6 }}>
-                            <TextField
-                                select
-                                label='Status'
-                                fullWidth
-                                name='status'
-                                value={sprintData.status}
-                                onChange={handleInputChange}
-                                variant='outlined'
-                                slotProps={{
-                                    input: { sx: { borderRadius: 1.5, marginBottom: 2 } }
-                                }}
-                            >
-                                <MenuItem value="planning">Planning</MenuItem>
-                                <MenuItem value="active">Active</MenuItem>
-                                <MenuItem value="completed">Completed</MenuItem>
-                            </TextField>
-                        </Grid2>
-
-                        <Grid2 sx={{ xs: 12, md: 6 }}>
-                            <TextField
-                                label="Start Date"
-                                fullWidth
-                                name="startDate"
-                                value={sprintData.startDate}
-                                onChange={handleInputChange}
-                                variant="outlined"
-                                type="date"
-                                error={!!errors.dates}
-                                helperText={errors.dates ? errors.dates : ""}
-                                slotProps={{
-                                    input: { sx: { borderRadius: 1.5, marginBottom: 2 } },
-                                    inputLabel: { shrink: true }
-                                }}
-                            />
-                        </Grid2>
-
-                        <Grid2 sx={{ xs: 12, md: 6 }}>
-                            <TextField
-                                label="End Date"
-                                fullWidth
-                                name="endDate"
-                                value={sprintData.endDate}
-                                onChange={handleInputChange}
-                                variant="outlined"
-                                type="date"
-                                error={!!errors.dates}
-                                helperText={errors.dates ? errors.dates : ""}
-                                slotProps={{
-                                    input: { sx: { borderRadius: 1.5, marginBottom: 2 } },
-                                    inputLabel: { shrink: true }
-                                }}
-                            />
-                        </Grid2>
-                    </Grid2>
-
-                    {errors.general && (
-                        <Box sx={{
-                            mt: 2,
-                            p: 2,
-                            bgcolor: 'error.light',
-                            borderRadius: 1,
-                            color: 'error.dark',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 1
-                        }}>
-                            <ErrorOutline fontSize="small" color="error" />
-                            <Typography variant="body2" fontWeight={500}>
-                                {errors.general}
-                            </Typography>
-                        </Box>
-                    )}
-                </DialogContent>
-
-                <DialogActions sx={{
-                    px: 3,
-                    py: 2.5,
-                    borderTop: '1px solid',
-                    borderColor: 'divider',
-                    backgroundColor: 'grey.50'
-                }}>
-                    <Button
-                        onClick={handleClose}
-                        color="inherit"
-                        variant="outlined"
-                        sx={{
-                            borderRadius: 1.5,
-                            textTransform: 'none',
-                            fontWeight: 500,
-                            px: 3
-                        }}
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        onClick={handleCreateSprint}
-                        color="primary"
-                        variant="contained"
-                        sx={{
-                            borderRadius: 1.5,
-                            px: 3,
-                            py: 1,
-                            textTransform: 'none',
-                            fontWeight: 600,
-                            boxShadow: 2
-                        }}
-                    >
-                        Create Sprint
-                    </Button>
-                </DialogActions>
-            </Dialog>
+            <CreateModal
+                openModal={openModal}
+                handleClose={handleClose}
+                sprintData={sprintToUpdate}
+                sprintId={sprintData?.id || null}
+            />
         </Box>
     );
 };
