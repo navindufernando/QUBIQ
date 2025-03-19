@@ -203,7 +203,7 @@ const QubiqLandingPage: React.FC = () => {
       <Box sx={{ width: 280, p: 2 }} role="presentation">
         <Box sx={{ display: "flex", justifyContent: "center", mb: 2 }}>
           <img
-            src="/src/components/image/QUBIQ.png"
+            src="/src/pages/image/QUBIQ.png"
             alt="QUBIQ Logo"
             style={{ width: "120px", height: "auto" }}
           />
@@ -291,7 +291,7 @@ const QubiqLandingPage: React.FC = () => {
                   }}
                 >
                   <img
-                    src="/src/components/image/QUBIQ.png"
+                    src="/src/pages/image/QUBIQ.png"
                     alt="QUBIQ Logo"
                     style={{
                       width: "180px",
@@ -362,7 +362,7 @@ const QubiqLandingPage: React.FC = () => {
                 <>
                   <Box sx={{ display: "flex", justifyContent: "flex-start" }}>
                     <img
-                      src="/src/components/image/QUBIQ.png"
+                      src="/src/pages/image/QUBIQ.png"
                       alt="QUBIQ Logo"
                       style={{
                         width: "140px",
@@ -518,7 +518,7 @@ const QubiqLandingPage: React.FC = () => {
                 >
                   <Box
                     component="img"
-                    src="/src/components/image/image-1.png"
+                    src="/src/pages/image/image-1.png"
                     alt="QUBIQ Dashboard Preview"
                     sx={{
                       width: "100%",
@@ -626,21 +626,21 @@ const QubiqLandingPage: React.FC = () => {
                   title: "Create Projects & Tasks",
                   description:
                     "Set up your workspace in minutes. Create projects, add tasks, and organize them your way.",
-                  image: "/src/components/image/project-tracking.webp",
+                  image: "/src/pages/image/project-tracking.webp",
                 },
                 {
                   number: "02",
                   title: "Invite Your Team",
                   description:
                     "Collaboration is simple. Invite team members and assign tasks based on roles and responsibilities.",
-                  image: "/src/components/image/project-team-roles.jpg",
+                  image: "/src/pages/image/project-team-roles.jpg",
                 },
                 {
                   number: "03",
                   title: "Track Progress",
                   description:
                     "Monitor progress with customizable views. See what's done, what's in progress, and what's coming up next.",
-                  image: "/src/components/image/Track-progress.png",
+                  image: "/src/pages/image/Track-progress.png",
                 },
               ].map((step, index) => (
                 <Grid
@@ -930,7 +930,7 @@ const QubiqLandingPage: React.FC = () => {
               <Grid item xs={12} md={4}>
                 <Box sx={{ mb: 4 }}>
                   <img
-                    src="/src/components/image/QUBIQ.png"
+                    src="/src/pages/image/QUBIQ.png"
                     alt="QUBIQ Logo"
                     style={{
                       width: 140,
