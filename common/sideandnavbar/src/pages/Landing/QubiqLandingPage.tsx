@@ -596,7 +596,7 @@ const QubiqLandingPage: React.FC = () => {
           </Container>
         </Box>
 
-        {/* How It Works Section */}
+        {/* How It Works Section*/}
         <Box sx={{ bgcolor: "#F8FAFC", py: { xs: 6, md: 10 } }}>
           <Container maxWidth="lg">
             <Box sx={{ textAlign: "center", mb: 6 }}>
@@ -718,6 +718,118 @@ const QubiqLandingPage: React.FC = () => {
                       />
                     </Card>
                   </Box>
+                </Grid>
+              ))}
+            </Grid>
+          </Container>
+        </Box>
+
+        {/* Key Features Section */}
+        <Box sx={{ bgcolor: "white", py: { xs: 6, md: 10 } }}>
+          <Container maxWidth="lg">
+            <Box sx={{ textAlign: "center", mb: 6 }}>
+              <Typography
+                variant="h3"
+                sx={{ fontWeight: 700, color: "#1E293B", mb: 2 }}
+              >
+                Key Features
+              </Typography>
+              <Typography
+                variant="body1"
+                sx={{
+                  color: "#64748B",
+                  mb: 4,
+                  maxWidth: "700px",
+                  mx: "auto",
+                }}
+              >
+                Everything you need to manage projects efficiently
+              </Typography>
+            </Box>
+
+            <Grid container spacing={4}>
+              {[
+                {
+                  icon: <FormatListBulletedIcon sx={{ fontSize: 24 }} />,
+                  title: "Flexible Task Views",
+                  description:
+                    "List, board, calendar, and timeline views to visualize your work in different ways.",
+                },
+                {
+                  icon: <SpeedIcon sx={{ fontSize: 24 }} />,
+                  title: "Performance Analytics",
+                  description:
+                    "Track progress and identify bottlenecks with powerful reporting and analytics.",
+                },
+                {
+                  icon: <PeopleIcon sx={{ fontSize: 24 }} />,
+                  title: "Team Workload",
+                  description:
+                    "Balance workloads across team members for optimal productivity.",
+                },
+                {
+                  icon: <SettingsIcon sx={{ fontSize: 24 }} />,
+                  title: "Customizable Workflows",
+                  description:
+                    "Create custom statuses and workflows that match your team's processes.",
+                },
+                {
+                  icon: <CodeIcon sx={{ fontSize: 24 }} />,
+                  title: "AI-Powered Code Suggestions",
+                  description:
+                    "Real-time coding assistance, code optimization, and error prevention.",
+                },
+                {
+                  icon: <CheckCircleIcon sx={{ fontSize: 24 }} />,
+                  title: "Goal Tracking",
+                  description:
+                    "Set and track goals to keep your team aligned and motivated.",
+                },
+              ].map((feature, index) => (
+                <Grid item xs={12} sm={6} md={4} key={index}>
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      p: 3,
+                      height: "100%",
+                      borderRadius: 4,
+                      border: "1px solid rgba(99, 102, 241, 0.1)",
+                      transition: "all 0.3s ease",
+                      "&:hover": {
+                        boxShadow: "0 10px 25px -5px rgba(99, 102, 241, 0.2)",
+                        transform: "translateY(-5px)",
+                      },
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        mb: 2,
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          p: 1,
+                          borderRadius: 2,
+                          bgcolor: "rgba(99, 102, 241, 0.1)",
+                          color: "#6366f1",
+                          mr: 2,
+                        }}
+                      >
+                        {feature.icon}
+                      </Box>
+                      <Typography
+                        variant="h6"
+                        sx={{ fontWeight: 600, color: "#1E293B" }}
+                      >
+                        {feature.title}
+                      </Typography>
+                    </Box>
+                    <Typography variant="body2" sx={{ color: "#64748B" }}>
+                      {feature.description}
+                    </Typography>
+                  </Paper>
                 </Grid>
               ))}
             </Grid>
