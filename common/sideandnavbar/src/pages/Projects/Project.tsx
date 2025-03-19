@@ -14,6 +14,11 @@ import {
   Avatar,
   Grid,
   LinearProgress,
+  Paper,
+  Container,
+  AvatarGroup,
+  InputAdornment,
+  CardActionArea,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
@@ -27,6 +32,11 @@ import BookmarkIcon from "@mui/icons-material/Bookmark";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import DateRangeIcon from "@mui/icons-material/DateRange";
 import EqualizerIcon from "@mui/icons-material/Equalizer";
+import SearchIcon from "@mui/icons-material/Search";
+import ColorLensIcon from "@mui/icons-material/ColorLens";
+import SortIcon from "@mui/icons-material/Sort";
+import FilterListIcon from "@mui/icons-material/FilterList";
+import LabelIcon from "@mui/icons-material/Label";
 
 const Project = () => {
   const [projectName, setProjectName] = useState("");
@@ -35,6 +45,7 @@ const Project = () => {
     { id: string; name: string; color: string }[]
   >([]);
   const [isFormVisible, setIsFormVisible] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
 
   // Load existing projects on component mount
@@ -82,7 +93,9 @@ const Project = () => {
     setIsFormVisible(false);
   };
 
-  const handleDeleteProject = (id) => {
+  const handleDeleteProject = (id, e) => {
+    e.stopPropagation(); // Prevent navigating to project when deleting
+
     // Filter out the project with the matching id
     const updatedProjects = projects.filter((project) => project.id !== id);
 
@@ -99,41 +112,80 @@ const Project = () => {
     { value: "#ef4444", label: "Red" },
     { value: "#f59e0b", label: "Orange" },
     { value: "#8b5cf6", label: "Purple" },
+    { value: "#14b8a6", label: "Teal" },
+    { value: "#f97316", label: "Amber" },
+    { value: "#6366f1", label: "Indigo" },
   ];
 
   // Generate mock stats for visual enhancement
   const getProgressValue = () => Math.floor(Math.random() * 100);
   const getTaskCount = () => Math.floor(Math.random() * 10);
 
+  // Filter projects based on search term
+  const filteredProjects = projects.filter((project) =>
+    project.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
-    <div className="max-w-6xl mx-auto p-6">
-      {/* Header with summary cards */}
-      <Box sx={{ mb: 4 }}>
+    <Container maxWidth="xl" sx={{ py: 4 }}>
+      {/* Header with title and action buttons */}
+      <Box sx={{ mb: 5 }}>
         <Box
           sx={{
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            mb: 3,
+            mb: 4,
           }}
         >
-          <Typography variant="h4" component="h1" sx={{ fontWeight: "bold" }}>
+          <Typography variant="h4" component="h1" sx={{ fontWeight: 700 }}>
             Workspace
           </Typography>
-          <Box sx={{ display: "flex", gap: 1 }}>
-            <Button variant="outlined" startIcon={<DateRangeIcon />}>
+          <Box sx={{ display: "flex", gap: 2 }}>
+            <Button
+              variant="outlined"
+              startIcon={<DateRangeIcon />}
+              sx={{
+                borderRadius: 2,
+                textTransform: "none",
+                py: 1,
+                px: 2,
+                fontWeight: 500,
+              }}
+            >
               Calendar
             </Button>
-            <Button variant="outlined" startIcon={<EqualizerIcon />}>
+            <Button
+              variant="contained"
+              startIcon={<EqualizerIcon />}
+              sx={{
+                borderRadius: 2,
+                textTransform: "none",
+                py: 1,
+                px: 2,
+                fontWeight: 500,
+                boxShadow: 2,
+              }}
+            >
               Reports
             </Button>
           </Box>
         </Box>
 
+        {/* Stats Cards */}
         <Grid container spacing={3}>
           <Grid item xs={12} md={4}>
-            <Card elevation={2} sx={{ bgcolor: "#f0f7ff", height: "100%" }}>
-              <CardContent>
+            <Paper
+              elevation={0}
+              sx={{
+                bgcolor: "#f0f7ff",
+                height: "100%",
+                borderRadius: 3,
+                p: 0.5,
+                boxShadow: "0 2px 20px rgba(0,0,0,0.05)",
+              }}
+            >
+              <CardContent sx={{ p: 3 }}>
                 <Box
                   sx={{
                     display: "flex",
@@ -145,20 +197,36 @@ const Project = () => {
                     <Typography color="textSecondary" gutterBottom>
                       Total Projects
                     </Typography>
-                    <Typography variant="h4" sx={{ fontWeight: "bold" }}>
+                    <Typography variant="h4" sx={{ fontWeight: 700 }}>
                       {projects.length}
                     </Typography>
                   </Box>
-                  <Avatar sx={{ bgcolor: "#3b82f6" }}>
+                  <Avatar
+                    sx={{
+                      bgcolor: "#3b82f6",
+                      width: 48,
+                      height: 48,
+                      boxShadow: 2,
+                    }}
+                  >
                     <DashboardIcon />
                   </Avatar>
                 </Box>
               </CardContent>
-            </Card>
+            </Paper>
           </Grid>
           <Grid item xs={12} md={4}>
-            <Card elevation={2} sx={{ bgcolor: "#f0fff4", height: "100%" }}>
-              <CardContent>
+            <Paper
+              elevation={0}
+              sx={{
+                bgcolor: "#f0fff4",
+                height: "100%",
+                borderRadius: 3,
+                p: 0.5,
+                boxShadow: "0 2px 20px rgba(0,0,0,0.05)",
+              }}
+            >
+              <CardContent sx={{ p: 3 }}>
                 <Box
                   sx={{
                     display: "flex",
@@ -170,20 +238,36 @@ const Project = () => {
                     <Typography color="textSecondary" gutterBottom>
                       Completed Tasks
                     </Typography>
-                    <Typography variant="h4" sx={{ fontWeight: "bold" }}>
+                    <Typography variant="h4" sx={{ fontWeight: 700 }}>
                       {projects.length > 0 ? 12 : 0}
                     </Typography>
                   </Box>
-                  <Avatar sx={{ bgcolor: "#10b981" }}>
+                  <Avatar
+                    sx={{
+                      bgcolor: "#10b981",
+                      width: 48,
+                      height: 48,
+                      boxShadow: 2,
+                    }}
+                  >
                     <CheckCircleIcon />
                   </Avatar>
                 </Box>
               </CardContent>
-            </Card>
+            </Paper>
           </Grid>
           <Grid item xs={12} md={4}>
-            <Card elevation={2} sx={{ bgcolor: "#fff9eb", height: "100%" }}>
-              <CardContent>
+            <Paper
+              elevation={0}
+              sx={{
+                bgcolor: "#fff9eb",
+                height: "100%",
+                borderRadius: 3,
+                p: 0.5,
+                boxShadow: "0 2px 20px rgba(0,0,0,0.05)",
+              }}
+            >
+              <CardContent sx={{ p: 3 }}>
                 <Box
                   sx={{
                     display: "flex",
@@ -195,37 +279,106 @@ const Project = () => {
                     <Typography color="textSecondary" gutterBottom>
                       In Progress
                     </Typography>
-                    <Typography variant="h4" sx={{ fontWeight: "bold" }}>
+                    <Typography variant="h4" sx={{ fontWeight: 700 }}>
                       {projects.length > 0 ? 8 : 0}
                     </Typography>
                   </Box>
-                  <Avatar sx={{ bgcolor: "#f59e0b" }}>
+                  <Avatar
+                    sx={{
+                      bgcolor: "#f59e0b",
+                      width: 48,
+                      height: 48,
+                      boxShadow: 2,
+                    }}
+                  >
                     <TimerIcon />
                   </Avatar>
                 </Box>
               </CardContent>
-            </Card>
+            </Paper>
           </Grid>
         </Grid>
       </Box>
 
       {/* Project Management Section */}
-      <Box sx={{ mb: 4 }}>
-        <Typography
-          variant="h5"
+      <Box sx={{ mb: 5 }}>
+        <Box
           sx={{
-            fontWeight: "bold",
-            mb: 3,
             display: "flex",
+            justifyContent: "space-between",
             alignItems: "center",
+            mb: 3,
           }}
         >
-          <FolderIcon sx={{ mr: 1 }} />
-          Projects
-        </Typography>
+          <Typography
+            variant="h5"
+            sx={{
+              fontWeight: 700,
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <FolderIcon sx={{ mr: 1.5 }} />
+            Projects
+          </Typography>
 
-        <Card elevation={3} sx={{ mb: 4 }}>
-          <CardContent>
+          <Box sx={{ display: "flex", gap: 2 }}>
+            <TextField
+              size="small"
+              placeholder="Search projects..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              sx={{
+                width: 240,
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: 2,
+                  bgcolor: "white",
+                },
+              }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon fontSize="small" />
+                  </InputAdornment>
+                ),
+              }}
+            />
+
+            <Button
+              variant="outlined"
+              startIcon={<FilterListIcon />}
+              sx={{
+                borderRadius: 2,
+                textTransform: "none",
+                fontWeight: 500,
+              }}
+            >
+              Filter
+            </Button>
+
+            <Button
+              variant="outlined"
+              startIcon={<SortIcon />}
+              sx={{
+                borderRadius: 2,
+                textTransform: "none",
+                fontWeight: 500,
+              }}
+            >
+              Sort
+            </Button>
+          </Box>
+        </Box>
+
+        <Paper
+          elevation={0}
+          sx={{
+            mb: 4,
+            borderRadius: 3,
+            boxShadow: "0 2px 20px rgba(0,0,0,0.05)",
+          }}
+        >
+          <CardContent sx={{ p: 0 }}>
             <Box
               onClick={() => setIsFormVisible(!isFormVisible)}
               sx={{
@@ -233,18 +386,28 @@ const Project = () => {
                 justifyContent: "space-between",
                 alignItems: "center",
                 cursor: "pointer",
-                py: 1,
+                py: 2,
+                px: 3,
+                borderRadius: 3,
+                bgcolor: isFormVisible
+                  ? "rgba(59, 130, 246, 0.05)"
+                  : "transparent",
+                transition: "background-color 0.2s",
+                "&:hover": {
+                  bgcolor: "rgba(59, 130, 246, 0.05)",
+                },
               }}
             >
               <Typography
                 variant="h6"
                 sx={{
-                  fontWeight: "bold",
+                  fontWeight: 600,
                   display: "flex",
                   alignItems: "center",
+                  color: "#3b82f6",
                 }}
               >
-                <AddIcon sx={{ mr: 1 }} />
+                <AddIcon sx={{ mr: 1.5 }} />
                 Create New Project
               </Typography>
               {isFormVisible ? (
@@ -256,252 +419,361 @@ const Project = () => {
 
             {isFormVisible && (
               <>
-                <Divider sx={{ my: 2 }} />
-                <form onSubmit={handleCreateProject}>
-                  <div className="mb-4">
-                    <TextField
-                      id="projectName"
-                      label="Project Name"
-                      variant="outlined"
-                      fullWidth
-                      placeholder="Enter project name"
-                      value={projectName}
-                      onChange={(e) => setProjectName(e.target.value)}
-                      required
-                      className="mb-2"
-                      autoFocus
-                    />
-                  </div>
+                <Divider sx={{ my: 0 }} />
+                <Box sx={{ p: 3 }}>
+                  <form onSubmit={handleCreateProject}>
+                    <Box sx={{ mb: 3 }}>
+                      <TextField
+                        id="projectName"
+                        label="Project Name"
+                        variant="outlined"
+                        fullWidth
+                        placeholder="Enter project name"
+                        value={projectName}
+                        onChange={(e) => setProjectName(e.target.value)}
+                        required
+                        autoFocus
+                        sx={{
+                          "& .MuiOutlinedInput-root": {
+                            borderRadius: 2,
+                          },
+                        }}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <LabelIcon fontSize="small" />
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
+                    </Box>
 
-                  <div className="mb-4">
-                    <Typography variant="subtitle2" className="block mb-2">
-                      Project Color
-                    </Typography>
-                    <div className="flex space-x-3">
-                      {colorOptions.map((color) => (
-                        <Tooltip key={color.value} title={color.label} arrow>
-                          <button
-                            type="button"
-                            className={`w-10 h-10 rounded-full border-2 shadow hover:shadow-md transition-shadow ${
-                              projectColor === color.value
-                                ? "border-gray-800 ring-2 ring-gray-300"
-                                : "border-transparent"
-                            }`}
-                            style={{ backgroundColor: color.value }}
-                            onClick={() => setProjectColor(color.value)}
-                            aria-label={`Select ${color.label} color`}
-                          />
-                        </Tooltip>
-                      ))}
-                    </div>
-                  </div>
+                    <Box sx={{ mb: 3 }}>
+                      <Typography
+                        variant="subtitle2"
+                        sx={{ mb: 1.5, display: "flex", alignItems: "center" }}
+                      >
+                        <ColorLensIcon fontSize="small" sx={{ mr: 1 }} />
+                        Project Color
+                      </Typography>
+                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5 }}>
+                        {colorOptions.map((color) => (
+                          <Tooltip key={color.value} title={color.label} arrow>
+                            <Box
+                              onClick={() => setProjectColor(color.value)}
+                              sx={{
+                                width: 36,
+                                height: 36,
+                                borderRadius: "50%",
+                                bgcolor: color.value,
+                                cursor: "pointer",
+                                border:
+                                  projectColor === color.value
+                                    ? "2px solid #000"
+                                    : "2px solid transparent",
+                                boxShadow:
+                                  projectColor === color.value
+                                    ? "0 0 0 2px rgba(0,0,0,0.2)"
+                                    : "none",
+                                transition: "all 0.2s",
+                                "&:hover": {
+                                  transform: "scale(1.1)",
+                                  boxShadow: "0 4px 10px rgba(0,0,0,0.15)",
+                                },
+                              }}
+                              aria-label={`Select ${color.label} color`}
+                            />
+                          </Tooltip>
+                        ))}
+                      </Box>
+                    </Box>
 
-                  <Box sx={{ display: "flex", gap: 2 }}>
-                    <Button
-                      type="submit"
-                      variant="contained"
-                      color="primary"
-                      startIcon={<AddIcon />}
-                      sx={{
-                        py: 1.5,
-                        textTransform: "none",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      Create Project
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outlined"
-                      sx={{
-                        py: 1.5,
-                        textTransform: "none",
-                      }}
-                      onClick={() => setIsFormVisible(false)}
-                    >
-                      Cancel
-                    </Button>
-                  </Box>
-                </form>
+                    <Box sx={{ display: "flex", gap: 2 }}>
+                      <Button
+                        type="submit"
+                        variant="contained"
+                        color="primary"
+                        startIcon={<AddIcon />}
+                        sx={{
+                          py: 1.5,
+                          px: 3,
+                          borderRadius: 2,
+                          textTransform: "none",
+                          fontWeight: 600,
+                          boxShadow: 2,
+                        }}
+                      >
+                        Create Project
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outlined"
+                        sx={{
+                          py: 1.5,
+                          px: 3,
+                          borderRadius: 2,
+                          textTransform: "none",
+                          fontWeight: 500,
+                        }}
+                        onClick={() => setIsFormVisible(false)}
+                      >
+                        Cancel
+                      </Button>
+                    </Box>
+                  </form>
+                </Box>
               </>
             )}
           </CardContent>
-        </Card>
+        </Paper>
 
-        <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 500 }}>
-          Your Projects ({projects.length})
-        </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 3,
+          }}
+        >
+          <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+            Your Projects ({filteredProjects.length})
+          </Typography>
+          {filteredProjects.length > 0 && searchTerm && (
+            <Typography variant="body2" color="textSecondary">
+              Showing {filteredProjects.length} of {projects.length} projects
+            </Typography>
+          )}
+        </Box>
 
-        {projects.length > 0 ? (
+        {filteredProjects.length > 0 ? (
           <Grid container spacing={3}>
-            {projects.map((project) => (
+            {filteredProjects.map((project) => (
               <Grid item xs={12} md={6} lg={4} key={project.id}>
                 <Card
                   sx={{
                     height: "100%",
                     transition: "transform 0.2s, box-shadow 0.2s",
+                    borderRadius: 3,
+                    overflow: "hidden",
+                    boxShadow: "0 2px 20px rgba(0,0,0,0.05)",
                     "&:hover": {
-                      transform: "translateY(-4px)",
-                      boxShadow: 6,
+                      transform: "translateY(-5px)",
+                      boxShadow: "0 12px 30px rgba(0,0,0,0.1)",
                     },
-                    cursor: "pointer", // Add cursor pointer to indicate it's clickable
                   }}
-                  onClick={() =>
-                    navigate(`/project/${project.id}`, {
-                      state: { projectId: project.id },
-                    })
-                  }
                 >
-                  <Box
-                    sx={{
-                      height: 8,
-                      bgcolor: project.color,
-                    }}
-                  />
-                  <CardContent>
+                  <CardActionArea
+                    onClick={() =>
+                      navigate(`/project/${project.id}`, {
+                        state: { projectId: project.id },
+                      })
+                    }
+                  >
                     <Box
                       sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "flex-start",
+                        height: 8,
+                        bgcolor: project.color,
                       }}
-                    >
-                      <Typography
-                        variant="h6"
-                        sx={{ fontWeight: "bold", mb: 2 }}
-                      >
-                        {project.name}
-                      </Typography>
-                      <Box sx={{ display: "flex" }}>
-                        <Tooltip title="Bookmark">
-                          <IconButton size="small">
-                            <BookmarkIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Delete Project">
-                          <IconButton
-                            aria-label="delete"
-                            onClick={() => handleDeleteProject(project.id)}
-                            size="small"
-                            color="error"
-                          >
-                            <DeleteIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="More Options">
-                          <IconButton size="small">
-                            <MoreVertIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-                      </Box>
-                    </Box>
-
-                    <Box sx={{ mb: 2 }}>
+                    />
+                    <CardContent sx={{ p: 3 }}>
                       <Box
                         sx={{
                           display: "flex",
                           justifyContent: "space-between",
-                          mb: 0.5,
+                          alignItems: "center",
                         }}
                       >
-                        <Typography variant="body2" color="textSecondary">
-                          Progress
-                        </Typography>
-                        <Typography variant="body2" fontWeight="bold">
-                          {getProgressValue()}%
-                        </Typography>
-                      </Box>
-                      <LinearProgress
-                        variant="determinate"
-                        value={getProgressValue()}
-                        sx={{
-                          height: 6,
-                          borderRadius: 1,
-                          bgcolor: "rgba(0,0,0,0.05)",
-                          "& .MuiLinearProgress-bar": {
-                            bgcolor: project.color,
-                          },
-                        }}
-                      />
-                    </Box>
-
-                    <Divider sx={{ mb: 2 }} />
-
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                      }}
-                    >
-                      <Box sx={{ display: "flex", gap: 1 }}>
-                        <Chip
-                          icon={<CheckCircleIcon fontSize="small" />}
-                          label={`${getTaskCount()} Done`}
-                          size="small"
-                          sx={{ fontSize: "0.75rem" }}
-                        />
-                        <Chip
-                          icon={<TimerIcon fontSize="small" />}
-                          label={`${getTaskCount()} In Progress`}
-                          size="small"
-                          sx={{ fontSize: "0.75rem" }}
-                        />
-                      </Box>
-                      <Box sx={{ display: "flex", gap: 0.5 }}>
-                        {[...Array(Math.min(3, getTaskCount()))].map((_, i) => (
+                        <Box sx={{ display: "flex", alignItems: "center" }}>
                           <Avatar
-                            key={i}
                             sx={{
-                              width: 24,
-                              height: 24,
-                              fontSize: "0.75rem",
-                              bgcolor: [
-                                "#3b82f6",
-                                "#10b981",
-                                "#f59e0b",
-                                "#8b5cf6",
-                                "#ef4444",
-                              ][i % 5],
+                              bgcolor: project.color,
+                              width: 40,
+                              height: 40,
+                              mr: 2,
+                              boxShadow: 1,
                             }}
                           >
-                            {String.fromCharCode(65 + i)}
+                            {project.name.charAt(0).toUpperCase()}
                           </Avatar>
-                        ))}
+                          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                            {project.name}
+                          </Typography>
+                        </Box>
+                        <Box sx={{ display: "flex" }}>
+                          <Tooltip title="Bookmark">
+                            <IconButton size="small">
+                              <BookmarkIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title="Delete Project">
+                            <IconButton
+                              aria-label="delete"
+                              onClick={(e) =>
+                                handleDeleteProject(project.id, e)
+                              }
+                              size="small"
+                              color="error"
+                            >
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title="More Options">
+                            <IconButton size="small">
+                              <MoreVertIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                        </Box>
                       </Box>
-                    </Box>
-                  </CardContent>
+
+                      <Box sx={{ mt: 3, mb: 2 }}>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            mb: 1,
+                          }}
+                        >
+                          <Typography variant="body2" color="textSecondary">
+                            Progress
+                          </Typography>
+                          <Typography variant="body2" fontWeight="600">
+                            {getProgressValue()}%
+                          </Typography>
+                        </Box>
+                        <LinearProgress
+                          variant="determinate"
+                          value={getProgressValue()}
+                          sx={{
+                            height: 8,
+                            borderRadius: 4,
+                            bgcolor: "rgba(0,0,0,0.04)",
+                            "& .MuiLinearProgress-bar": {
+                              bgcolor: project.color,
+                              borderRadius: 4,
+                            },
+                          }}
+                        />
+                      </Box>
+
+                      <Divider sx={{ my: 2 }} />
+
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Box sx={{ display: "flex", gap: 1 }}>
+                          <Chip
+                            icon={<CheckCircleIcon fontSize="small" />}
+                            label={`${getTaskCount()} Done`}
+                            size="small"
+                            sx={{
+                              fontSize: "0.75rem",
+                              borderRadius: 2,
+                              bgcolor: "rgba(16, 185, 129, 0.1)",
+                              color: "#10b981",
+                              fontWeight: 500,
+                            }}
+                          />
+                          <Chip
+                            icon={<TimerIcon fontSize="small" />}
+                            label={`${getTaskCount()} In Progress`}
+                            size="small"
+                            sx={{
+                              fontSize: "0.75rem",
+                              borderRadius: 2,
+                              bgcolor: "rgba(245, 158, 11, 0.1)",
+                              color: "#f59e0b",
+                              fontWeight: 500,
+                            }}
+                          />
+                        </Box>
+                        <Box>
+                          <AvatarGroup
+                            max={3}
+                            sx={{
+                              "& .MuiAvatar-root": { width: 28, height: 28 },
+                            }}
+                          >
+                            {[...Array(Math.min(4, getTaskCount()))].map(
+                              (_, i) => (
+                                <Avatar
+                                  key={i}
+                                  sx={{
+                                    fontSize: "0.75rem",
+                                    bgcolor: [
+                                      "#3b82f6",
+                                      "#10b981",
+                                      "#f59e0b",
+                                      "#8b5cf6",
+                                      "#ef4444",
+                                    ][i % 5],
+                                    boxShadow: 1,
+                                  }}
+                                >
+                                  {String.fromCharCode(65 + i)}
+                                </Avatar>
+                              )
+                            )}
+                          </AvatarGroup>
+                        </Box>
+                      </Box>
+                    </CardContent>
+                  </CardActionArea>
                 </Card>
               </Grid>
             ))}
           </Grid>
         ) : (
-          <Card elevation={2}>
-            <CardContent sx={{ p: 4, textAlign: "center" }}>
-              <Box sx={{ maxWidth: 300, mx: "auto", mb: 3 }}>
-                <FolderIcon sx={{ fontSize: 60, color: "#ccc", mb: 2 }} />
-                <Typography variant="h6" gutterBottom>
-                  No projects yet
+          <Paper
+            elevation={0}
+            sx={{
+              borderRadius: 3,
+              boxShadow: "0 2px 20px rgba(0,0,0,0.05)",
+            }}
+          >
+            <CardContent sx={{ p: 5, textAlign: "center" }}>
+              <Box sx={{ maxWidth: 400, mx: "auto" }}>
+                <FolderIcon sx={{ fontSize: 70, color: "#d1d5db", mb: 2 }} />
+                <Typography variant="h6" gutterBottom fontWeight={600}>
+                  {searchTerm
+                    ? "No matching projects found"
+                    : "No projects yet"}
                 </Typography>
                 <Typography color="textSecondary" sx={{ mb: 3 }}>
-                  Create your first project to get started with tracking your
-                  work and organizing your tasks.
+                  {searchTerm
+                    ? `Try adjusting your search term or create a new project.`
+                    : `Create your first project to get started with tracking your
+                    work and organizing your tasks.`}
                 </Typography>
                 <Button
                   variant="contained"
                   color="primary"
                   startIcon={<AddIcon />}
-                  onClick={() => setIsFormVisible(true)}
-                  sx={{ textTransform: "none" }}
+                  onClick={() => {
+                    setIsFormVisible(true);
+                    setSearchTerm("");
+                  }}
+                  sx={{
+                    textTransform: "none",
+                    py: 1.5,
+                    px: 3,
+                    borderRadius: 2,
+                    fontWeight: 600,
+                    boxShadow: 2,
+                  }}
                 >
-                  Create First Project
+                  {searchTerm ? "Create New Project" : "Create First Project"}
                 </Button>
               </Box>
             </CardContent>
-          </Card>
+          </Paper>
         )}
       </Box>
-    </div>
+    </Container>
   );
 };
 
