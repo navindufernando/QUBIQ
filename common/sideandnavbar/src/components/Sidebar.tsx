@@ -6,6 +6,7 @@ const Sidebar = () => {
   const [thoughts, setThoughts] = useState([]);
   const [newThought, setNewThought] = useState("");
   const [isWriting, setIsWriting] = useState(false);
+  const [activeLink, setActiveLink] = useState("home");
 
   // Load projects and thoughts from localStorage on component mount
   useEffect(() => {
@@ -109,30 +110,41 @@ const Sidebar = () => {
         flexDirection: "column",
         position: "sticky",
         top: 0,
+        boxShadow: "0 0 20px rgba(0, 0, 0, 0.05)",
       }}
     >
-      <div className="py-3 pl-3 flex items-center" style={{ height: "64px" }}>
-        <h1 className="text-2xl font-bold" style={{ color: "#0D062D" }}>
+      <div className="py-4 pl-6 flex items-center" style={{ height: "64px" }}>
+        <h1
+          className="text-2xl font-bold text-black" // Changed to black color
+          style={{
+            color: "#000000", // Set to black
+          }}
+        >
           Project M.
         </h1>
       </div>
-      <hr />
+      <div className="px-4">
+        <hr style={{ borderColor: "rgba(0, 0, 0, 0.08)" }} />
+      </div>
       <div
         className="flex-1 overflow-y-auto"
-        style={{ paddingLeft: "10px", paddingRight: "10px" }}
+        style={{ paddingLeft: "20px", paddingRight: "20px" }}
       >
-        <ul className="mt-3 font-medium text-[#1A1A1A]">
-          <li className="mb-2 rounded-lg transition duration-300">
+        <ul className="mt-6 font-medium text-[#1A1A1A] space-y-3">
+          <li className="rounded-lg transition duration-300">
             <Link
               to="/"
-              className="flex items-center px-3 py-2 space-x-3 rounded-lg transition duration-300 hover:bg-[#D1CEDB] hover:text-[#1A1A1A]"
+              className={`flex items-center px-4 py-2.5 space-x-3 rounded-lg transition duration-300 hover:bg-[#D1CEDB] ${
+                activeLink === "home" ? "bg-[#D1CEDB]" : ""
+              }`}
+              onClick={() => setActiveLink("home")}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
                 strokeWidth={1.5}
-                stroke="currentColor"
+                stroke={activeLink === "home" ? "#5E3FE9" : "currentColor"}
                 className="size-6"
               >
                 <path
@@ -141,21 +153,30 @@ const Sidebar = () => {
                   d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"
                 />
               </svg>
-              <span>Home</span>
+              <span
+                className={
+                  activeLink === "home" ? "text-[#5E3FE9] font-semibold" : ""
+                }
+              >
+                Home
+              </span>
             </Link>
           </li>
 
-          <li className="mb-2 rounded-lg transition duration-300">
+          <li className="rounded-lg transition duration-300">
             <Link
               to="/dashboard"
-              className="flex items-center px-3 py-2 space-x-3 rounded-lg transition duration-300 hover:bg-[#D1CEDB] hover:text-[#1A1A1A]"
+              className={`flex items-center px-4 py-2.5 space-x-3 rounded-lg transition duration-300 hover:bg-[#D1CEDB] ${
+                activeLink === "dashboard" ? "bg-[#D1CEDB]" : ""
+              }`}
+              onClick={() => setActiveLink("dashboard")}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
                 strokeWidth={1.5}
-                stroke="currentColor"
+                stroke={activeLink === "dashboard" ? "#5E3FE9" : "currentColor"}
                 className="size-6"
               >
                 <path
@@ -164,21 +185,32 @@ const Sidebar = () => {
                   d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5m.75-9 3-3 2.148 2.148A12.061 12.061 0 0 1 16.5 7.605"
                 />
               </svg>
-              <span>Dashboard</span>
+              <span
+                className={
+                  activeLink === "dashboard"
+                    ? "text-[#5E3FE9] font-semibold"
+                    : ""
+                }
+              >
+                Dashboard
+              </span>
             </Link>
           </li>
 
-          <li className="mb-2 rounded-lg transition duration-300">
+          <li className="rounded-lg transition duration-300">
             <Link
               to="/message"
-              className="flex items-center px-3 py-2 space-x-3 rounded-lg transition duration-300 hover:bg-[#D1CEDB] hover:text-[#1A1A1A]"
+              className={`flex items-center px-4 py-2.5 space-x-3 rounded-lg transition duration-300 hover:bg-[#D1CEDB] ${
+                activeLink === "message" ? "bg-[#D1CEDB]" : ""
+              }`}
+              onClick={() => setActiveLink("message")}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
                 strokeWidth={1.5}
-                stroke="currentColor"
+                stroke={activeLink === "message" ? "#5E3FE9" : "currentColor"}
                 className="size-6"
               >
                 <path
@@ -187,21 +219,30 @@ const Sidebar = () => {
                   d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 0 1 .865-.501 48.172 48.172 0 0 0 3.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z"
                 />
               </svg>
-              <span>Messages</span>
+              <span
+                className={
+                  activeLink === "message" ? "text-[#5E3FE9] font-semibold" : ""
+                }
+              >
+                Messages
+              </span>
             </Link>
           </li>
 
-          <li className="mb-2 rounded-lg transition duration-300">
+          <li className="rounded-lg transition duration-300">
             <Link
               to="/members"
-              className="flex items-center px-3 py-2 space-x-3 rounded-lg transition duration-300 hover:bg-[#D1CEDB] hover:text-[#1A1A1A]"
+              className={`flex items-center px-4 py-2.5 space-x-3 rounded-lg transition duration-300 hover:bg-[#D1CEDB] ${
+                activeLink === "members" ? "bg-[#D1CEDB]" : ""
+              }`}
+              onClick={() => setActiveLink("members")}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
                 strokeWidth={1.5}
-                stroke="currentColor"
+                stroke={activeLink === "members" ? "#5E3FE9" : "currentColor"}
                 className="size-6"
               >
                 <path
@@ -210,21 +251,30 @@ const Sidebar = () => {
                   d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z"
                 />
               </svg>
-              <span>Members</span>
+              <span
+                className={
+                  activeLink === "members" ? "text-[#5E3FE9] font-semibold" : ""
+                }
+              >
+                Members
+              </span>
             </Link>
           </li>
 
-          <li className="mb-2 rounded-lg transition duration-300">
+          <li className="rounded-lg transition duration-300">
             <Link
               to="/review"
-              className="flex items-center px-3 py-2 space-x-3 rounded-lg transition duration-300 hover:bg-[#D1CEDB] hover:text-[#1A1A1A]"
+              className={`flex items-center px-4 py-2.5 space-x-3 rounded-lg transition duration-300 hover:bg-[#D1CEDB] ${
+                activeLink === "review" ? "bg-[#D1CEDB]" : ""
+              }`}
+              onClick={() => setActiveLink("review")}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
                 strokeWidth={1.5}
-                stroke="currentColor"
+                stroke={activeLink === "review" ? "#5E3FE9" : "currentColor"}
                 className="size-6"
               >
                 <path
@@ -233,21 +283,30 @@ const Sidebar = () => {
                   d="M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5"
                 />
               </svg>
-              <span>Project Review</span>
+              <span
+                className={
+                  activeLink === "review" ? "text-[#5E3FE9] font-semibold" : ""
+                }
+              >
+                Project Review
+              </span>
             </Link>
           </li>
 
-          <li className="mb-2 rounded-lg transition duration-300">
+          <li className="rounded-lg transition duration-300">
             <Link
               to="/settings"
-              className="flex items-center px-3 py-2 space-x-3 rounded-lg transition duration-300 hover:bg-[#D1CEDB] hover:text-[#1A1A1A]"
+              className={`flex items-center px-4 py-2.5 space-x-3 rounded-lg transition duration-300 hover:bg-[#D1CEDB] ${
+                activeLink === "settings" ? "bg-[#D1CEDB]" : ""
+              }`}
+              onClick={() => setActiveLink("settings")}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
                 strokeWidth={1.5}
-                stroke="currentColor"
+                stroke={activeLink === "settings" ? "#5E3FE9" : "currentColor"}
                 className="size-6"
               >
                 <path
@@ -261,18 +320,29 @@ const Sidebar = () => {
                   d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
                 />
               </svg>
-              <span>Settings</span>
+              <span
+                className={
+                  activeLink === "settings"
+                    ? "text-[#5E3FE9] font-semibold"
+                    : ""
+                }
+              >
+                Settings
+              </span>
             </Link>
           </li>
         </ul>
 
         {/* Projects section */}
-        <div className="mt-8">
-          <div className="flex items-center justify-between px-3 mb-2">
-            <h3 className="uppercase text-xs font-semibold text-gray-600">
+        <div className="mt-10">
+          <div className="flex items-center justify-between px-4 mb-4">
+            <h3 className="uppercase text-xs font-semibold text-gray-600 tracking-wider">
               PROJECTS
             </h3>
-            <Link to="/project" className="text-gray-600">
+            <Link
+              to="/project"
+              className="text-gray-600 hover:text-[#5E3FE9] transition-colors duration-300"
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
@@ -290,32 +360,33 @@ const Sidebar = () => {
           </div>
 
           {projects.length > 0 ? (
-            <ul className="mt-2">
+            <ul className="mt-2 space-y-2">
               {projects.map((project) => (
                 <li key={project.id} className="mb-2">
                   <Link
                     to={`/project/${project.id}`}
                     state={{ projectId: project.id }}
-                    className="flex items-center px-3 py-2 space-x-3 rounded-lg transition duration-300 hover:bg-[#D1CEDB] hover:text-[#1A1A1A]"
+                    className="flex items-center px-4 py-2.5 space-x-3 rounded-lg transition duration-300 hover:bg-[#D1CEDB]"
                   >
                     <span
-                      className="w-2 h-2 rounded-full"
+                      className="w-3 h-3 rounded-full"
                       style={{ backgroundColor: project.color }}
                     ></span>
-                    <span>{project.name}</span>
+                    <span className="font-medium">{project.name}</span>
                   </Link>
                 </li>
               ))}
             </ul>
           ) : (
-            <div className="text-gray-500 text-sm px-3 py-2">
+            // Updated to blend with the sidebar by removing background color
+            <div className="text-gray-500 text-sm px-4 py-3 rounded-lg">
               No projects yet. Click the + icon to create one.
             </div>
           )}
         </div>
 
         {/* Thoughts Time section */}
-        <div className="mt-8 pb-8 relative">
+        <div className="mt-10 pb-8 relative">
           <div className="bg-white rounded-xl p-6 shadow-lg relative min-h-64">
             <div className="absolute -top-6 left-1/2 transform -translate-x-1/2">
               <div className="bg-yellow-300 rounded-full p-3 shadow-md">
@@ -358,7 +429,7 @@ const Sidebar = () => {
                     </div>
                   </div>
                   <textarea
-                    className="w-full p-2 border rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                    className="w-full p-3 border rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-yellow-400"
                     rows="3"
                     placeholder="Write your thought here..."
                     value={newThought}
@@ -368,13 +439,13 @@ const Sidebar = () => {
                   <div className="flex justify-end space-x-2 mt-2">
                     <button
                       onClick={() => setIsWriting(false)}
-                      className="px-3 py-1 rounded-lg bg-gray-200 text-gray-700 text-sm hover:bg-gray-300 transition"
+                      className="px-4 py-1.5 rounded-lg bg-gray-200 text-gray-700 text-sm hover:bg-gray-300 transition"
                     >
                       Cancel
                     </button>
                     <button
                       onClick={addThought}
-                      className="px-3 py-1 rounded-lg bg-yellow-400 text-white text-sm hover:bg-yellow-500 transition"
+                      className="px-4 py-1.5 rounded-lg bg-yellow-400 text-white text-sm hover:bg-yellow-500 transition"
                     >
                       Post
                     </button>
@@ -386,7 +457,7 @@ const Sidebar = () => {
                     thoughts.map((thought) => (
                       <div
                         key={thought.id}
-                        className="bg-gray-50 rounded-lg p-4 relative group"
+                        className="bg-gray-50 rounded-lg p-4 relative group hover:bg-gray-100 transition-colors duration-300"
                       >
                         <div className="flex items-center space-x-2 mb-2">
                           <div
@@ -437,7 +508,7 @@ const Sidebar = () => {
                       </div>
                     ))
                   ) : (
-                    <div className="text-center text-gray-500 py-4">
+                    <div className="text-center text-gray-500 py-6 bg-gray-50 rounded-lg">
                       No thoughts yet. Write your first message!
                     </div>
                   )}
