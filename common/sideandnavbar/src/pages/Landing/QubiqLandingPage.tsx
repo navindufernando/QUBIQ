@@ -836,7 +836,95 @@ const QubiqLandingPage: React.FC = () => {
           </Container>
         </Box>
 
-        
+        {/* Call to Action Section */}
+        <Box
+          sx={{
+            py: { xs: 8, md: 12 },
+            background: "linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)",
+            position: "relative",
+            overflow: "hidden",
+            "&::before": {
+              content: '""',
+              position: "absolute",
+              top: 0,
+              right: 0,
+              bottom: 0,
+              left: 0,
+              background: "url('/api/placeholder/1920/1080') center/cover",
+              opacity: 0.1,
+            },
+          }}
+        >
+          <Container maxWidth="md">
+            <Box sx={{ position: "relative", zIndex: 1 }}>
+              <Card
+                sx={{
+                  p: { xs: 4, md: 6 },
+                  textAlign: "center",
+                  background: "rgba(255, 255, 255, 0.95)",
+                  backdropFilter: "blur(20px)",
+                  border: "1px solid rgba(255, 255, 255, 0.2)",
+                }}
+              >
+                <Typography variant="h3" gutterBottom sx={{ color: "#1E293B" }}>
+                  Ready to Transform Your Workflow?
+                </Typography>
+                <Typography
+                  variant="body1"
+                  paragraph
+                  sx={{ color: "#64748B", mb: 4 }}
+                >
+                  Join our early access program and be among the first to
+                  experience QUBIQ. Get exclusive benefits and priority support.
+                </Typography>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 2,
+                    maxWidth: 400,
+                    mx: "auto",
+                  }}
+                >
+                  <TextField
+                    variant="outlined"
+                    placeholder="Enter your work email"
+                    fullWidth
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        bgcolor: "white",
+                      },
+                    }}
+                  />
+                  <Button
+                    variant="contained"
+                    size="large"
+                    sx={{
+                      background:
+                        "linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)",
+                      "&:hover": {
+                        background:
+                          "linear-gradient(135deg, #4f460%, #3730a3 100%)",
+                      },
+                      py: 1.5,
+                    }}
+                  >
+                    Join Early Access
+                  </Button>
+                </Box>
+                <Typography
+                  variant="caption"
+                  sx={{ display: "block", mt: 2, color: "#64748B" }}
+                >
+                  Limited spots available. No credit card required.
+                </Typography>
+              </Card>
+            </Box>
+          </Container>
+        </Box>
+      </Box>
+    </ThemeProvider>
+  );
 };
 
 export default QubiqLandingPage;
