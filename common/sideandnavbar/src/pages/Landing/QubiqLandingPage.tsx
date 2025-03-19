@@ -190,7 +190,7 @@ const QubiqLandingPage: React.FC = () => {
     setDrawerOpen(open);
   };
 
-  // navigation items functionality
+  // navigation items withfunctionality
   const navItems = [
     { label: "Product", path: "/product" },
     { label: "Solutions", path: "/solutions" },
@@ -724,7 +724,7 @@ const QubiqLandingPage: React.FC = () => {
           </Container>
         </Box>
 
-        {/* Key Features Section */}
+        {/* Key Features Section*/}
         <Box sx={{ bgcolor: "white", py: { xs: 6, md: 10 } }}>
           <Container maxWidth="lg">
             <Box sx={{ textAlign: "center", mb: 6 }}>
@@ -919,6 +919,194 @@ const QubiqLandingPage: React.FC = () => {
                   Limited spots available. No credit card required.
                 </Typography>
               </Card>
+            </Box>
+          </Container>
+        </Box>
+
+        {/* Footer */}
+        <Box sx={{ bgcolor: "#1E293B", color: "white", pt: 8, pb: 4 }}>
+          <Container maxWidth="lg">
+            <Grid container spacing={4}>
+              <Grid item xs={12} md={4}>
+                <Box sx={{ mb: 4 }}>
+                  <img
+                    src="/src/components/image/QUBIQ.png"
+                    alt="QUBIQ Logo"
+                    style={{
+                      width: 140,
+                      height: "auto",
+                      filter: "brightness(0) invert(1)",
+                    }}
+                  />
+                </Box>
+                <Typography
+                  variant="body2"
+                  sx={{ color: "rgba(255,255,255,0.7)", mb: 3, maxWidth: 300 }}
+                >
+                  Building the future of task management. Join us on our mission
+                  to transform how teams work together.
+                </Typography>
+                <Stack direction="row" spacing={2}>
+                  {[
+                    { icon: <LinkedInIcon />, label: "LinkedIn" },
+                    { icon: <InstagramIcon />, label: "Instagram" },
+                  ].map((social) => (
+                    <IconButton
+                      key={social.label}
+                      aria-label={social.label}
+                      sx={{
+                        color: "white",
+                        bgcolor: "rgba(255,255,255,0.1)",
+                        "&:hover": {
+                          bgcolor: "#6366f1",
+                        },
+                      }}
+                    >
+                      {social.icon}
+                    </IconButton>
+                  ))}
+                </Stack>
+              </Grid>
+
+              <Grid item xs={12} md={8}>
+                <Grid container spacing={4}>
+                  <Grid item xs={6} sm={3}>
+                    <Typography
+                      variant="subtitle1"
+                      sx={{ color: "white", mb: 2, fontWeight: 600 }}
+                    >
+                      Product
+                    </Typography>
+                    <Stack spacing={1.5}>
+                      {["Features", "Roadmap", "Beta Program", "Pricing"].map(
+                        (item) => (
+                          <Typography
+                            key={item}
+                            variant="body2"
+                            sx={{
+                              color: "rgba(255,255,255,0.7)",
+                              cursor: "pointer",
+                              "&:hover": { color: "#6366f1" },
+                            }}
+                          >
+                            {item}
+                          </Typography>
+                        )
+                      )}
+                    </Stack>
+                  </Grid>
+
+                  <Grid item xs={6} sm={3}>
+                    <Typography
+                      variant="subtitle1"
+                      sx={{ color: "white", mb: 2, fontWeight: 600 }}
+                    >
+                      Company
+                    </Typography>
+                    <Stack spacing={1.5}>
+                      {["About", "Careers", "Contact", "Blog"].map((item) => (
+                        <Typography
+                          key={item}
+                          variant="body2"
+                          sx={{
+                            color: "rgba(255,255,255,0.7)",
+                            cursor: "pointer",
+                            "&:hover": { color: "#6366f1" },
+                          }}
+                        >
+                          {item}
+                        </Typography>
+                      ))}
+                    </Stack>
+                  </Grid>
+
+                  <Grid item xs={6} sm={3}>
+                    <Typography
+                      variant="subtitle1"
+                      sx={{ color: "white", mb: 2, fontWeight: 600 }}
+                    >
+                      Resources
+                    </Typography>
+                    <Stack spacing={1.5}>
+                      {["Documentation", "Help Center", "API", "Status"].map(
+                        (item) => (
+                          <Typography
+                            key={item}
+                            variant="body2"
+                            sx={{
+                              color: "rgba(255,255,255,0.7)",
+                              cursor: "pointer",
+                              "&:hover": { color: "#6366f1" },
+                            }}
+                          >
+                            {item}
+                          </Typography>
+                        )
+                      )}
+                    </Stack>
+                  </Grid>
+
+                  <Grid item xs={6} sm={3}>
+                    <Typography
+                      variant="subtitle1"
+                      sx={{ color: "white", mb: 2, fontWeight: 600 }}
+                    >
+                      Legal
+                    </Typography>
+                    <Stack spacing={1.5}>
+                      {["Privacy", "Terms", "Security", "Cookies"].map(
+                        (item) => (
+                          <Typography
+                            key={item}
+                            variant="body2"
+                            sx={{
+                              color: "rgba(255,255,255,0.7)",
+                              cursor: "pointer",
+                              "&:hover": { color: "#6366f1" },
+                            }}
+                          >
+                            {item}
+                          </Typography>
+                        )
+                      )}
+                    </Stack>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </Grid>
+
+            <Divider sx={{ my: 4, borderColor: "rgba(255,255,255,0.1)" }} />
+
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: { xs: "column", sm: "row" },
+                justifyContent: "space-between",
+                alignItems: "center",
+                gap: 2,
+              }}
+            >
+              <Typography
+                variant="body2"
+                sx={{ color: "rgba(255,255,255,0.7)" }}
+              >
+                © {new Date().getFullYear()} QUBIQ. All rights reserved.
+              </Typography>
+              <Box
+                sx={{
+                  display: "flex",
+                  gap: 3,
+                  "& img": {
+                    height: 32,
+                    filter: "grayscale(1) brightness(2)",
+                    opacity: 0.7,
+                    transition: "opacity 0.2s",
+                    "&:hover": {
+                      opacity: 1,
+                    },
+                  },
+                }}
+              ></Box>
             </Box>
           </Container>
         </Box>
