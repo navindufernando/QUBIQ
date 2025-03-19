@@ -596,6 +596,134 @@ const QubiqLandingPage: React.FC = () => {
           </Container>
         </Box>
 
+        {/* How It Works Section */}
+        <Box sx={{ bgcolor: "#F8FAFC", py: { xs: 6, md: 10 } }}>
+          <Container maxWidth="lg">
+            <Box sx={{ textAlign: "center", mb: 6 }}>
+              <Typography
+                variant="h3"
+                sx={{ fontWeight: 700, color: "#1E293B", mb: 2 }}
+              >
+                How QUBIQ works
+              </Typography>
+              <Typography
+                variant="body1"
+                sx={{
+                  color: "#64748B",
+                  mb: 4,
+                  maxWidth: "700px",
+                  mx: "auto",
+                }}
+              >
+                A simple, intuitive workflow for teams of all sizes
+              </Typography>
+            </Box>
+
+            <Grid container spacing={5} alignItems="center">
+              {[
+                {
+                  number: "01",
+                  title: "Create Projects & Tasks",
+                  description:
+                    "Set up your workspace in minutes. Create projects, add tasks, and organize them your way.",
+                  image: "/src/components/image/project-tracking.webp",
+                },
+                {
+                  number: "02",
+                  title: "Invite Your Team",
+                  description:
+                    "Collaboration is simple. Invite team members and assign tasks based on roles and responsibilities.",
+                  image: "/src/components/image/project-team-roles.jpg",
+                },
+                {
+                  number: "03",
+                  title: "Track Progress",
+                  description:
+                    "Monitor progress with customizable views. See what's done, what's in progress, and what's coming up next.",
+                  image: "/src/components/image/Track-progress.png",
+                },
+              ].map((step, index) => (
+                <Grid
+                  item
+                  xs={12}
+                  key={index}
+                  sx={{
+                    display: "flex",
+                    flexDirection: index % 2 === 0 ? "row" : "row-reverse",
+                    flexWrap: { xs: "wrap", md: "nowrap" },
+                    mb: 4,
+                  }}
+                >
+                  <Box
+                    sx={{
+                      flex: "1 1 50%",
+                      p: { xs: 2, md: 4 },
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Typography
+                      variant="h1"
+                      sx={{
+                        color: "rgba(99, 102, 241, 0.1)",
+                        fontWeight: 900,
+                        fontSize: { xs: "4rem", md: "6rem" },
+                        lineHeight: 1,
+                        mb: 2,
+                      }}
+                    >
+                      {step.number}
+                    </Typography>
+                    <Typography
+                      variant="h4"
+                      sx={{
+                        fontWeight: 700,
+                        color: "#1E293B",
+                        mb: 2,
+                      }}
+                    >
+                      {step.title}
+                    </Typography>
+                    <Typography variant="body1" sx={{ color: "#64748B" }}>
+                      {step.description}
+                    </Typography>
+                  </Box>
+                  <Box
+                    sx={{
+                      flex: "1 1 50%",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      p: 2,
+                    }}
+                  >
+                    <Card
+                      sx={{
+                        overflow: "hidden",
+                        width: "100%",
+                        maxWidth: "500px",
+                        boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)",
+                      }}
+                    >
+                      <Box
+                        component="img"
+                        src={step.image}
+                        alt={`Step ${step.number}: ${step.title}`}
+                        sx={{
+                          width: "100%",
+                          height: "auto",
+                          display: "block",
+                        }}
+                      />
+                    </Card>
+                  </Box>
+                </Grid>
+              ))}
+            </Grid>
+          </Container>
+        </Box>
+
         
 };
 
