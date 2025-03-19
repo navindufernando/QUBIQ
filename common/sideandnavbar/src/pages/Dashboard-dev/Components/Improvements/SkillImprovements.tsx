@@ -1,0 +1,97 @@
+import {
+  Box,
+  Divider,
+  List,
+  ListItem,
+  ListItemText,
+  Paper,
+  Typography,
+} from "@mui/material";
+
+const SkillImprovements = () => {
+  const skillImprovements = [
+    {
+      id: "1",
+      skill: "GraphQL",
+      priority: "High",
+      description:
+        "A query language for APIs that enables flexible and efficient data retrieval.",
+      dateSuggested: "1st January 2025",
+    },
+    {
+      id: "2",
+      skill: "Docker",
+      priority: "Medium",
+      description:
+        "A platform for developing, shipping, and running applications in containers.",
+      dateSuggested: "20th April 2025",
+    },
+    {
+      id: "3",
+      skill: "TypeScript",
+      priority: "High",
+      description:
+        "A superset of JavaScript that adds static typing to improve code reliability.",
+      dateSuggested: "5th May 2025",
+    },
+    {
+      id: "4",
+      skill: "Unit Testing",
+      priority: "Medium",
+      description:
+        "A software testing method where individual components are tested for correctness.",
+      dateSuggested: "14th May 2025",
+    },
+    {
+      id: "5",
+      skill: "Cloud Functions",
+      priority: "Low",
+      description:
+        "Serverless functions that run in the cloud to handle backend logic efficiently.",
+      dateSuggested: "10th March 2025",
+    },
+  ];
+
+  return (
+    <>
+      <Paper elevation={2} sx={{ p: 2, height: "100%", mt: 4 }}>
+        <Typography variant="h6" gutterBottom>
+          Potential Skill Improvements
+        </Typography>
+        <Divider />
+        <List sx={{ width: "100%" }}>
+          {skillImprovements.map((improvement) => (
+            <ListItem key={improvement.id} alignItems="flex-start">
+              <ListItemText
+                primary={<Box display="flex">{improvement.skill}</Box>}
+                secondary={
+                  <Typography
+                    component="span"
+                    variant="body2"
+                    color="text.secondary"
+                  >
+                    {improvement.description}
+                  </Typography>
+                }
+              />
+              <ListItemText
+                secondary={
+                  <Typography
+                    component="span"
+                    variant="body2"
+                    color="text.secondary"
+                  >
+                    {improvement.dateSuggested}
+                  </Typography>
+                }
+                sx={{ textAlign: "right" }}
+              />
+            </ListItem>
+          ))}
+        </List>
+      </Paper>
+    </>
+  );
+};
+
+export default SkillImprovements;
