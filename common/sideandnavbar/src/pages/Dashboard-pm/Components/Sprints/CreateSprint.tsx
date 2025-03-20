@@ -29,7 +29,7 @@ const CreateSprint: React.FC = () => {
         projectId: string;
     } | null>(null);;
 
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [daysRemaining, setDaysRemaining] = useState<number | null>(null);
     const [sprintToUpdate, setSprintToUpdate] = useState<Sprintdata | null>(null);
     const [sprintDateRange, setSprintDateRange] = useState('');
@@ -85,19 +85,19 @@ const CreateSprint: React.FC = () => {
     }, []);
 
     return (
-        <Box sx={{ padding: 3 }}>
+        <Box sx={{ padding: 3, width: '100%' }}>
             <Grid2 container spacing={3}>
-                <Grid2 sx={{ xs: 12, md: 8 }}>
+                <Grid2 sx={{ xs: 12, md: 12, width: '100%', display: 'flex', flexGrow: 1 }}>
                     <Paper elevation={3} sx={{
                         padding: 3,
                         borderRadius: 2,
                         background: 'linear-gradient(to right, #f5f7fa, #ffffff)',
-                        height: '100%'
+                        height: '100%',
+                        width: '100%'
                     }}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 2 }}>
                             <Typography variant='h5' fontWeight='600'>
                                 Sprint Overview
-
                             </Typography>
                             <Chip
                                 sx={{ marginLeft: 'auto', marginRight: 1 }}
@@ -194,17 +194,18 @@ const CreateSprint: React.FC = () => {
                     </Paper>
                 </Grid2>
 
-                <Grid2 sx={{ xs: 12, md: 8 }}>
+                <Grid2 sx={{ xs: 12, md: 12, width: '100%', display: 'flex', flexGrow: 1 }}>
                     <Paper elevation={3} sx={{
                         padding: 3,
                         borderRadius: 2,
                         background: 'linear-gradient(to right, #f5f7fa, #ffffff)',
-                        height: '100%'
+                        height: '100%',
+                        width: '100%'
                     }}>
                         <PastSprints />
                     </Paper>
                 </Grid2>
-                <Grid2 sx={{ xs: 12, md: 4 }}>
+                <Grid2 sx={{ xs: 12, md: 12, width: '100%', display: 'flex', flexGrow: 1 }}>
                     <Paper elevation={3} sx={{
                         padding: 3,
                         borderRadius: 2,
@@ -213,6 +214,7 @@ const CreateSprint: React.FC = () => {
                         justifyContent: 'center',
                         alignItems: 'center',
                         height: '100%',
+                        width: '100%',
                         background: 'linear-gradient(to bottom right, #f0f4f8, #d1e3fa)'
                     }}>
                         <Typography variant='h6' align='center' gutterBottom>

@@ -28,7 +28,7 @@ const DashboardTabs = () => {
       case 4:
         return <CustomCharts/>;
       default:
-        return null;
+        return <CreateSprint/>;
     }
   }
 
