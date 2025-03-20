@@ -16,7 +16,7 @@ import Project from "./pages/Projects/Project";
 import ProjectDetail from "./pages/Projects/ProjectDetail";
 import QubiqLandingPage from "./pages/Landing/QubiqLandingPage";
 import RoleSelection from "./pages/Landing/RoleSelection";
-import ForgotPassword from "./pages/ForgotPassword/ForgotPassword";
+import ForgotPassword from "./pages/Forgotpassword/ForgotPassword";
 
 const App = () => {
   const [isSidebarVisible, setIsSidebarVisible] = useState<boolean>(true);
