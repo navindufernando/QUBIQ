@@ -176,7 +176,7 @@ const QubiqLandingPage: React.FC = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const handleGetStarted = () => {
-    navigate("/role-selection");
+    navigate("/RoleSelection");
   };
 
   const toggleDrawer = (open) => (event) => {
