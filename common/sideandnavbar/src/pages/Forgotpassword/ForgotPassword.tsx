@@ -21,11 +21,11 @@ function ForgotPassword() {
   useEffect(() => {
     // Validate that we have a valid role
     if (role !== "developer" && role !== "project-manager") {
-      navigate("/role-selection");
+      navigate("/RoleSelection");
     }
   }, [role, navigate]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) {
       setError("Please enter your email address");
@@ -38,7 +38,7 @@ function ForgotPassword() {
   };
 
   const handleBackToSignIn = () => {
-    navigate("/role-selection");
+    navigate("/RoleSelection");
   };
 
   return (
@@ -84,7 +84,7 @@ function ForgotPassword() {
         }}
       >
         <img
-          src="/src/components/image/QUBIQ.png"
+          src="/src/pages/image/QUBIQ.png"
           alt="Qubiq Logo"
           style={{
             width: 180,
