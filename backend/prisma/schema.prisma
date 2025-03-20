@@ -31,10 +31,12 @@ model Task {
   status      String
   projectId   String
   assigneeId  Int?
+  sprintId    String?
   createdAt   DateTime    @default(now())
   updatedAt   DateTime?   @updatedAt
   assignee    TeamMember? @relation(fields: [assigneeId], references: [id])
   project     Project     @relation(fields: [projectId], references: [id])
+  sprint      Sprint?      @relation(fields: [sprintId], references: [id])
 }
 
 model TeamMember {
@@ -65,6 +67,7 @@ model Sprint {
   createdAt   DateTime     @default(now())
   updatedAt   DateTime?    @updatedAt
   project     Project?     @relation(fields: [projectId], references: [id])
+  tasks       Task[]
 }
 
 model PerformanceRecord {
