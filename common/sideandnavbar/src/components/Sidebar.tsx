@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 const Sidebar = () => {
   return (
-    <div className='w-80' style={{ backgroundColor: '#E2DDFF', height: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div className='w-80 overflow-y-auto' style={{ backgroundColor: '#E2DDFF', height: '100vh', display: 'flex', flexDirection: 'column' }}>
         <div className='py-3 pl-3 flex items-center' style={{ height: '64px' }}>
             <h1 className='text-2xl font-bold' style={{ color: '#0D062D' }}>Project M.</h1>
         </div>

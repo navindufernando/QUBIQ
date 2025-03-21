@@ -39,12 +39,9 @@ const TimelineCard = ({ projectId, sprintId }: { projectId: string, sprintId: st
 
   return (
     <Box sx={{ my: 4 }}>
-      <Typography variant='h5' component='h2' gutterBottom>
-        Progress Timeline
-      </Typography>
       <Paper elevation={2} sx={{ p: 3 }}>
         <Typography variant='h6' gutterBottom>
-          Gantt Chart View
+          Gantt Chart Timeline
         </Typography>
         <Box sx={{ height: 350, position: 'relative', overflow: 'auto' }}>
           {loading ? (
