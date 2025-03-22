@@ -17,7 +17,7 @@ const Success = () => {
         variant="contained"
         color="primary"
         className="mt-4"
-        onClick={() => navigate("/dashboard")}
+        onClick={() => navigate("/RoleSelection")}
       >
         Go to Dashboard
       </Button>
