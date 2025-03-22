@@ -7,8 +7,8 @@ import ProjectRouter from './routes/project.route';
 import Taskrouter from './routes/task.route';
 import MemberRoute from './routes/member.route';
 import UserRouter from './routes/user.route';
+import MessageRouter from './routes/message.routes'; // Make sure file name matches
 import cors from 'cors';
-import { MetricsClient } from '@prisma/client/runtime/library';
 
 const app = express();
 const prisma = new PrismaClient();
@@ -29,7 +29,7 @@ app.use('/user', UserRouter);
 // Mount project related routes
 app.use('/project', ProjectRouter);
 
-// Mount project related routes
+// Mount task related routes
 app.use('/task', Taskrouter);
 
 // Mount member related routes
@@ -37,6 +37,9 @@ app.use('/member', MemberRoute);
 
 // Mount sprint related routes
 app.use('/sprint', Sprintrouter);
+
+// Mount message related routes
+app.use('/messages', MessageRouter);
 
 // Root endpoint
 app.get('/', (req: Request, res: Response) => {
