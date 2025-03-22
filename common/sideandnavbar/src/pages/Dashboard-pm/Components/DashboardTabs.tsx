@@ -28,7 +28,7 @@ const DashboardTabs = () => {
       case 4:
         return <CustomCharts/>;
       default:
-        return null;
+        return <CreateSprint/>;
     }
   }
 
@@ -37,10 +37,9 @@ const DashboardTabs = () => {
     <Box sx={{
       width: '100%',
       bgcolor: 'background.paper',
-      borderColor: 'divider',
-      borderBottom: 1,
+      mb: 2,
     }}>
-      <Tabs value={value} onChange={handleChange} centered>
+      <Tabs variant='scrollable' scrollButtons value={value} onChange={handleChange} centered>
         <Tab label="Sprints" />
         <Tab label="Progress Tracking" />
         <Tab label="Workload" />
