@@ -6,6 +6,7 @@ import Sprintrouter from './routes/sprint.route';
 import ProjectRouter from './routes/project.route';
 import Taskrouter from './routes/task.route';
 import MemberRoute from './routes/member.route';
+import UserRouter from './routes/user.route';
 import cors from 'cors';
 import { MetricsClient } from '@prisma/client/runtime/library';
 
@@ -21,6 +22,9 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE'], 
   allowedHeaders: ['Content-Type', 'Authorization']
 }))
+
+// Mount user related routes
+app.use('/user', UserRouter);
 
 // Mount project related routes
 app.use('/project', ProjectRouter);
