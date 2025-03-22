@@ -10,7 +10,8 @@ import {
   Paper,
   Typography,
 } from "@mui/material";
-import React from "react";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
 
 const CodeImprovements = () => {
   const codeImprovementsInfo = [
@@ -79,6 +80,21 @@ const CodeImprovements = () => {
       dateSuggested: "11th March 2025",
     },
   ];
+
+  const [improvements, setImprovements] = useState([]);
+
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const response = await axios.get("http://localhost:3000/dev/codeimp");
+        setImprovements(response.data);
+      } catch (error) {
+        console.error("Error fetching code improvements:", error);
+      }
+    };
+
+    fetchTasks();
+  }, []);
 
   return (
     <>

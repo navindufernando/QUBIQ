@@ -6,6 +6,7 @@ import Sprintrouter from './routes/sprint.route';
 import ProjectRouter from './routes/project.route';
 import Taskrouter from './routes/task.route';
 import MemberRoute from './routes/member.route';
+import DeveloperRouter from './routes/developer.route';
 import cors from 'cors';
 import { MetricsClient } from '@prisma/client/runtime/library';
 
@@ -33,6 +34,9 @@ app.use('/member', MemberRoute);
 
 // Mount sprint related routes
 app.use('/sprint', Sprintrouter);
+
+// Mount developer dashboard related routes
+app.use('/dev', DeveloperRouter);
 
 // Root endpoint
 app.get('/', (req: Request, res: Response) => {

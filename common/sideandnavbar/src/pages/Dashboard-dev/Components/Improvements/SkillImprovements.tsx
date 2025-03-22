@@ -7,6 +7,8 @@ import {
   Paper,
   Typography,
 } from "@mui/material";
+import axios from "axios";
+import { useState, useEffect } from "react";
 
 const SkillImprovements = () => {
   const skillImprovements = [
@@ -51,6 +53,21 @@ const SkillImprovements = () => {
       dateSuggested: "10th March 2025",
     },
   ];
+
+  const [improvements, setImprovements] = useState([]);
+
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const response = await axios.get("http://localhost:3000/dev/codeimp");
+        setImprovements(response.data);
+      } catch (error) {
+        console.error("Error fetching skill improvements:", error);
+      }
+    };
+
+    fetchTasks();
+  }, []);
 
   return (
     <>

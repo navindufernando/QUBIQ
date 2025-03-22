@@ -1,64 +1,35 @@
+import { useEffect, useState } from "react";
 import { Box } from "@mui/material";
 import TaskWrapper from "./TaskWrapper";
+import axios from "axios";
 
 const Tasks = () => {
-  const tasks = [
-    {
-      taskName: "Build Authentication System",
-      assignees: ["img4.jpg"],
-      dueDate: "",
-      priority: "Medium",
-      status: "TO_DO",
-    },
-    {
-      taskName: "User Role Management",
-      assignees: ["img1.jpg", "img2.jpg"],
-      dueDate: "Tomorrow",
-      priority: "High",
-      status: "IN_PROGRESS",
-    },
-    {
-      taskName: "Implement Dark Mode",
-      assignees: ["img3.jpg"],
-      dueDate: "3 days ago",
-      priority: "Low",
-      status: "IN_PROGRESS",
-    },
-    {
-      taskName: "Testing Payment Module",
-      assignees: ["img5.jpg"],
-      dueDate: "2 days ago",
-      priority: "",
-      status: "TO_DO",
-    },
-    {
-      taskName: "Testing Payment Module",
-      assignees: ["img5.jpg"],
-      dueDate: "2 days ago",
-      priority: "Urgent",
-      status: "TO_DO",
-    },
-    {
-      taskName: "Testing Payment Module Security",
-      assignees: ["img5.jpg"],
-      dueDate: "2 days ago",
-      priority: "Urgent",
-      status: "BLOCKED",
-    },
-    {
-      taskName: "Testing Payment Module Design",
-      assignees: ["img5.jpg"],
-      dueDate: "2 days ago",
-      priority: "Urgent",
-      status: "COMPLETED",
-    },
-  ];
+  const [tasks, setTasks] = useState([]);
+
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const response = await axios.get("http://localhost:3000/dev/tasks");
+        setTasks(response.data);
+      } catch (error) {
+        console.error("Error fetching tasks:", error);
+      }
+    };
+
+    fetchTasks();
+  }, []);
 
   const groupedTasks = {
-    TO_DO: tasks.filter((task) => task.status === "TO_DO"),
-    IN_PROGRESS: tasks.filter((task) => task.status === "IN_PROGRESS"),
-    COMPLETED: tasks.filter((task) => task.status === "COMPLETED"),
-    BLOCKED: tasks.filter((task) => task.status === "BLOCKED"),
+    TO_DO: tasks.filter((task: any) => task.status === "TO_DO"),
+    IN_PROGRESS: tasks.filter(
+      (task: any) => task.status.toUpperCase() === "IN_PROGRESS"
+    ),
+    COMPLETED: tasks.filter(
+      (task: any) => task.status.toUpperCase() === "COMPLETED"
+    ),
+    BLOCKED: tasks.filter(
+      (task: any) => task.status.toUpperCase() === "BLOCKED"
+    ),
   };
 
   const statusLabels = {

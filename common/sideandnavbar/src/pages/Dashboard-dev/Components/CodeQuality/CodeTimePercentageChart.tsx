@@ -9,7 +9,8 @@ import {
   Typography,
 } from "@mui/material";
 import { Legend } from "recharts";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 const CodeTimePercentageChart = () => {
   const [timePeriod, setTimePeriod] = useState<string>("This week");
@@ -23,7 +24,25 @@ const CodeTimePercentageChart = () => {
     { id: "Other Coding Time", value: 50, color: "#2E96FF" },
   ];
 
-  const COLORS = ["#8884d8", "#82ca9d"];
+  const [codeTimeStat, setCodeTimeStat] = useState([]);
+
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:3000/dev/codetime-total",
+          {
+            params: { timePeriod },
+          }
+        );
+        setCodeTimeStat(response.data);
+      } catch (error) {
+        console.error("Error fetching code time:", error);
+      }
+    };
+
+    fetchTasks();
+  }, [timePeriod]);
 
   return (
     <>

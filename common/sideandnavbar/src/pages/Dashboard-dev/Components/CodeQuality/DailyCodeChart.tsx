@@ -8,7 +8,8 @@ import {
   Typography,
 } from "@mui/material";
 import { BarChart } from "@mui/x-charts/BarChart";
-import { useState } from "react";
+import axios from "axios";
+import { useEffect, useState } from "react";
 
 const DailyCodeChart = () => {
   const [timePeriod, setTimePeriod] = useState<string>("This week");
@@ -26,6 +27,23 @@ const DailyCodeChart = () => {
     { weekDayIndex: 5, totalTime: 4, qualityTime: 2.5 }, // Saturday
     { weekDayIndex: 6, totalTime: 3, qualityTime: 2 }, // Sunday
   ];
+
+  const [codeTime, setCodeTime] = useState([]);
+
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const response = await axios.get("http://localhost:3000/dev/codetime", {
+          params: { timePeriod },
+        });
+        setCodeTime(response.data);
+      } catch (error) {
+        console.error("Error fetching code time:", error);
+      }
+    };
+
+    fetchTasks();
+  }, [timePeriod]);
 
   const valueFormatter = (value: number | null) => `${value} hrs`;
 
@@ -49,8 +67,8 @@ const DailyCodeChart = () => {
               displayEmpty
               size="small"
             >
-              <MenuItem value="This week">This Week</MenuItem>
-              <MenuItem value="Last week">Last Week</MenuItem>
+              <MenuItem value="this_week">This Week</MenuItem>
+              <MenuItem value="last_week">Last Week</MenuItem>
             </Select>
           </FormControl>
         </Box>

@@ -8,7 +8,8 @@ import {
   Paper,
   Typography,
 } from "@mui/material";
-import React from "react";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
 
 const Activity = () => {
   const recentActivity = [
@@ -43,6 +44,23 @@ const Activity = () => {
       time: "2 hours ago",
     },
   ];
+
+  // const [activities, setActivities] = useState([]);
+
+  // useEffect(() => {
+  //   const fetchTasks = async () => {
+  //     try {
+  //       const response = await axios.get(
+  //         "http://localhost:3000/dev/activities"
+  //       );
+  //       setActivities(response.data);
+  //     } catch (error) {
+  //       console.error("Error fetching recent activities:", error);
+  //     }
+  //   };
+
+  //   fetchTasks();
+  // }, []);
 
   return (
     <>

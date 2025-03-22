@@ -16,10 +16,16 @@ import FlagTwoToneIcon from "@mui/icons-material/FlagTwoTone";
 
 interface Task {
   taskName: string;
-  assignees: string[]; // if the images are URLs (change later if necessary)
-  dueDate: string;
-  priority: string;
+  id: number;
+  name: string;
+  description: string;
+  startDate: string;
+  endDate: string;
   status: string;
+  projectId: string;
+  assigneeId: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface TaskListProps {
@@ -79,7 +85,7 @@ const TaskWrapper: React.FC<TaskListProps> = ({ tasks, status }) => {
               <TableCell sx={{ fontWeight: "bold" }}>Tasks</TableCell>
               <TableCell sx={{ fontWeight: "bold" }}>Assignee</TableCell>
               <TableCell sx={{ fontWeight: "bold" }}>Due Date</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Priority</TableCell>
+              {/* <TableCell sx={{ fontWeight: "bold" }}>Priority</TableCell> */}
               <TableCell sx={{ fontWeight: "bold" }}>Status</TableCell>
             </TableRow>
           </TableHead>
@@ -89,13 +95,13 @@ const TaskWrapper: React.FC<TaskListProps> = ({ tasks, status }) => {
                 key={i}
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
               >
-                <TableCell>{task.taskName}</TableCell>
+                <TableCell>{task.name}</TableCell>
                 <TableCell>{task.assignees}</TableCell>
                 <TableCell>
-                  {task.dueDate || <CalendarMonthOutlinedIcon />}
+                  {task.endDate || <CalendarMonthOutlinedIcon />}
                 </TableCell>
-                <TableCell>{task.priority || <FlagTwoToneIcon />}</TableCell>
-                <TableCell>{task.status}</TableCell>
+                {/* <TableCell>{task.priority || <FlagTwoToneIcon />}</TableCell> */}
+                <TableCell>{status}</TableCell>
               </TableRow>
             ))}
           </TableBody>
