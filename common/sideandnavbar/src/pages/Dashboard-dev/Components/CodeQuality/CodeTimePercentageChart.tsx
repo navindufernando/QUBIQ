@@ -13,7 +13,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 const CodeTimePercentageChart = () => {
-  const [timePeriod, setTimePeriod] = useState<string>("This week");
+  const [timePeriod, setTimePeriod] = useState<string>("today");
 
   const handleTimePeriodChange = (event: SelectChangeEvent) => {
     setTimePeriod(event.target.value);
@@ -64,10 +64,10 @@ const CodeTimePercentageChart = () => {
               displayEmpty
               size="small"
             >
-              <MenuItem value="Today">Today</MenuItem>
-              <MenuItem value="Yesterday">Yesterday</MenuItem>
-              <MenuItem value="This week">This Week</MenuItem>
-              <MenuItem value="Last week">Last Week</MenuItem>
+              <MenuItem value="today">Today</MenuItem>
+              <MenuItem value="yesterday">Yesterday</MenuItem>
+              <MenuItem value="this_week">This Week</MenuItem>
+              <MenuItem value="last_week">Last Week</MenuItem>
             </Select>
           </FormControl>
         </Box>

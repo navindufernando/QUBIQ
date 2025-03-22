@@ -12,7 +12,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 
 const DailyCodeChart = () => {
-  const [timePeriod, setTimePeriod] = useState<string>("This week");
+  const [timePeriod, setTimePeriod] = useState<string>("this_week");
 
   const handleTimePeriodChange = (event: SelectChangeEvent) => {
     setTimePeriod(event.target.value);

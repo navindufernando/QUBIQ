@@ -10,6 +10,8 @@ DeveloperRouter.get('/codeimp', DeveloperController.getCodeImprovements);
 DeveloperRouter.get('/skillimp', DeveloperController.getSkillImprovements);
 DeveloperRouter.get('/codetime', DeveloperController.getCodeTime);
 DeveloperRouter.get('/codetime-total', DeveloperController.getTotalCodeTime);
-// DeveloperRouter.get('/sprints', DeveloperController.getSprints);
 
+DeveloperRouter.patch('/tasks/:id', DeveloperController.updateTaskStatus);
+// DeveloperRouter.get('/sprints', DeveloperController.getSprints);
+  
 export default DeveloperRouter;

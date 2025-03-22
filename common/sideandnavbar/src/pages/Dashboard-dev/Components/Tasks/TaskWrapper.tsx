@@ -3,6 +3,8 @@ import {
   Box,
   Button,
   Divider,
+  MenuItem,
+  Select,
   Table,
   TableBody,
   TableCell,
@@ -13,6 +15,8 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import CalendarMonthOutlinedIcon from "@mui/icons-material/CalendarMonthOutlined";
 import FlagTwoToneIcon from "@mui/icons-material/FlagTwoTone";
+import axios from "axios";
+import { useState } from "react";
 
 interface Task {
   taskName: string;
@@ -31,9 +35,14 @@ interface Task {
 interface TaskListProps {
   tasks: Task[];
   status: string;
+  onStatusChange: (taskId: number, newStatus: string) => void;
 }
 
-const TaskWrapper: React.FC<TaskListProps> = ({ tasks, status }) => {
+const TaskWrapper: React.FC<TaskListProps> = ({
+  tasks,
+  status,
+  onStatusChange,
+}) => {
   const taskNum = tasks.length;
 
   return (
@@ -96,12 +105,23 @@ const TaskWrapper: React.FC<TaskListProps> = ({ tasks, status }) => {
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
               >
                 <TableCell>{task.name}</TableCell>
-                <TableCell>{task.assignees}</TableCell>
+                <TableCell>{task.assigneeId}</TableCell>
                 <TableCell>
                   {task.endDate || <CalendarMonthOutlinedIcon />}
                 </TableCell>
                 {/* <TableCell>{task.priority || <FlagTwoToneIcon />}</TableCell> */}
-                <TableCell>{status}</TableCell>
+                <TableCell>
+                  <Select
+                    value={task.status}
+                    onChange={(e) => onStatusChange(task.id, e.target.value)}
+                    sx={{ width: "100%" }}
+                  >
+                    <MenuItem value="TO_DO">To Do</MenuItem>
+                    <MenuItem value="IN_PROGRESS">In Progress</MenuItem>
+                    <MenuItem value="COMPLETED">Completed</MenuItem>
+                    <MenuItem value="BLOCKED">Blocked</MenuItem>
+                  </Select>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>

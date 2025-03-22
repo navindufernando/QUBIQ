@@ -101,4 +101,27 @@ export class DeveloperController {
             res.status(500).json({ error: 'Failed to fetch the sprints'});
         }
     }
+
+    //@desc     Update status of the task
+    //@route    PUT /dev/tasks/:id
+    //@access   public
+    static async updateTaskStatus(req: Request, res: Response): Promise<any> {
+        try{
+            const { id } = req.params;
+            const taskId = Number(id);
+
+            if (isNaN(taskId)) {
+                return res.status(400).json({ error: 'Invalid ID format.' });
+            }
+
+            const task = await developerService.updateTaskStatus(taskId, req.body);
+
+            if (!task) {
+                return res.status(404).json({error: 'Member not found.'});
+            }
+            res.status(200).json(task);
+        } catch (error) {
+            res.status(500).json({ error: 'Failed to fetch the sprints'});
+        }
+    }
 }
