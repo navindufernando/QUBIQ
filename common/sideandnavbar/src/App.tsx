@@ -17,6 +17,9 @@ import ProjectDetail from "./pages/Projects/ProjectDetail";
 import QubiqLandingPage from "./pages/Landing/QubiqLandingPage";
 import RoleSelection from "./pages/Landing/RoleSelection";
 import ForgotPassword from "./pages/Forgotpassword/ForgotPassword";
+import Pricing from "./pages/Pricing/Pricing";
+import Success from "./pages/Pricing/Success";
+import Cancel from "./pages/Pricing/Cancel";
 
 const App = () => {
   const [isSidebarVisible, setIsSidebarVisible] = useState<boolean>(true);
@@ -80,6 +83,9 @@ const App = () => {
                   )
                 }
               />
+              <Route path="/pricing" element={<Pricing />} />
+              <Route path="/success" element={<Success />} />
+              <Route path="/cancel" element={<Cancel />} />
               <Route
                 path="/members"
                 element={
