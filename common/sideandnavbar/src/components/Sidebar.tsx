@@ -162,7 +162,6 @@ const Sidebar = () => {
               </span>
             </Link>
           </li>
-
           <li className="rounded-lg transition duration-300">
             <Link
               to="/dashboard"

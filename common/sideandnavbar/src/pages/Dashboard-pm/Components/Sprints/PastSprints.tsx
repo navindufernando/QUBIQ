@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { getAllSprints } from '../../../../services/SprintAPI';
-import { Box, Card, CardActionArea, CardContent, Chip, FormControl, Grid2, IconButton, InputLabel, LinearProgress, MenuItem, Select, Skeleton, Tooltip, Typography } from '@mui/material';
+import { Box, Card, CardActionArea, CardContent, Chip, FormControl, Grid2, IconButton, InputLabel, LinearProgress, MenuItem, Pagination, Select, Skeleton, Tooltip, Typography } from '@mui/material';
 import { AssessmentOutlined, Refresh } from '@mui/icons-material';
 
 // Enhanced sprint interface to include all required fields
@@ -215,10 +215,50 @@ const PastSprints: React.FC = () => {
                       %
                     </Typography>
                   </Box>
+
+                  {/* Sprint Metrics */}
+                  <Grid2 container spacing={16} textAlign='center'>
+                    <Grid2 sx={{ xs: 6, sm: 3 }}>
+                      <Typography variant='body1' color='info' sx={{ fontWeight: 'bold' }}>
+                        90%
+                      </Typography>
+                      <Typography variant='body2'>
+                        Completed
+                      </Typography>
+                    </Grid2>
+                    <Grid2 sx={{ xs: 6, sm: 3 }}>
+                      <Typography variant='body1' color='warning' sx={{ fontWeight: 'bold' }}>
+                        24
+                      </Typography>
+                      <Typography variant='body2'>
+                        Tasks
+                      </Typography>
+                    </Grid2>
+                    <Grid2 sx={{ xs: 6, sm: 3 }}>
+                      <Typography variant='body1' color='error' sx={{ fontWeight: 'bold' }}>
+                        12
+                      </Typography>
+                      <Typography variant='body2'>
+                        Bugs Found
+                      </Typography>
+                    </Grid2>
+                  </Grid2>
                 </CardContent>
               </CardActionArea>
             </Card>
           ))}
+          {/* Pagination */}
+          {filsteredSprints.length > itemsPerPage && (
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+              <Pagination 
+                count={totalPages} 
+                page={currentPage} 
+                onChange={handlePageChange} 
+                color="primary" 
+                size="large"
+              />
+            </Box>
+          )}
         </>
       )}
     </Box>
