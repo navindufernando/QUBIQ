@@ -1,5 +1,5 @@
 import { CheckCircleOutline } from '@mui/icons-material'
-import { Box, Button, TextField, Typography } from '@mui/material'
+import { Alert, Box, Button, TextField, Typography } from '@mui/material'
 import React from 'react'
 
 type LoginProps = {
@@ -10,12 +10,21 @@ type LoginProps = {
     handleFormChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
     handleSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
     handleForgotPassword: () => void;
+    error: string | null;
+    loading: boolean;
 };
 
-const Login: React.FC<LoginProps> = ({ formData, handleFormChange, handleSubmit, handleForgotPassword }) => {
+const Login: React.FC<LoginProps> = ({ formData, handleFormChange, handleSubmit, handleForgotPassword, error, loading }) => {
 
     return (
         <Box component="form" onSubmit={handleSubmit}>
+            {error && (
+                <Alert severity='error' sx={{ mb: 3, borderRadius: 2, '& .MuiAlert-message': {
+                    fontWeight: 500
+                }}}>
+                    {error}
+                </Alert>
+            )}
             <Button
                 fullWidth
                 variant="outlined"
@@ -86,6 +95,9 @@ const Login: React.FC<LoginProps> = ({ formData, handleFormChange, handleSubmit,
                 placeholder="Enter your work email"
                 variant="outlined"
                 type="email"
+                required
+                error={error?.includes('email')}
+                helperText={error?.includes('email') ? 'Valid email is required' : ''}
                 sx={{
                     mb: 4,
                     "& .MuiOutlinedInput-root": {
@@ -150,6 +162,9 @@ const Login: React.FC<LoginProps> = ({ formData, handleFormChange, handleSubmit,
                 placeholder="Enter password"
                 variant="outlined"
                 type="password"
+                required
+                error={error?.includes('password')}
+                helperText={error?.includes('password') ? 'Password is required' : ''}
                 sx={{
                     mb: 4,
                     "& .MuiOutlinedInput-root": {
@@ -198,7 +213,7 @@ const Login: React.FC<LoginProps> = ({ formData, handleFormChange, handleSubmit,
                 }}
                 endIcon={<CheckCircleOutline />}
             >
-                Sign In
+                 {loading ? "Signing in..." : "Sign In"}
             </Button>
         </Box>
     )

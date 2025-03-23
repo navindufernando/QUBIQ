@@ -63,6 +63,8 @@ const RoleSelection = () => {
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+    // clear error when user starts typing
+    if (error) setError(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -82,6 +84,20 @@ const RoleSelection = () => {
     try {
       if (activeTab === 'signin') {
         const { email, password } = formData;
+
+        // Client-side validation
+        if (!email) {
+          setError('Email is required');
+          setLoading(false);
+          return;
+        }
+        
+        if (!password) {
+          setError('Password is required');
+          setLoading(false);
+          return;
+        }
+
         const response = await signin(email, password, selectedRole);
         const token = response.data.data.token;
 
@@ -97,6 +113,32 @@ const RoleSelection = () => {
       } else {
         // sign up
         const { email, password, confirmPassword, firstName, lastName } = formData;
+
+        // Client-side validation
+        if (!firstName || firstName.length < 2 || firstName.length > 50) {
+          setError('First name must be between 2 and 50 characters');
+          setLoading(false);
+          return;
+        }
+        
+        if (!lastName || lastName.length < 2 || lastName.length > 50) {
+          setError('Last name must be between 2 and 50 characters');
+          setLoading(false);
+          return;
+        }
+        
+        if (!email) {
+          setError('Email is required');
+          setLoading(false);
+          return;
+        }
+        
+        if (!password || password.length < 8) {
+          setError('Password must be at least 8 characters');
+          setLoading(false);
+          return;
+        }
+        
         if (password !== confirmPassword) {
           setError('Passwords do not match');
           setLoading(false);
@@ -583,6 +625,8 @@ const RoleSelection = () => {
                     handleFormChange={handleFormChange}
                     handleSubmit={handleSubmit}
                     handleForgotPassword={handleForgotPassword}
+                    error={error}
+                    loading={loading}
                   />
                 ) : (
                   // Sign Up Form
@@ -591,6 +635,8 @@ const RoleSelection = () => {
                     handleFormChange={handleFormChange}
                     handleSubmit={handleSubmit}
                     handleForgotPassword={handleForgotPassword}
+                    error={error}
+                    loading={loading}
                   />
                 )}
 
