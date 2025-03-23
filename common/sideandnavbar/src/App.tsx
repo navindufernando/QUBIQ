@@ -16,6 +16,9 @@ import RoleSelection from "./pages/Landing/RoleSelection";
 import ForgotPassword from "./pages/Forgotpassword/ForgotPassword";
 import { UserType } from "./enums/userType";
 import { AuthProvider, useAuth } from "./pages/Signup&Login/AuthContext";
+import Pricing from "./pages/Pricing/Pricing";
+import Success from "./pages/Pricing/Success";
+import Cancel from "./pages/Pricing/Cancel";
 
 // Layout for authenticated users
 const AuthenticatedLayout = () => {
@@ -68,6 +71,10 @@ const App = () => {
           <Route path="/" element={<QubiqLandingPage />} />
           <Route path="/roleselection" element={<RoleSelection />} />
           <Route path="/forgotpassword" element={<ForgotPassword />} />
+          
+          <Route path="/pricing" element={<Pricing />} />
+          <Route path="/success" element={<Success />} />
+          <Route path="/cancel" element={<Cancel />} />
 
           {/* AUTHENTICATED ROUTES */}
           <Route element={<AuthenticatedLayout />}>
@@ -134,7 +141,6 @@ const App = () => {
               </ProtectedRoute>
             } />
           </Route>
-
           {/* CATCH-ALL REDIRECT */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

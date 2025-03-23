@@ -9,6 +9,7 @@ import MemberRoute from './routes/member.route';
 import UserRouter from './routes/user.route';
 import cors from 'cors';
 import { MetricsClient } from '@prisma/client/runtime/library';
+import PaymentRoute from './routes/payments';
 
 const app = express();
 const prisma = new PrismaClient();
@@ -37,6 +38,9 @@ app.use('/member', MemberRoute);
 
 // Mount sprint related routes
 app.use('/sprint', Sprintrouter);
+
+// Mount payment related routes
+app.use("/api/payments", PaymentRoute);
 
 // Root endpoint
 app.get('/', (req: Request, res: Response) => {
