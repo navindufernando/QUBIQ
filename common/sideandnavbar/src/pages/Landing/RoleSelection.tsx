@@ -26,19 +26,20 @@ import { useAuth } from "../Signup&Login/AuthContext";
 const RoleSelection = () => {
   const [selectedRole, setSelectedRole] = useState<UserType | null>(null);
   const [activeTab, setActiveTab] = useState<"signin" | "signup">("signin");
+  
   const [formData, setFormData] = useState({
     email: "",
     password: "",
     confirmPassword: "",
     firstName: "",
     lastName: "",
-
   });
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const { login, user } = useAuth();
-  
+
 
   // Determine the current step based on selected role and active tab
   const getCurrentStep = () => {
@@ -82,17 +83,20 @@ const RoleSelection = () => {
       if (activeTab === 'signin') {
         const { email, password } = formData;
         const response = await signin(email, password, selectedRole);
+        const token = response.data.data.token;
+
         if (response.success) {
           // Save user to context and redirect
-          login(response.data, response.token);
+          login(response.data.data, token);
 
-          console.log(login)
+          console.log("API response structure:", response);
+          console.log("Token location:", response.data.data.token);
           // Redirect to dashboard based on role
           navigate(`/${selectedRole.toString().toLowerCase()}/dashboard`);
         }
       } else {
         // sign up
-        const { email, password, confirmPassword, firstName, lastName} = formData;
+        const { email, password, confirmPassword, firstName, lastName } = formData;
         if (password !== confirmPassword) {
           setError('Passwords do not match');
           setLoading(false);
@@ -110,26 +114,28 @@ const RoleSelection = () => {
 
         console.log('response:', response);
 
-        if (response.success && response.data && response.token) {
+        console.log('token:', response.token);
+
+        if (response.success && response.data.data && response.data.data.token) {
           console.log('User data before login:', response.data);
-          
-        // Make sure the response.data has all required fields for AuthUser
-        const userData = {
-          id: response.data.id,
-          firstName: response.data.firstName,
-          lastName: response.data.lastName,
-          email: response.data.email,
-          role: response.data.role
-        };
-        
-        // Store user data in context
-        login(userData, response.token);// Store user data in context
-    
+
+          // Make sure the response.data has all required fields for AuthUser
+          const userData = {
+            id: response.data.data.id,
+            firstName: response.data.data.firstName,
+            lastName: response.data.data.lastName,
+            email: response.data.data.email,
+            role: response.data.data.role
+          };
+
+          // Store user data in context
+          login(userData, response.data.data.token);
+
           // Wait for state update before navigating
           setTimeout(() => {
             console.log('User after login:', user); // Check if user state updates
             navigate(`/${selectedRole.toString().toLowerCase()}/dashboard`);
-          }, 100); 
+          }, 100);
         } else {
           setError('Failed to authenticate. Please try again.');
         }
@@ -144,9 +150,6 @@ const RoleSelection = () => {
     } finally {
       setLoading(false);
     }
-
-    console.log(`${selectedRole} ${activeTab}:`, formData);
-
   };
 
   // Reset selection
@@ -472,15 +475,15 @@ const RoleSelection = () => {
                   You selected:
                 </Typography>
                 <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
-                  {selectedRole === UserType.DEV? (
+                  {selectedRole === UserType.DEV ? (
                     <CodeIcon sx={{ mr: 1.5, fontSize: 28 }} />
                   ) : (
                     <ManageAccountsIcon sx={{ mr: 1.5, fontSize: 28 }} /> // Increased icon size
                   )}
                   <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                    { selectedRole === UserType.DEV
+                    {selectedRole === UserType.DEV
                       ? UserType.DEV
-                      : UserType.PM }
+                      : UserType.PM}
                   </Typography>
                 </Box>
               </Box>
@@ -499,7 +502,7 @@ const RoleSelection = () => {
             {selectedRole === null ? (
               // Role Selection View
               <>
-                <Roles handleRoleSelect={handleRoleSelect}/>
+                <Roles handleRoleSelect={handleRoleSelect} />
               </>
             ) : (
               // Auth Form View (Sign In/Sign Up)
@@ -538,9 +541,9 @@ const RoleSelection = () => {
                       letterSpacing: "-0.5px",
                     }}
                   >
-                    { selectedRole === UserType.DEV
+                    {selectedRole === UserType.DEV
                       ? UserType.DEV
-                      : UserType.PM }
+                      : UserType.PM}
                   </Typography>
                 </Box>
 
@@ -575,10 +578,10 @@ const RoleSelection = () => {
 
                 {activeTab === "signin" ? (
                   // Sign In Form
-                  <Login 
+                  <Login
                     formData={formData}
                     handleFormChange={handleFormChange}
-                    handleSubmit={handleSubmit} 
+                    handleSubmit={handleSubmit}
                     handleForgotPassword={handleForgotPassword}
                   />
                 ) : (
@@ -586,7 +589,7 @@ const RoleSelection = () => {
                   <Signup
                     formData={formData}
                     handleFormChange={handleFormChange}
-                    handleSubmit={handleSubmit} 
+                    handleSubmit={handleSubmit}
                     handleForgotPassword={handleForgotPassword}
                   />
                 )}

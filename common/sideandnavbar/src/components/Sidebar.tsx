@@ -12,12 +12,6 @@ const Sidebar = () => {
   const { isAuthenticated, user } = useAuth();
   const location = useLocation();
 
-  useEffect(() => {
-    if (user) {
-      console.log(user?.firstName); // This will show the firstName when user is available
-    }
-  }, [user]);
-
   // Load projects and thoughts from localStorage on component mount
   useEffect(() => {
     const loadData = () => {
@@ -175,7 +169,7 @@ const Sidebar = () => {
           </li>
           <li className="rounded-lg transition duration-300">
             <Link
-              to='/'
+              to={user?.role === UserType.DEV ? "/dev/dashboard" : "/pm/dashboard"}
               className={`flex items-center px-4 py-2.5 space-x-3 rounded-lg transition duration-300 hover:bg-[#D1CEDB] ${
                 activeLink === "dashboard" ? "bg-[#D1CEDB]" : ""
               }`}
