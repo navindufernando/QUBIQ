@@ -1,4 +1,5 @@
 import {
+  Avatar,
   Badge,
   Box,
   Button,
@@ -20,6 +21,7 @@ import { useState } from "react";
 
 interface Task {
   taskName: string;
+  assigneeName: string;
   id: number;
   name: string;
   description: string;
@@ -105,7 +107,11 @@ const TaskWrapper: React.FC<TaskListProps> = ({
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
               >
                 <TableCell>{task.name}</TableCell>
-                <TableCell>{task.assigneeId}</TableCell>
+                <TableCell>
+                  <Avatar sx={{ width: 33, height: 33, fontSize: "0.975" }}>
+                    {task.assigneeName.charAt(0)}
+                  </Avatar>
+                </TableCell>
                 <TableCell>
                   {task.endDate || <CalendarMonthOutlinedIcon />}
                 </TableCell>

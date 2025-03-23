@@ -8,9 +8,31 @@ const prisma = new PrismaClient();
 export class DeveloperService {
 
     async getAllTasks(id: number) {
-        return await prisma.task.findMany({
-            where: { assigneeId: id }
+        // return await prisma.task.findMany({
+        //     where: { assigneeId: id }
+        // });
+
+        const tasks = await prisma.task.findMany({
+            where: { assigneeId: id },
+            include: {
+                assignee: {
+                    select: {
+                        name: true
+                    }
+                }
+            }
         });
+
+        // Format the dates in the `tasks` array
+        const dateFormattedTasks = tasks.map(task => ({
+            ...task,
+            endDate: task.endDate ? new Date(task.endDate).toISOString().split('T')[0] : null,
+            startDate: task.startDate ? new Date(task.startDate).toISOString().split('T')[0] : null,
+            assigneeName: task.assignee ? task.assignee.name : null,
+            assignee: undefined
+        }));
+
+        return dateFormattedTasks;
     }
 
     async getActivities() {

@@ -24,8 +24,6 @@ export class RecommendationService  {
             // Get descriptions for each skill (via OpenAI)
             const skillDescriptions = await this.getSkillDescription(response.data.recommended_skills);
 
-            console.log(response.data.recommended_skills)
-
             // Map the recommended skills to include descriptions and other metadata
             const recommendedSkillsWithDetails = response.data.recommended_skills.map((skill: string, id: number) => {
                 return {
@@ -35,8 +33,6 @@ export class RecommendationService  {
                     dateSuggested: new Date().toLocaleDateString(), // Current date as suggested date
                 };
             });
-
-            console.log(recommendedSkillsWithDetails)
 
             // Return the recommended skills from FastAPI response
             return recommendedSkillsWithDetails;

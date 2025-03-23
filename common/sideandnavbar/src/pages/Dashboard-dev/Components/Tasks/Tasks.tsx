@@ -5,6 +5,7 @@ import axios from "axios";
 
 interface Task {
   taskName: string;
+  assigneeName: string;
   id: number;
   name: string;
   description: string;
@@ -32,6 +33,10 @@ const Tasks = () => {
 
     fetchTasks();
   }, []);
+
+  useEffect(() => {
+    console.log(tasks);
+  }, [tasks]);
 
   const handleStatusChange = async (taskId: number, newStatus: string) => {
     try {
