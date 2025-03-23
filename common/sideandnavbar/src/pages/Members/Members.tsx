@@ -89,6 +89,7 @@ const CustomPagination: React.FC<{
     </Box>
   );
 };
+
 const TeamSection: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -156,6 +157,7 @@ const TeamSection: React.FC = () => {
     </Paper>
   );
 };
+
 const HeroSection: React.FC = () => {
   return (
     <Box sx={{ 
@@ -171,114 +173,22 @@ const HeroSection: React.FC = () => {
       </Box>
       
       <Box sx={{ position: 'relative', width: '45%', height: 300 }}>
-        {/* Dashboard screenshots */}
+        {/* Single dashboard image */}
         <Paper 
           sx={{ 
-            position: 'absolute', 
-            width: '90%',
-            top: 0,
-            right: 0,
-            zIndex: 3,
+            width: '100%',
             borderRadius: 3,
             overflow: 'hidden',
             boxShadow: 3
           }}
         >
-          <img src="src/images/dashboard2.png" alt="Dashboard" width="100%" />
+          <img src="src/images/dashboard.png" alt="Dashboard" width="100%" />
         </Paper>
-        
-        <Paper 
-          sx={{ 
-            position: 'absolute', 
-            width: '70%',
-            top: '30%',
-            right: '10%',
-            zIndex: 2,
-            borderRadius: 3,
-            overflow: 'hidden',
-            boxShadow: 3
-          }}
-        >
-          <img src="/api/placeholder/300/150" alt="Dashboard" width="100%" />
-        </Paper>
-        
-        <Paper 
-          sx={{ 
-            position: 'absolute', 
-            width: '50%',
-            top: '60%',
-            right: '20%',
-            zIndex: 1,
-            borderRadius: 3,
-            overflow: 'hidden',
-            boxShadow: 3
-          }}
-        >
-          <img src="/api/placeholder/200/100" alt="Dashboard" width="100%" />
-        </Paper>
-        
-        {/* Profile bubbles */}
-        <Box sx={{ position: 'absolute', width: '100%', height: '100%' }}>
-          <Avatar 
-            src="/api/placeholder/40/40" 
-            sx={{ 
-              position: 'absolute', 
-              width: 40, 
-              height: 40, 
-              top: '20%', 
-              left: 0,
-              boxShadow: 1
-            }} 
-          />
-          <Avatar 
-            src="/api/placeholder/40/40" 
-            sx={{ 
-              position: 'absolute', 
-              width: 40, 
-              height: 40, 
-              top: '10%', 
-              right: '10%',
-              boxShadow: 1
-            }} 
-          />
-          <Avatar 
-            src="/api/placeholder/40/40" 
-            sx={{ 
-              position: 'absolute', 
-              width: 40, 
-              height: 40, 
-              top: '50%', 
-              right: 0,
-              boxShadow: 1
-            }} 
-          />
-          <Avatar 
-            src="/api/placeholder/40/40" 
-            sx={{ 
-              position: 'absolute', 
-              width: 40, 
-              height: 40, 
-              bottom: '20%', 
-              right: '15%',
-              boxShadow: 1
-            }} 
-          />
-          <Avatar 
-            src="/api/placeholder/40/40" 
-            sx={{ 
-              position: 'absolute', 
-              width: 40, 
-              height: 40, 
-              bottom: '10%', 
-              left: '30%',
-              boxShadow: 1
-            }} 
-          />
-        </Box>
       </Box>
     </Box>
   );
 };
+
 const TeamDashboard: React.FC = () => {
   return (
     <ThemeProvider theme={theme}>
