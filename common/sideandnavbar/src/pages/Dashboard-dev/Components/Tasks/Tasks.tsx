@@ -33,10 +33,6 @@ const Tasks = () => {
     fetchTasks();
   }, []);
 
-  useEffect(() => {
-    console.log("Updated tasks:", tasks);
-  }, [tasks]);
-
   const handleStatusChange = async (taskId: number, newStatus: string) => {
     try {
       // Send update to backend

@@ -14,6 +14,7 @@ export class DeveloperController {
         try {
             // const { id } = req.params;
             // const devId = Number(id);
+            console.log("enter")
             const devId = 1;
 
             const tasks = await developerService.getAllTasks(devId);

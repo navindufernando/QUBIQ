@@ -59,7 +59,9 @@ const SkillImprovements = () => {
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/dev/codeimp");
+        const response = await axios.get(
+          "http://localhost:3000/dev/improvement/skill"
+        );
         setImprovements(response.data);
       } catch (error) {
         console.error("Error fetching skill improvements:", error);
@@ -68,6 +70,10 @@ const SkillImprovements = () => {
 
     fetchTasks();
   }, []);
+
+  useEffect(() => {
+    console.log("Updated tasks:", improvements);
+  }, [improvements]);
 
   return (
     <>
