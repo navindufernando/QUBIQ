@@ -8,6 +8,12 @@ const sprintService = new SprintService();
 export class SprintController {
     static async createSprint(req: Request, res: Response): Promise<any> {
         try {
+
+            const userId = req.body.userId;
+
+            if (!userId) {
+                return res.status(401).json({ error: 'User not authenticated'});
+            }
             // extract the data from the request body
             const {
                 sprintName,
@@ -33,7 +39,7 @@ export class SprintController {
                 startDate: new Date(startDate),
                 endDate: new Date(endDate),
                 projectId
-            });
+            }, userId);
 
             // Respond of the created sprint
             res.status(201).json(newSprint);
@@ -45,7 +51,11 @@ export class SprintController {
     // Controller method to retrieve all the sprints
     static async getAllSprints(req: Request, res: Response): Promise<any> {
         try {
-            const sprints = await sprintService.getAllSprints();
+            const userId = req.query.userId;
+            if (!userId) {
+                return res.status(401).json({ error: 'User not authentication'});
+            }
+            const sprints = await sprintService.getAllSprints(userId as string);
             res.status(200).json(sprints);
         } catch (error) {
             res.status(500).json({ error: 'Failed to fetch the sprints.'});
@@ -56,7 +66,11 @@ export class SprintController {
     static async getSprintById(req: Request, res: Response): Promise<any> {
         try {
             const { id } = req.params;
-            const sprint = await sprintService.getSprintById(id);
+            const userId = req.query.userId;
+            if (!userId) {
+                return res.status(401).json({ error: 'User not authentication'});
+            }
+            const sprint = await sprintService.getSprintById(id, userId as string);
 
             if (!sprint) {
                 return res.status(404).json({error: 'Sprint not found.'});
@@ -72,7 +86,11 @@ export class SprintController {
     static async updateSprint(req: Request, res: Response): Promise<any> {
         try {
             const { id } = req.params;
-            const sprint = await sprintService.updateSprint(id, req.body);
+            const userId = req.query.userId;
+            if (!userId) {
+                return res.status(401).json({ error: 'User not authentication'});
+            }
+            const sprint = await sprintService.updateSprint(id, userId as string, req.body);
 
             res.status(200).json(sprint);
         } catch (error) {

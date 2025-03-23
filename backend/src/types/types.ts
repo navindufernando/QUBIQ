@@ -1,7 +1,6 @@
 export enum UserRole {
     DEV = 'DEV',
     PM = 'PM',
-    ADMIN = 'ADMIN'
 }
 
 export interface User {
@@ -18,5 +17,6 @@ export interface User {
     googleId?: string | null,
     createdAt: Date,
     updatedAt?: Date | null,
-    teamMemberId?: number | null
+    teamMemberId?: number | null,
+    userId: string
 }

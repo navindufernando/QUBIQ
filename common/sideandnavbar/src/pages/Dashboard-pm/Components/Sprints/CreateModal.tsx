@@ -8,6 +8,7 @@ interface modalProps {
   handleClose: () => void;
   sprintData: Sprintdata | null;
   sprintId: string | null;
+  userId: string;
 }
 
 export interface Sprintdata {
@@ -20,7 +21,7 @@ export interface Sprintdata {
   projectId: string;
 }
 
-const CreateModal: React.FC<modalProps> = ({ openModal, handleClose, sprintData, sprintId }) => {
+const CreateModal: React.FC<modalProps> = ({ openModal, handleClose, sprintData, sprintId, userId }) => {
 
   const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState<Sprintdata>({
@@ -131,13 +132,14 @@ const CreateModal: React.FC<modalProps> = ({ openModal, handleClose, sprintData,
     setIsLoading(true);
 
     try {
+
       if (sprintId) {
         // if there is an id, update the sprint
-        const response = await updateSprint(sprintId, data);
+        const response = await updateSprint(sprintId, userId, data);
         console.log('Sprint updated: ', response);
       } else {
         // else, create a new spriint
-        const response = await createSprint(data);
+        const response = await createSprint(data, userId);
         console.log('Sprint created:', response);
       }
       handleClose();
