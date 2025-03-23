@@ -118,7 +118,7 @@ const ProjectReview = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [filterAnchorEl, setFilterAnchorEl] = useState<null | HTMLElement>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterOption, setFilterOption] = useState<string>("All Feedback"); // New state for filter
+  const [filterOption, setFilterOption] = useState<string>("All Feedback");
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editedProjectName, setEditedProjectName] = useState("");
   const [editSection, setEditSection] = useState<string | null>(null);
@@ -132,6 +132,8 @@ const ProjectReview = () => {
   const [editFeedbackId, setEditFeedbackId] = useState<string | null>(null);
   const [editFeedbackContent, setEditFeedbackContent] = useState("");
   const [editFeedbackSentiment, setEditFeedbackSentiment] = useState("");
+  const [replyInputs, setReplyInputs] = useState<{ [key: string]: string }>({}); // New state for reply inputs
+  const [showReplyInput, setShowReplyInput] = useState<{ [key: string]: boolean }>({}); // New state to toggle reply input visibility
 
   const { projectId } = useParams();
   const location = useLocation();
@@ -388,6 +390,45 @@ const ProjectReview = () => {
       default:
         return <InfoIcon color="info" />;
     }
+  };
+
+  // Toggle reply input visibility
+  const toggleReplyInput = (feedbackId: string) => {
+    setShowReplyInput((prev) => ({
+      ...prev,
+      [feedbackId]: !prev[feedbackId],
+    }));
+  };
+
+  // Handle reply input change
+  const handleReplyChange = (feedbackId: string, value: string) => {
+    setReplyInputs((prev) => ({
+      ...prev,
+      [feedbackId]: value,
+    }));
+  };
+
+  // Add reply to feedback
+  const handleAddReply = (feedbackId: string) => {
+    const replyText = replyInputs[feedbackId]?.trim();
+    if (!replyText) return;
+
+    const newReply = {
+      id: `r${Date.now()}`, // Simple unique ID for demo purposes
+      author: { name: "Team Member", avatar: null, role: "Member" }, // Replace with actual user data in a real app
+      date: new Date().toISOString().split("T")[0],
+      content: replyText,
+    };
+
+    setFeedback(
+      feedback.map((item) =>
+        item.id === feedbackId
+          ? { ...item, replies: [...item.replies, newReply] }
+          : item
+      )
+    );
+    setReplyInputs((prev) => ({ ...prev, [feedbackId]: "" })); // Clear input
+    setShowReplyInput((prev) => ({ ...prev, [feedbackId]: false })); // Hide input after submitting
   };
 
   // Filter feedback based on selected filter option
@@ -1465,6 +1506,7 @@ const ProjectReview = () => {
                     </Button>
                     <Button
                       size="small"
+                      onClick={() => toggleReplyInput(item.id)}
                       sx={{ borderRadius: 2, textTransform: "none" }}
                     >
                       Reply
@@ -1488,6 +1530,42 @@ const ProjectReview = () => {
                     </Button>
                   </Box>
 
+                  {/* Reply Input */}
+                  {showReplyInput[item.id] && (
+                    <Box sx={{ mt: 2 }}>
+                      <TextField
+                        fullWidth
+                        multiline
+                        rows={2}
+                        placeholder="Write a reply..."
+                        value={replyInputs[item.id] || ""}
+                        onChange={(e) => handleReplyChange(item.id, e.target.value)}
+                        variant="outlined"
+                        sx={{ mb: 2 }}
+                      />
+                      <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1 }}>
+                        <Button
+                          size="small"
+                          onClick={() => toggleReplyInput(item.id)}
+                          sx={{ borderRadius: 2, textTransform: "none" }}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          size="small"
+                          variant="contained"
+                          endIcon={<SendIcon />}
+                          onClick={() => handleAddReply(item.id)}
+                          disabled={!replyInputs[item.id]?.trim()}
+                          sx={{ borderRadius: 2, textTransform: "none" }}
+                        >
+                          Submit Reply
+                        </Button>
+                      </Box>
+                    </Box>
+                  )}
+
+                  {/* Existing Replies */}
                   {item.replies && item.replies.length > 0 && (
                     <Box sx={{ mt: 3, ml: 5 }}>
                       {item.replies.map((reply) => (
