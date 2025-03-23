@@ -1,16 +1,21 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "../pages/Signup&Login/AuthContext";
+import { UserType } from "../enums/userType";
 
 const Sidebar = () => {
   const [projects, setProjects] = useState([]);
   const [thoughts, setThoughts] = useState([]);
   const [newThought, setNewThought] = useState("");
   const [isWriting, setIsWriting] = useState(false);
-  const [activeLink, setActiveLink] = useState("home");
+  const [activeLink, setActiveLink] = useState("");
+  const { isAuthenticated, user } = useAuth();
+  const location = useLocation();
 
   // Load projects and thoughts from localStorage on component mount
   useEffect(() => {
     const loadData = () => {
+
       // Load projects
       const savedProjects = localStorage.getItem("projects");
       if (savedProjects) {
@@ -23,7 +28,7 @@ const Sidebar = () => {
         const allThoughts = JSON.parse(savedThoughts);
         // Filter out John Doe messages
         const filteredThoughts = allThoughts.filter(
-          (thought) => thought.author !== "John Doe"
+          (thought: { author: string }) => thought.author !== "John Doe"
         );
         setThoughts(filteredThoughts);
         // Save the filtered thoughts back to localStorage
@@ -77,7 +82,7 @@ const Sidebar = () => {
   };
 
   // New function to delete a thought
-  const deleteThought = (id) => {
+  const deleteThought = (id: string) => {
     // Filter out the thought with the matching id
     const updatedThoughts = thoughts.filter((thought) => thought.id !== id);
     setThoughts(updatedThoughts);
@@ -87,10 +92,10 @@ const Sidebar = () => {
   };
 
   // Format timestamp to "X time ago" format
-  const formatTimestamp = (timestamp) => {
+  const formatTimestamp = (timestamp: string | number | Date) => {
     const date = new Date(timestamp);
     const now = new Date();
-    const diffInSeconds = Math.floor((now - date) / 1000);
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
     if (diffInSeconds < 60) return `${diffInSeconds} seconds ago`;
     if (diffInSeconds < 3600)
@@ -102,7 +107,7 @@ const Sidebar = () => {
 
   return (
     <div
-      className="w-80 min-h-screen"
+      className="w-80 min-h-screen overflow-hidden"
       style={{
         backgroundColor: "#E2DDFF",
         height: "auto",
@@ -115,12 +120,12 @@ const Sidebar = () => {
     >
       <div className="py-4 pl-6 flex items-center" style={{ height: "64px" }}>
         <h1
-          className="text-2xl font-bold text-black" // Changed to black color
+          className="text-2xl font-bold text-black"
           style={{
-            color: "#000000", // Set to black
+            color: "#000000",
           }}
         >
-          Project M.
+          {user?.role === UserType.DEV ? 'Developer' : 'Project M.'}
         </h1>
       </div>
       <div className="px-4">
@@ -164,11 +169,11 @@ const Sidebar = () => {
           </li>
           <li className="rounded-lg transition duration-300">
             <Link
-              to="/dashboard"
+              to={user?.role === UserType.DEV ? "/dev/dashboard" : "/pm/dashboard"}
               className={`flex items-center px-4 py-2.5 space-x-3 rounded-lg transition duration-300 hover:bg-[#D1CEDB] ${
                 activeLink === "dashboard" ? "bg-[#D1CEDB]" : ""
               }`}
-              onClick={() => setActiveLink("dashboard")}
+              onClick={() => user?.role === UserType.DEV ? setActiveLink("dev/dashboard") : setActiveLink("pm/dashboard")}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -340,7 +345,10 @@ const Sidebar = () => {
             </h3>
             <Link
               to="/project"
-              className="text-gray-600 hover:text-[#5E3FE9] transition-colors duration-300"
+              className={`text-gray-600 hover:text-[#5E3FE9] transition-colors duration-300 ${
+                activeLink === "project" ? "text-[#5E3FE9]" : ""
+              }`}
+              onClick={() => setActiveLink("project")}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -360,24 +368,35 @@ const Sidebar = () => {
 
           {projects.length > 0 ? (
             <ul className="mt-2 space-y-2">
-              {projects.map((project) => (
+              {projects.map((project: any) => (
                 <li key={project.id} className="mb-2">
                   <Link
                     to={`/project/${project.id}`}
                     state={{ projectId: project.id }}
-                    className="flex items-center px-4 py-2.5 space-x-3 rounded-lg transition duration-300 hover:bg-[#D1CEDB]"
+                    className={`flex items-center px-4 py-2.5 space-x-3 rounded-lg transition duration-300 hover:bg-[#D1CEDB] ${
+                      location.pathname === `/project/${project.id}`
+                        ? "bg-[#D1CEDB]"
+                        : ""
+                    }`}
                   >
                     <span
                       className="w-3 h-3 rounded-full"
                       style={{ backgroundColor: project.color }}
                     ></span>
-                    <span className="font-medium">{project.name}</span>
+                    <span
+                      className={
+                        location.pathname === `/project/${project.id}`
+                          ? "font-medium text-[#5E3FE9]"
+                          : "font-medium"
+                      }
+                    >
+                      {project.name}
+                    </span>
                   </Link>
                 </li>
               ))}
             </ul>
           ) : (
-            // Updated to blend with the sidebar by removing background color
             <div className="text-gray-500 text-sm px-4 py-3 rounded-lg">
               No projects yet. Click the + icon to create one.
             </div>
@@ -429,7 +448,7 @@ const Sidebar = () => {
                   </div>
                   <textarea
                     className="w-full p-3 border rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                    rows="3"
+                    rows={3}
                     placeholder="Write your thought here..."
                     value={newThought}
                     onChange={(e) => setNewThought(e.target.value)}
@@ -453,7 +472,7 @@ const Sidebar = () => {
               ) : (
                 <>
                   {thoughts.length > 0 ? (
-                    thoughts.map((thought) => (
+                    thoughts.map((thought: any) => (
                       <div
                         key={thought.id}
                         className="bg-gray-50 rounded-lg p-4 relative group hover:bg-gray-100 transition-colors duration-300"

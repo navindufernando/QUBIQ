@@ -9,7 +9,7 @@ const schemas: ValidationSchema = {
   signIn: Joi.object({
     email: Joi.string().email().required(),
     password: Joi.string().required(),
-    role: Joi.string().valid('DEV', 'DEV').required()
+    role: Joi.string().valid('DEV', 'PM').required()
   }),
   signUp: Joi.object({
     firstName: Joi.string().min(2).max(50).required(),

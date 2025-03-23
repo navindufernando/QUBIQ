@@ -5,27 +5,28 @@ import {
   Card,
   Container,
   Typography,
-  Divider,
-  TextField,
   Tabs,
   Tab,
-  alpha,
   Step,
   StepLabel,
   Stepper,
-  Grid,
 } from "@mui/material";
 import CodeIcon from "@mui/icons-material/Code";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import LightbulbIcon from "@mui/icons-material/Lightbulb";
 import DataObjectIcon from "@mui/icons-material/DataObject";
-import type { UserRole } from "../types";
 import { useNavigate } from "react-router-dom";
+import Login from "../Signup&Login/Login";
+import Signup from "../Signup&Login/Signup";
+import { UserType } from "../../enums/userType";
+import Roles from "../Signup&Login/Roles";
+import { signin, signup } from "../../services/authAPI";
+import { useAuth } from "../Signup&Login/AuthContext";
 
-function RoleSelection() {
-  const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
+const RoleSelection = () => {
+  const [selectedRole, setSelectedRole] = useState<UserType | null>(null);
   const [activeTab, setActiveTab] = useState<"signin" | "signup">("signin");
+  
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -33,7 +34,12 @@ function RoleSelection() {
     firstName: "",
     lastName: "",
   });
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { login, user } = useAuth();
+
 
   // Determine the current step based on selected role and active tab
   const getCurrentStep = () => {
@@ -41,8 +47,9 @@ function RoleSelection() {
     return activeTab === "signin" ? 1 : 1;
   };
 
-  const handleRoleSelect = (role: UserRole) => {
+  const handleRoleSelect = (role: UserType) => {
     setSelectedRole(role);
+    setError(null);
   };
 
   const handleTabChange = (
@@ -50,26 +57,154 @@ function RoleSelection() {
     newValue: "signin" | "signup"
   ) => {
     setActiveTab(newValue);
+    setError(null);
   };
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+    // clear error when user starts typing
+    if (error) setError(null);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(`${selectedRole} ${activeTab}:`, formData);
+
+    if (!selectedRole) {
+      setError('Please select a role');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    console.log("Sending role:", selectedRole);
+    console.log("Sending role (as string):", selectedRole.toString());
+
+    try {
+      if (activeTab === 'signin') {
+        const { email, password } = formData;
+
+        // Client-side validation
+        if (!email) {
+          setError('Email is required');
+          setLoading(false);
+          return;
+        }
+        
+        if (!password) {
+          setError('Password is required');
+          setLoading(false);
+          return;
+        }
+
+        const response = await signin(email, password, selectedRole);
+        const token = response.data.data.token;
+
+        if (response.success) {
+          // Save user to context and redirect
+          login(response.data.data, token);
+
+          console.log("API response structure:", response);
+          console.log("Token location:", response.data.data.token);
+          // Redirect to dashboard based on role
+          navigate(`/${selectedRole.toString().toLowerCase()}/dashboard`);
+        }
+      } else {
+        // sign up
+        const { email, password, confirmPassword, firstName, lastName } = formData;
+
+        // Client-side validation
+        if (!firstName || firstName.length < 2 || firstName.length > 50) {
+          setError('First name must be between 2 and 50 characters');
+          setLoading(false);
+          return;
+        }
+        
+        if (!lastName || lastName.length < 2 || lastName.length > 50) {
+          setError('Last name must be between 2 and 50 characters');
+          setLoading(false);
+          return;
+        }
+        
+        if (!email) {
+          setError('Email is required');
+          setLoading(false);
+          return;
+        }
+        
+        if (!password || password.length < 8) {
+          setError('Password must be at least 8 characters');
+          setLoading(false);
+          return;
+        }
+        
+        if (password !== confirmPassword) {
+          setError('Passwords do not match');
+          setLoading(false);
+          return;
+        }
+
+        const response = await signup({
+          firstName,
+          lastName,
+          email,
+          password,
+          confirmPassword,
+          role: selectedRole,
+        });
+
+        console.log('response:', response);
+
+        console.log('token:', response.token);
+
+        if (response.success && response.data.data && response.data.data.token) {
+          console.log('User data before login:', response.data);
+
+          // Make sure the response.data has all required fields for AuthUser
+          const userData = {
+            id: response.data.data.id,
+            firstName: response.data.data.firstName,
+            lastName: response.data.data.lastName,
+            email: response.data.data.email,
+            role: response.data.data.role
+          };
+
+          // Store user data in context
+          login(userData, response.data.data.token);
+
+          // Wait for state update before navigating
+          setTimeout(() => {
+            console.log('User after login:', user); // Check if user state updates
+            navigate(`/${selectedRole.toString().toLowerCase()}/dashboard`);
+          }, 100);
+        } else {
+          setError('Failed to authenticate. Please try again.');
+        }
+      }
+    } catch (err: any) {
+      if (err.response?.data?.error) {
+        setError(err.response.data.error);
+      } else {
+        console.error("Signup error:", err.response?.data || err.message);
+        setError(err.response?.data?.error || "An unexpected error occurred. Please try again.");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Reset selection
   const handleBack = () => {
     setSelectedRole(null);
+    setError(null)
   };
 
   // Navigate to forgot password page
   const handleForgotPassword = () => {
-    navigate(`/${selectedRole}/ForgotPassword`);
+    navigate(`/${selectedRole}/forgot-password`, {
+      state: { role: selectedRole }
+    });
   };
 
   return (
@@ -382,15 +517,15 @@ function RoleSelection() {
                   You selected:
                 </Typography>
                 <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
-                  {selectedRole === "developer" ? (
+                  {selectedRole === UserType.DEV ? (
                     <CodeIcon sx={{ mr: 1.5, fontSize: 28 }} />
                   ) : (
                     <ManageAccountsIcon sx={{ mr: 1.5, fontSize: 28 }} /> // Increased icon size
                   )}
                   <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                    {selectedRole === "developer"
-                      ? "Developer"
-                      : "Project Manager"}
+                    {selectedRole === UserType.DEV
+                      ? UserType.DEV
+                      : UserType.PM}
                   </Typography>
                 </Box>
               </Box>
@@ -409,227 +544,7 @@ function RoleSelection() {
             {selectedRole === null ? (
               // Role Selection View
               <>
-                <Typography
-                  variant="h3"
-                  component="h1"
-                  sx={{
-                    mb: 3,
-                    fontWeight: 700,
-                    color: "#3730A3",
-                    background:
-                      "linear-gradient(135deg, #3730A3 0%, #6366f1 100%)",
-                    backgroundClip: "text",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                    letterSpacing: "-0.5px",
-                  }}
-                >
-                  Select Your Role
-                </Typography>
-                <Typography
-                  variant="h6"
-                  sx={{
-                    mb: 4,
-                    color: "#64748B",
-                    lineHeight: 1.5,
-                    maxWidth: "90%", // Limit width for better readability
-                  }}
-                >
-                  Choose your role to continue to the appropriate sign-in page
-                  and customize your QUBIQ experience
-                </Typography>
-                <Divider sx={{ mb: 5, opacity: 0.6 }} />{" "}
-                {/* Increased margin */}
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: { xs: "column", sm: "row" },
-                    gap: 4, // Increased gap
-                  }}
-                >
-                  <Card
-                    elevation={0}
-                    sx={{
-                      flex: 1,
-                      p: 4,
-                      cursor: "pointer",
-                      transition: "all 0.3s ease",
-                      "&:hover": {
-                        transform: "translateY(-12px)",
-                        boxShadow: "0 20px 40px -8px rgba(99, 102, 241, 0.35)",
-                      },
-                      border: "1px solid rgba(99, 102, 241, 0.25)",
-                      borderRadius: 4,
-                      background: "rgba(255, 255, 255, 0.95)",
-                      position: "relative",
-                      overflow: "hidden",
-                      "&::after": {
-                        content: '""',
-                        position: "absolute",
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        height: "5px",
-                        background: "linear-gradient(90deg, #6366f1, #818cf8)",
-                        opacity: 0,
-                        transition: "opacity 0.3s ease",
-                      },
-                      "&:hover::after": {
-                        opacity: 1,
-                      },
-                    }}
-                    onClick={() => handleRoleSelect("developer")}
-                  >
-                    <Box
-                      sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        gap: 3,
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          p: 2,
-                          borderRadius: "50%",
-                          bgcolor: alpha("#6366f1", 0.1),
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          transition: "all 0.3s ease",
-                          "&:hover": {
-                            bgcolor: alpha("#6366f1", 0.15),
-                            transform: "scale(1.08)",
-                          },
-                        }}
-                      >
-                        <CodeIcon sx={{ fontSize: 50, color: "#6366f1" }} />{" "}
-                        {/* Increased icon size */}
-                      </Box>
-                      <Typography
-                        variant="h5"
-                        sx={{ fontWeight: 600, color: "#1E293B" }}
-                      >
-                        Developer
-                      </Typography>
-                      <Button
-                        variant="contained"
-                        fullWidth
-                        sx={{
-                          background:
-                            "linear-gradient(90deg, #6366f1, #818cf8)",
-                          textTransform: "none",
-                          fontWeight: 600,
-                          borderRadius: 3,
-                          py: 1.5,
-                          fontSize: "1.1rem",
-                          boxShadow: "0 4px 15px rgba(99, 102, 241, 0.3)",
-                          transition: "all 0.3s ease",
-                          "&:hover": {
-                            background:
-                              "linear-gradient(90deg, #4f46e5, #6366f1)",
-                            boxShadow: "0 8px 20px rgba(99, 102, 241, 0.4)",
-                            transform: "translateY(-3px)",
-                          },
-                        }}
-                      >
-                        Continue as Developer
-                      </Button>
-                    </Box>
-                  </Card>
-
-                  <Card
-                    elevation={0}
-                    sx={{
-                      flex: 1,
-                      p: 4,
-                      cursor: "pointer",
-                      transition: "all 0.3s ease",
-                      "&:hover": {
-                        transform: "translateY(-12px)",
-                        boxShadow: "0 20px 40px -8px rgba(99, 102, 241, 0.35)",
-                      },
-                      border: "1px solid rgba(99, 102, 241, 0.25)",
-                      borderRadius: 4,
-                      background: "rgba(255, 255, 255, 0.95)",
-                      position: "relative",
-                      overflow: "hidden",
-                      "&::after": {
-                        content: '""',
-                        position: "absolute",
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        height: "5px",
-                        background: "linear-gradient(90deg, #6366f1, #818cf8)",
-                        opacity: 0,
-                        transition: "opacity 0.3s ease",
-                      },
-                      "&:hover::after": {
-                        opacity: 1,
-                      },
-                    }}
-                    onClick={() => handleRoleSelect("project-manager")}
-                  >
-                    <Box
-                      sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        gap: 3,
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          p: 2,
-                          borderRadius: "50%",
-                          bgcolor: alpha("#6366f1", 0.1),
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          transition: "all 0.3s ease",
-                          "&:hover": {
-                            bgcolor: alpha("#6366f1", 0.15),
-                            transform: "scale(1.08)",
-                          },
-                        }}
-                      >
-                        <ManageAccountsIcon
-                          sx={{ fontSize: 50, color: "#6366f1" }}
-                        />
-                      </Box>
-                      <Typography
-                        variant="h5"
-                        sx={{ fontWeight: 600, color: "#1E293B" }}
-                      >
-                        Project Manager
-                      </Typography>
-                      <Button
-                        variant="contained"
-                        fullWidth
-                        sx={{
-                          background:
-                            "linear-gradient(90deg, #6366f1, #818cf8)",
-                          textTransform: "none",
-                          fontWeight: 600,
-                          borderRadius: 3,
-                          py: 1.5,
-                          fontSize: "1.1rem",
-                          boxShadow: "0 4px 15px rgba(99, 102, 241, 0.3)",
-                          transition: "all 0.3s ease",
-                          "&:hover": {
-                            background:
-                              "linear-gradient(90deg, #4f46e5, #6366f1)",
-                            boxShadow: "0 8px 20px rgba(99, 102, 241, 0.4)",
-                            transform: "translateY(-3px)",
-                          },
-                        }}
-                      >
-                        Continue as PM
-                      </Button>
-                    </Box>
-                  </Card>
-                </Box>
+                <Roles handleRoleSelect={handleRoleSelect} />
               </>
             ) : (
               // Auth Form View (Sign In/Sign Up)
@@ -668,9 +583,9 @@ function RoleSelection() {
                       letterSpacing: "-0.5px",
                     }}
                   >
-                    {selectedRole === "developer"
-                      ? "Developer"
-                      : "Project Manager"}
+                    {selectedRole === UserType.DEV
+                      ? UserType.DEV
+                      : UserType.PM}
                   </Typography>
                 </Box>
 
@@ -705,403 +620,24 @@ function RoleSelection() {
 
                 {activeTab === "signin" ? (
                   // Sign In Form
-                  <Box component="form" onSubmit={handleSubmit}>
-                    <Button
-                      fullWidth
-                      variant="outlined"
-                      startIcon={
-                        <img
-                          src="https://cdn.cdnlogo.com/logos/g/35/google-icon.svg"
-                          alt="Google"
-                          style={{ width: 24, height: 24 }}
-                        />
-                      }
-                      sx={{
-                        mb: 4,
-                        textTransform: "none",
-                        borderColor: "#e0e0e0",
-                        color: "#000",
-                        "&:hover": {
-                          borderColor: "#bdbdbd",
-                          backgroundColor: "#fafafa",
-                          transform: "translateY(-3px)",
-                        },
-                        py: 1.5,
-                        fontSize: "1.05rem",
-                        borderRadius: 3,
-                        boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-                        transition: "all 0.3s ease",
-                      }}
-                    >
-                      Continue with Google
-                    </Button>
-
-                    <Typography
-                      variant="body1"
-                      align="center"
-                      sx={{
-                        mb: 4,
-                        color: "#666",
-                        position: "relative",
-                        "&::before, &::after": {
-                          content: '""',
-                          position: "absolute",
-                          top: "50%",
-                          width: "45%",
-                          height: "1px",
-                          bgcolor: "#e0e0e0",
-                        },
-                        "&::before": {
-                          left: 0,
-                        },
-                        "&::after": {
-                          right: 0,
-                        },
-                      }}
-                    >
-                      OR
-                    </Typography>
-
-                    <Typography
-                      variant="body1"
-                      sx={{ mb: 1.5, fontWeight: 500 }}
-                    >
-                      {" "}
-                      {/* Increased from body2 */}
-                      Work Email
-                    </Typography>
-                    <TextField
-                      fullWidth
-                      name="email"
-                      placeholder="Enter your work email"
-                      variant="outlined"
-                      type="email"
-                      sx={{
-                        mb: 4,
-                        "& .MuiOutlinedInput-root": {
-                          borderRadius: 2.5,
-                          fontSize: "1.05rem",
-                          transition: "all 0.2s ease",
-                          "&.Mui-focused": {
-                            "& .MuiOutlinedInput-notchedOutline": {
-                              borderColor: "#6366f1",
-                              borderWidth: "2px",
-                            },
-                          },
-                          "&:hover .MuiOutlinedInput-notchedOutline": {
-                            borderColor: "#a5b4fc",
-                          },
-                        },
-                        "& .MuiInputBase-input": {
-                          padding: "16px 14px",
-                        },
-                      }}
-                      value={formData.email}
-                      onChange={handleFormChange}
-                    />
-
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        mb: 1.5,
-                      }}
-                    >
-                      <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                        {" "}
-                        {/* Increased from body2 */}
-                        Password
-                      </Typography>
-                      <Typography
-                        variant="body1"
-                        component="button"
-                        onClick={handleForgotPassword}
-                        sx={{
-                          color: "#6366f1",
-                          textDecoration: "none",
-                          fontWeight: 500,
-                          transition: "all 0.2s ease",
-                          background: "none",
-                          border: "none",
-                          cursor: "pointer",
-                          padding: 0,
-                          "&:hover": {
-                            textDecoration: "underline",
-                            color: "#4f46e5",
-                          },
-                        }}
-                      >
-                        Forgot Password?
-                      </Typography>
-                    </Box>
-                    <TextField
-                      fullWidth
-                      name="password"
-                      placeholder="Enter password"
-                      variant="outlined"
-                      type="password"
-                      sx={{
-                        mb: 4,
-                        "& .MuiOutlinedInput-root": {
-                          borderRadius: 2.5,
-                          fontSize: "1.05rem",
-                          transition: "all 0.2s ease",
-                          "&.Mui-focused": {
-                            "& .MuiOutlinedInput-notchedOutline": {
-                              borderColor: "#6366f1",
-                              borderWidth: "2px",
-                            },
-                          },
-                          "&:hover .MuiOutlinedInput-notchedOutline": {
-                            borderColor: "#a5b4fc",
-                          },
-                        },
-                        "& .MuiInputBase-input": {
-                          padding: "16px 14px",
-                        },
-                      }}
-                      value={formData.password}
-                      onChange={handleFormChange}
-                    />
-
-                    <Button
-                      fullWidth
-                      variant="contained"
-                      size="large"
-                      type="submit"
-                      sx={{
-                        background: "linear-gradient(90deg, #6366f1, #818cf8)",
-                        mb: 3,
-                        py: 1.5,
-                        fontSize: "1.1rem",
-                        textTransform: "none",
-                        fontWeight: 600,
-                        borderRadius: 3,
-                        boxShadow: "0 4px 15px rgba(99, 102, 241, 0.3)",
-                        transition: "all 0.3s ease",
-                        "&:hover": {
-                          background:
-                            "linear-gradient(90deg, #4f46e5, #6366f1)",
-                          boxShadow: "0 8px 20px rgba(99, 102, 241, 0.4)",
-                          transform: "translateY(-3px)",
-                        },
-                      }}
-                      endIcon={<CheckCircleIcon />}
-                    >
-                      Sign In
-                    </Button>
-                  </Box>
+                  <Login
+                    formData={formData}
+                    handleFormChange={handleFormChange}
+                    handleSubmit={handleSubmit}
+                    handleForgotPassword={handleForgotPassword}
+                    error={error}
+                    loading={loading}
+                  />
                 ) : (
                   // Sign Up Form
-                  <Box component="form" onSubmit={handleSubmit}>
-                    <Grid container spacing={3}>
-                      <Grid item xs={12} sm={6}>
-                        <Typography
-                          variant="body1"
-                          sx={{ mb: 1.5, fontWeight: 500 }}
-                        >
-                          First Name
-                        </Typography>
-                        <TextField
-                          fullWidth
-                          name="firstName"
-                          placeholder="Enter first name"
-                          variant="outlined"
-                          sx={{
-                            "& .MuiOutlinedInput-root": {
-                              borderRadius: 2.5,
-                              fontSize: "1.05rem",
-                              transition: "all 0.2s ease",
-                              "&.Mui-focused": {
-                                "& .MuiOutlinedInput-notchedOutline": {
-                                  borderColor: "#6366f1",
-                                  borderWidth: "2px",
-                                },
-                              },
-                              "&:hover .MuiOutlinedInput-notchedOutline": {
-                                borderColor: "#a5b4fc",
-                              },
-                            },
-                            "& .MuiInputBase-input": {
-                              padding: "16px 14px",
-                            },
-                          }}
-                          value={formData.firstName}
-                          onChange={handleFormChange}
-                        />
-                      </Grid>
-                      <Grid item xs={12} sm={6}>
-                        <Typography
-                          variant="body1"
-                          sx={{ mb: 1.5, fontWeight: 500 }}
-                        >
-                          Last Name
-                        </Typography>
-                        <TextField
-                          fullWidth
-                          name="lastName"
-                          placeholder="Enter last name"
-                          variant="outlined"
-                          sx={{
-                            "& .MuiOutlinedInput-root": {
-                              borderRadius: 2.5,
-                              fontSize: "1.05rem",
-                              transition: "all 0.2s ease",
-                              "&.Mui-focused": {
-                                "& .MuiOutlinedInput-notchedOutline": {
-                                  borderColor: "#6366f1",
-                                  borderWidth: "2px",
-                                },
-                              },
-                              "&:hover .MuiOutlinedInput-notchedOutline": {
-                                borderColor: "#a5b4fc",
-                              },
-                            },
-                            "& .MuiInputBase-input": {
-                              padding: "16px 14px",
-                            },
-                          }}
-                          value={formData.lastName}
-                          onChange={handleFormChange}
-                        />
-                      </Grid>
-                    </Grid>
-
-                    <Typography
-                      variant="body1"
-                      sx={{ mb: 1.5, mt: 3, fontWeight: 500 }}
-                    >
-                      Work Email
-                    </Typography>
-                    <TextField
-                      fullWidth
-                      name="email"
-                      placeholder="Enter your work email"
-                      variant="outlined"
-                      type="email"
-                      sx={{
-                        mb: 3,
-                        "& .MuiOutlinedInput-root": {
-                          borderRadius: 2.5,
-                          fontSize: "1.05rem",
-                          transition: "all 0.2s ease",
-                          "&.Mui-focused": {
-                            "& .MuiOutlinedInput-notchedOutline": {
-                              borderColor: "#6366f1",
-                              borderWidth: "2px",
-                            },
-                          },
-                          "&:hover .MuiOutlinedInput-notchedOutline": {
-                            borderColor: "#a5b4fc",
-                          },
-                        },
-                        "& .MuiInputBase-input": {
-                          padding: "16px 14px",
-                        },
-                      }}
-                      value={formData.email}
-                      onChange={handleFormChange}
-                    />
-
-                    <Typography
-                      variant="body1"
-                      sx={{ mb: 1.5, fontWeight: 500 }}
-                    >
-                      Password
-                    </Typography>
-                    <TextField
-                      fullWidth
-                      name="password"
-                      placeholder="Create password"
-                      variant="outlined"
-                      type="password"
-                      sx={{
-                        mb: 3,
-                        "& .MuiOutlinedInput-root": {
-                          borderRadius: 2.5,
-                          fontSize: "1.05rem",
-                          transition: "all 0.2s ease",
-                          "&.Mui-focused": {
-                            "& .MuiOutlinedInput-notchedOutline": {
-                              borderColor: "#6366f1",
-                              borderWidth: "2px",
-                            },
-                          },
-                          "&:hover .MuiOutlinedInput-notchedOutline": {
-                            borderColor: "#a5b4fc",
-                          },
-                        },
-                        "& .MuiInputBase-input": {
-                          padding: "16px 14px",
-                        },
-                      }}
-                      value={formData.password}
-                      onChange={handleFormChange}
-                    />
-
-                    <Typography
-                      variant="body1"
-                      sx={{ mb: 1.5, fontWeight: 500 }}
-                    >
-                      Confirm Password
-                    </Typography>
-                    <TextField
-                      fullWidth
-                      name="confirmPassword"
-                      placeholder="Confirm password"
-                      variant="outlined"
-                      type="password"
-                      sx={{
-                        mb: 4,
-                        "& .MuiOutlinedInput-root": {
-                          borderRadius: 2.5,
-                          fontSize: "1.05rem",
-                          transition: "all 0.2s ease",
-                          "&.Mui-focused": {
-                            "& .MuiOutlinedInput-notchedOutline": {
-                              borderColor: "#6366f1",
-                              borderWidth: "2px",
-                            },
-                          },
-                          "&:hover .MuiOutlinedInput-notchedOutline": {
-                            borderColor: "#a5b4fc",
-                          },
-                        },
-                        "& .MuiInputBase-input": {
-                          padding: "16px 14px",
-                        },
-                      }}
-                      value={formData.confirmPassword}
-                      onChange={handleFormChange}
-                    />
-
-                    <Button
-                      fullWidth
-                      variant="contained"
-                      size="large"
-                      type="submit"
-                      sx={{
-                        background: "linear-gradient(90deg, #6366f1, #818cf8)",
-                        mb: 3,
-                        py: 1.5,
-                        fontSize: "1.1rem",
-                        textTransform: "none",
-                        fontWeight: 600,
-                        borderRadius: 3,
-                        boxShadow: "0 4px 15px rgba(99, 102, 241, 0.3)",
-                        transition: "all 0.3s ease",
-                        "&:hover": {
-                          background:
-                            "linear-gradient(90deg, #4f46e5, #6366f1)",
-                          boxShadow: "0 8px 20px rgba(99, 102, 241, 0.4)",
-                          transform: "translateY(-3px)",
-                        },
-                      }}
-                      endIcon={<CheckCircleIcon />}
-                    >
-                      Create Account
-                    </Button>
-                  </Box>
+                  <Signup
+                    formData={formData}
+                    handleFormChange={handleFormChange}
+                    handleSubmit={handleSubmit}
+                    handleForgotPassword={handleForgotPassword}
+                    error={error}
+                    loading={loading}
+                  />
                 )}
 
                 <Typography
