@@ -83,18 +83,18 @@ const CodeImprovements = () => {
 
   const [improvements, setImprovements] = useState([]);
 
-  useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        const response = await axios.get("http://localhost:3000/dev/codeimp");
-        setImprovements(response.data);
-      } catch (error) {
-        console.error("Error fetching code improvements:", error);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchTasks = async () => {
+  //     try {
+  //       const response = await axios.get("http://localhost:3000/dev/codeimp");
+  //       setImprovements(response.data);
+  //     } catch (error) {
+  //       console.error("Error fetching code improvements:", error);
+  //     }
+  //   };
 
-    fetchTasks();
-  }, []);
+  //   fetchTasks();
+  // }, []);
 
   return (
     <>

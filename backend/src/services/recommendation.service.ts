@@ -11,17 +11,15 @@ export class RecommendationService  {
     //@returns  Recommended skills from FastAPI
     async getRecommendedSkills(): Promise<string[]> {
         try {
-            const devSkills = ["python", "sql", "django"];
             // Send POST request to FastAPI with developer's skills
             const response = await axios.post("http://localhost:8000/skill", {
-                devSkills,
+                devSkills: ["python", "sql", "django"]
             });
-
             // Return the recommended skills from FastAPI response
             return response.data.recommended_skills;
         } catch (error) {
             // Handle error if communication with FastAPI fails
-            console.error("Error fetching recommendations:", error);
+            console.error("Error fetching recommendations:");
             throw new Error("Error fetching recommendations");
         }
     }
