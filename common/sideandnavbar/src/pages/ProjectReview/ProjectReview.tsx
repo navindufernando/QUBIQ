@@ -38,6 +38,8 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  Select,
+  MenuItem as SelectMenuItem,
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -89,11 +91,7 @@ function TabPanel(props: TabPanelProps) {
 const mockProjectData = {
   id: "1",
   name: "",
-  description: {
-    content: "",
-    createdAt: null,
-    updatedAt: null,
-  },
+  description: { content: "", createdAt: null, updatedAt: null },
   startDate: "",
   endDate: "",
   status: "",
@@ -116,6 +114,7 @@ const ProjectReview = () => {
   const [communicationLogs, setCommunicationLogs] = useState<any[]>([]);
   const [teamInsights, setTeamInsights] = useState<any[]>([]);
   const [newComment, setNewComment] = useState("");
+  const [newSentiment, setNewSentiment] = useState("neutral");
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [filterAnchorEl, setFilterAnchorEl] = useState<null | HTMLElement>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -129,6 +128,9 @@ const ProjectReview = () => {
   const [newRisk, setNewRisk] = useState({ severity: "", description: "" });
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [editFeedbackId, setEditFeedbackId] = useState<string | null>(null);
+  const [editFeedbackContent, setEditFeedbackContent] = useState("");
+  const [editFeedbackSentiment, setEditFeedbackSentiment] = useState("");
 
   const { projectId } = useParams();
   const location = useLocation();
@@ -167,11 +169,46 @@ const ProjectReview = () => {
       author: { name: "Current User", avatar: null, role: "Your Role" },
       date: new Date().toISOString().split("T")[0],
       content: newComment,
-      sentiment: "neutral",
+      sentiment: newSentiment,
       replies: [],
     };
     setFeedback([newFeedbackItem, ...feedback]);
     setNewComment("");
+    setNewSentiment("neutral");
+  };
+
+  const handleEditFeedback = (id: string) => {
+    const feedbackItem = feedback.find((item) => item.id === id);
+    if (feedbackItem) {
+      setEditFeedbackId(id);
+      setEditFeedbackContent(feedbackItem.content);
+      setEditFeedbackSentiment(feedbackItem.sentiment);
+      setIsEditDialogOpen(true);
+    }
+  };
+
+  const handleSaveEditedFeedback = () => {
+    if (!editFeedbackContent.trim() || !editFeedbackId) return;
+    setFeedback(
+      feedback.map((item) =>
+        item.id === editFeedbackId
+          ? {
+              ...item,
+              content: editFeedbackContent,
+              sentiment: editFeedbackSentiment,
+              date: new Date().toISOString().split("T")[0], // Update date on edit
+            }
+          : item
+      )
+    );
+    setIsEditDialogOpen(false);
+    setEditFeedbackId(null);
+    setEditFeedbackContent("");
+    setEditFeedbackSentiment("");
+  };
+
+  const handleDeleteFeedback = (id: string) => {
+    setFeedback(feedback.filter((item) => item.id !== id));
   };
 
   const handleOpenEditDialog = () => {
@@ -187,6 +224,9 @@ const ProjectReview = () => {
     setNewObjective("");
     setNewHighlight("");
     setNewRisk({ severity: "", description: "" });
+    setEditFeedbackId(null);
+    setEditFeedbackContent("");
+    setEditFeedbackSentiment("");
   };
 
   const handleSaveProjectName = () => {
@@ -617,7 +657,9 @@ const ProjectReview = () => {
         fullWidth
       >
         <DialogTitle>
-          {editSection
+          {editFeedbackId
+            ? "Edit Feedback"
+            : editSection
             ? editIndex !== null
               ? `Edit ${editSection}`
               : `Add ${editSection}`
@@ -626,7 +668,31 @@ const ProjectReview = () => {
             : "Add Project Name"}
         </DialogTitle>
         <DialogContent>
-          {editSection === "description" ? (
+          {editFeedbackId ? (
+            <>
+              <TextField
+                autoFocus
+                margin="dense"
+                label="Feedback"
+                fullWidth
+                multiline
+                rows={3}
+                variant="outlined"
+                value={editFeedbackContent}
+                onChange={(e) => setEditFeedbackContent(e.target.value)}
+              />
+              <Select
+                fullWidth
+                value={editFeedbackSentiment}
+                onChange={(e) => setEditFeedbackSentiment(e.target.value)}
+                sx={{ mt: 2 }}
+              >
+                <SelectMenuItem value="positive">Positive</SelectMenuItem>
+                <SelectMenuItem value="negative">Negative</SelectMenuItem>
+                <SelectMenuItem value="neutral">Neutral</SelectMenuItem>
+              </Select>
+            </>
+          ) : editSection === "description" ? (
             <TextField
               autoFocus
               margin="dense"
@@ -698,10 +764,18 @@ const ProjectReview = () => {
         <DialogActions>
           <Button onClick={handleCloseEditDialog}>Cancel</Button>
           <Button
-            onClick={editSection ? handleSaveSection : handleSaveProjectName}
+            onClick={
+              editFeedbackId
+                ? handleSaveEditedFeedback
+                : editSection
+                ? handleSaveSection
+                : handleSaveProjectName
+            }
             variant="contained"
             disabled={
-              editSection === "description"
+              editFeedbackId
+                ? !editFeedbackContent.trim()
+                : editSection === "description"
                 ? !newDescription.trim()
                 : editSection === "objectives"
                 ? !newObjective.trim()
@@ -1200,6 +1274,16 @@ const ProjectReview = () => {
                 variant="outlined"
                 sx={{ mb: 2 }}
               />
+              <Select
+                fullWidth
+                value={newSentiment}
+                onChange={(e) => setNewSentiment(e.target.value)}
+                sx={{ mb: 2 }}
+              >
+                <SelectMenuItem value="positive">Positive</SelectMenuItem>
+                <SelectMenuItem value="negative">Negative</SelectMenuItem>
+                <SelectMenuItem value="neutral">Neutral</SelectMenuItem>
+              </Select>
               <Box sx={{ display: "flex", justifyContent: "space-between" }}>
                 <Button
                   startIcon={<AttachFileIcon />}
@@ -1317,7 +1401,21 @@ const ProjectReview = () => {
                         </Typography>
                       </Box>
                     </Box>
-                    <Box>{getSentimentIcon(item.sentiment)}</Box>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <Chip
+                        label={item.sentiment}
+                        size="small"
+                        color={
+                          item.sentiment === "positive"
+                            ? "success"
+                            : item.sentiment === "negative"
+                            ? "error"
+                            : "default"
+                        }
+                        sx={{ textTransform: "capitalize" }}
+                      />
+                      {getSentimentIcon(item.sentiment)}
+                    </Box>
                   </Box>
 
                   <Typography variant="body1" paragraph sx={{ mt: 2 }}>
@@ -1344,6 +1442,23 @@ const ProjectReview = () => {
                       sx={{ borderRadius: 2, textTransform: "none" }}
                     >
                       Reply
+                    </Button>
+                    <Button
+                      size="small"
+                      startIcon={<EditIcon />}
+                      onClick={() => handleEditFeedback(item.id)}
+                      sx={{ borderRadius: 2, textTransform: "none" }}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      size="small"
+                      startIcon={<DeleteIcon />}
+                      onClick={() => handleDeleteFeedback(item.id)}
+                      color="error"
+                      sx={{ borderRadius: 2, textTransform: "none" }}
+                    >
+                      Delete
                     </Button>
                   </Box>
 
