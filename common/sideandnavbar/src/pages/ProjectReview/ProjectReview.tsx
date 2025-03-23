@@ -18,10 +18,8 @@ import {
   Chip,
   List,
   ListItem,
-  ListItemAvatar,
   ListItemText,
   Rating,
-  Badge,
   LinearProgress,
   Table,
   TableBody,
@@ -36,6 +34,10 @@ import {
   MenuItem,
   Tooltip,
   InputAdornment,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -59,6 +61,8 @@ import SortIcon from "@mui/icons-material/Sort";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ErrorIcon from "@mui/icons-material/Error";
 import WarningIcon from "@mui/icons-material/Warning";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -82,206 +86,28 @@ function TabPanel(props: TabPanelProps) {
   );
 }
 
-// Mock data for development
 const mockProjectData = {
   id: "1",
-  name: "Project Alpha",
-  description:
-    "A comprehensive digital transformation initiative aimed at modernizing legacy systems and improving customer experience across all touchpoints.",
-  startDate: "2024-01-15",
-  endDate: "2024-06-30",
-  status: "In Progress",
-  completion: 65,
-  budget: "$245,000",
-  spent: "$158,250",
-  objectives: [
-    "Migrate legacy systems to cloud infrastructure",
-    "Implement new customer portal with enhanced features",
-    "Reduce operational costs by 30%",
-    "Increase customer satisfaction scores by 25%",
-  ],
-  risks: [
-    { severity: "high", description: "Data migration issues" },
-    { severity: "medium", description: "Team bandwidth constraints" },
-    { severity: "low", description: "Third-party API integration delays" },
-  ],
-  highlights: [
-    "Successfully completed Phase 1 ahead of schedule",
-    "Customer feedback on new UI has been overwhelmingly positive",
-    "Identified cost-saving opportunities beyond initial estimates",
-  ],
+  name: "",
+  description: {
+    content: "",
+    createdAt: null,
+    updatedAt: null,
+  },
+  startDate: "",
+  endDate: "",
+  status: "",
+  completion: 0,
+  budget: "",
+  spent: "",
+  objectives: [],
+  risks: [],
+  highlights: [],
 };
 
-// Mock feedback data
-const mockFeedback = [
-  {
-    id: "f1",
-    author: {
-      name: "Emily Chen",
-      avatar: null,
-      role: "Product Manager",
-    },
-    date: "2024-03-15",
-    content:
-      "The new dashboard design is excellent! The team has done a great job incorporating user feedback from the last session. I particularly like the new analytics visualization.",
-    sentiment: "positive",
-    replies: [
-      {
-        id: "r1",
-        author: {
-          name: "David Kim",
-          avatar: null,
-          role: "UX Designer",
-        },
-        date: "2024-03-15",
-        content:
-          "Thanks Emily! We're continuing to iterate on the charts based on the user testing sessions.",
-      },
-    ],
-  },
-  {
-    id: "f2",
-    author: {
-      name: "Michael Scott",
-      avatar: null,
-      role: "Marketing Director",
-    },
-    date: "2024-03-10",
-    content:
-      "The landing page still doesn't clearly communicate our value proposition. We need to make the benefits more explicit and add more compelling CTAs.",
-    sentiment: "negative",
-    replies: [
-      {
-        id: "r2",
-        author: {
-          name: "Sarah Wong",
-          avatar: null,
-          role: "Project Lead",
-        },
-        date: "2024-03-10",
-        content:
-          "I agree, Michael. Let's schedule a workshop to revise the messaging and CTAs. I'll send a calendar invite for next week.",
-      },
-    ],
-  },
-  {
-    id: "f3",
-    author: {
-      name: "James Wilson",
-      avatar: null,
-      role: "CTO",
-    },
-    date: "2024-03-05",
-    content:
-      "The backend performance improvements are impressive. Page load times have decreased by 40% according to our metrics. Great work by the engineering team!",
-    sentiment: "positive",
-    replies: [],
-  },
-];
-
-// Mock stakeholder communication logs
-const mockCommunicationLogs = [
-  {
-    id: "c1",
-    stakeholder: {
-      name: "Global Finance Inc.",
-      type: "Client",
-      contactPerson: "Robert Thompson",
-      position: "CFO",
-    },
-    date: "2024-03-18",
-    channel: "Video Conference",
-    summary:
-      "Presented Phase 2 progress and timeline. Client expressed satisfaction with current progress but raised concerns about the authentication system security. We've agreed to conduct an additional security audit before proceeding to Phase 3.",
-    action_items: [
-      "Schedule security audit with external vendor",
-      "Prepare detailed report on authentication protocols",
-      "Share updated timeline by end of week",
-    ],
-    sentiment: "neutral",
-  },
-  {
-    id: "c2",
-    stakeholder: {
-      name: "Executive Board",
-      type: "Internal",
-      contactPerson: "Jennifer Hayes",
-      position: "CEO",
-    },
-    date: "2024-03-12",
-    channel: "Quarterly Review Meeting",
-    summary:
-      "Presented project ROI forecasts and current progress. Board is pleased with development pace but questioned resource allocation. We've been asked to prepare a detailed breakdown of resource utilization and potential optimization opportunities.",
-    action_items: [
-      "Prepare resource allocation report",
-      "Identify potential areas for optimization",
-      "Update financial projections for Q3 and Q4",
-    ],
-    sentiment: "positive",
-  },
-  {
-    id: "c3",
-    stakeholder: {
-      name: "Compliance Department",
-      type: "Internal",
-      contactPerson: "Mark Rogers",
-      position: "Compliance Officer",
-    },
-    date: "2024-03-08",
-    channel: "Email Thread",
-    summary:
-      "Discussed GDPR compliance requirements for user data handling. Several concerns were raised about our current approach to consent management. Need to revise data handling protocols before launch.",
-    action_items: [
-      "Review and update privacy policy",
-      "Implement explicit consent mechanisms",
-      "Schedule follow-up meeting with legal team",
-    ],
-    sentiment: "negative",
-  },
-];
-
-// Mock team insights
-const mockTeamInsights = [
-  {
-    id: "i1",
-    member: {
-      name: "Sarah Wong",
-      avatar: null,
-      role: "Project Lead",
-    },
-    date: "2024-03-20",
-    content:
-      "The team has shown exceptional resilience in adapting to the scope changes. I'm particularly impressed with how the engineers quickly pivoted when we had to change our authentication provider mid-project. However, we're still facing challenges with resource allocation - the UX team is stretched thin with the additional requirements from the client.",
-    rating: 4,
-    focus_areas: ["Team coordination", "Resource management", "Client expectations"],
-  },
-  {
-    id: "i2",
-    member: {
-      name: "David Kim",
-      avatar: null,
-      role: "UX Designer",
-    },
-    date: "2024-03-18",
-    content:
-      "Our user testing sessions have revealed that the new dashboard interface is significantly more intuitive than the previous version. Users completed tasks 30% faster on average. However, the mobile responsiveness still needs work, especially for complex data visualizations. I recommend we allocate more time to optimize the mobile experience before the final release.",
-    rating: 3.5,
-    focus_areas: ["User experience", "Mobile optimization", "Data visualization"],
-  },
-  {
-    id: "i3",
-    member: {
-      name: "Jason Lee",
-      avatar: null,
-      role: "Backend Developer",
-    },
-    date: "2024-03-15",
-    content:
-      "The database migration was more complex than initially estimated. We encountered legacy data structures that weren't properly documented, which added about 20% more work than planned. For future phases, we should build in more buffer time for similar migrations. On the positive side, the new architecture is performing much better than expected, with query times reduced by almost 60%.",
-    rating: 4,
-    focus_areas: ["Technical debt", "Performance optimization", "Documentation"],
-  },
-];
+const mockFeedback = [];
+const mockCommunicationLogs = [];
+const mockTeamInsights = [];
 
 const ProjectReview = () => {
   const [tabValue, setTabValue] = useState(0);
@@ -293,14 +119,21 @@ const ProjectReview = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [filterAnchorEl, setFilterAnchorEl] = useState<null | HTMLElement>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editedProjectName, setEditedProjectName] = useState("");
+  const [editSection, setEditSection] = useState<string | null>(null);
+  const [editIndex, setEditIndex] = useState<number | null>(null);
+  const [newDescription, setNewDescription] = useState("");
+  const [newObjective, setNewObjective] = useState("");
+  const [newHighlight, setNewHighlight] = useState("");
+  const [newRisk, setNewRisk] = useState({ severity: "", description: "" });
+  const [selectedSection, setSelectedSection] = useState<string | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   const { projectId } = useParams();
   const location = useLocation();
 
-  // Load project data
   useEffect(() => {
-    // In a real app, you would fetch this data from an API
-    // For now, we'll use mock data
     setProject(mockProjectData);
     setFeedback(mockFeedback);
     setCommunicationLogs(mockCommunicationLogs);
@@ -329,25 +162,164 @@ const ProjectReview = () => {
 
   const handleAddComment = () => {
     if (!newComment.trim()) return;
-
     const newFeedbackItem = {
       id: `f${feedback.length + 1}`,
-      author: {
-        name: "Current User",
-        avatar: null,
-        role: "Your Role",
-      },
+      author: { name: "Current User", avatar: null, role: "Your Role" },
       date: new Date().toISOString().split("T")[0],
       content: newComment,
       sentiment: "neutral",
       replies: [],
     };
-
     setFeedback([newFeedbackItem, ...feedback]);
     setNewComment("");
   };
 
-  // Function to get icon based on sentiment
+  const handleOpenEditDialog = () => {
+    setEditedProjectName(project.name);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleCloseEditDialog = () => {
+    setIsEditDialogOpen(false);
+    setEditSection(null);
+    setEditIndex(null);
+    setNewDescription("");
+    setNewObjective("");
+    setNewHighlight("");
+    setNewRisk({ severity: "", description: "" });
+  };
+
+  const handleSaveProjectName = () => {
+    setProject({ ...project, name: editedProjectName });
+    setIsEditDialogOpen(false);
+  };
+
+  const handleSelectSection = (section: string, index?: number) => {
+    setSelectedSection(section);
+    setSelectedIndex(index !== undefined ? index : null);
+  };
+
+  const handleDeselectSection = () => {
+    setSelectedSection(null);
+    setSelectedIndex(null);
+  };
+
+  const handleOpenEditSection = (section: string, index?: number) => {
+    setEditSection(section);
+    setEditIndex(index !== undefined ? index : null);
+    if (section === "description") {
+      setNewDescription(project.description.content);
+    } else if (section === "objectives" && index !== undefined) {
+      setNewObjective(project.objectives[index].content);
+    } else if (section === "highlights" && index !== undefined) {
+      setNewHighlight(project.highlights[index].content);
+    } else if (section === "risks" && index !== undefined) {
+      setNewRisk({
+        severity: project.risks[index].severity,
+        description: project.risks[index].description,
+      });
+    }
+    setIsEditDialogOpen(true);
+  };
+
+  const handleSaveSection = () => {
+    const currentDate = new Date().toISOString();
+    if (editSection === "description") {
+      setProject({
+        ...project,
+        description: {
+          content: newDescription,
+          createdAt: project.description.createdAt || currentDate,
+          updatedAt: project.description.createdAt ? currentDate : null,
+        },
+      });
+    } else if (editSection === "objectives") {
+      if (editIndex !== null) {
+        const updatedObjectives = [...project.objectives];
+        updatedObjectives[editIndex] = {
+          ...updatedObjectives[editIndex],
+          content: newObjective,
+          updatedAt: currentDate,
+        };
+        setProject({ ...project, objectives: updatedObjectives });
+      } else {
+        setProject({
+          ...project,
+          objectives: [
+            ...project.objectives,
+            { content: newObjective, createdAt: currentDate, updatedAt: null },
+          ],
+        });
+      }
+    } else if (editSection === "highlights") {
+      if (editIndex !== null) {
+        const updatedHighlights = [...project.highlights];
+        updatedHighlights[editIndex] = {
+          ...updatedHighlights[editIndex],
+          content: newHighlight,
+          updatedAt: currentDate,
+        };
+        setProject({ ...project, highlights: updatedHighlights });
+      } else {
+        setProject({
+          ...project,
+          highlights: [
+            ...project.highlights,
+            { content: newHighlight, createdAt: currentDate, updatedAt: null },
+          ],
+        });
+      }
+    } else if (editSection === "risks") {
+      if (editIndex !== null) {
+        const updatedRisks = [...project.risks];
+        updatedRisks[editIndex] = {
+          ...updatedRisks[editIndex],
+          severity: newRisk.severity,
+          description: newRisk.description,
+          updatedAt: currentDate,
+        };
+        setProject({ ...project, risks: updatedRisks });
+      } else {
+        setProject({
+          ...project,
+          risks: [
+            ...project.risks,
+            {
+              severity: newRisk.severity,
+              description: newRisk.description,
+              createdAt: currentDate,
+              updatedAt: null,
+            },
+          ],
+        });
+      }
+    }
+    handleCloseEditDialog();
+    setSelectedSection(null);
+    setSelectedIndex(null);
+  };
+
+  const handleDeleteItem = (section: string, index?: number) => {
+    if (section === "objectives" && index !== undefined) {
+      setProject({
+        ...project,
+        objectives: project.objectives.filter((_: any, i: number) => i !== index),
+      });
+    } else if (section === "highlights" && index !== undefined) {
+      setProject({
+        ...project,
+        highlights: project.highlights.filter((_: any, i: number) => i !== index),
+      });
+    } else if (section === "risks" && index !== undefined) {
+      setProject({
+        ...project,
+        risks: project.risks.filter((_: any, i: number) => i !== index),
+      });
+    }
+    setSelectedSection(null);
+    setSelectedIndex(null);
+  };
+
   const getSentimentIcon = (sentiment: string) => {
     switch (sentiment) {
       case "positive":
@@ -359,7 +331,6 @@ const ProjectReview = () => {
     }
   };
 
-  // Function to get severity icon
   const getSeverityIcon = (severity: string) => {
     switch (severity) {
       case "high":
@@ -374,21 +345,71 @@ const ProjectReview = () => {
   };
 
   if (!project) {
+    return null;
+  }
+
+  const hasContent =
+    project.name ||
+    project.description.content ||
+    project.objectives.length > 0 ||
+    project.highlights.length > 0 ||
+    project.risks.length > 0 ||
+    feedback.length > 0 ||
+    communicationLogs.length > 0 ||
+    teamInsights.length > 0;
+
+  if (!hasContent) {
     return (
-      <Container maxWidth="xl">
-        <Box sx={{ py: 8 }}>
-          <LinearProgress />
-          <Typography variant="h5" sx={{ mt: 2, textAlign: "center" }}>
-            Loading project review...
+      <Container maxWidth="xl" sx={{ py: 4 }}>
+        <Box sx={{ textAlign: "center" }}>
+          <Typography variant="h6" color="textSecondary">
+            Start by adding a project name
           </Typography>
+          <Button
+            variant="contained"
+            startIcon={<EditIcon />}
+            onClick={handleOpenEditDialog}
+            sx={{ mt: 2 }}
+          >
+            Add Project Name
+          </Button>
         </Box>
+
+        <Dialog
+          open={isEditDialogOpen}
+          onClose={handleCloseEditDialog}
+          maxWidth="sm"
+          fullWidth
+        >
+          <DialogTitle>Add Project Name</DialogTitle>
+          <DialogContent>
+            <TextField
+              autoFocus
+              margin="dense"
+              label="Project Name"
+              fullWidth
+              variant="outlined"
+              value={editedProjectName}
+              onChange={(e) => setEditedProjectName(e.target.value)}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseEditDialog}>Cancel</Button>
+            <Button
+              onClick={handleSaveProjectName}
+              variant="contained"
+              disabled={!editedProjectName.trim()}
+            >
+              Save
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Container>
     );
   }
 
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
-      {/* Header with title and project info */}
       <Paper
         elevation={0}
         sx={{
@@ -406,28 +427,23 @@ const ProjectReview = () => {
             mb: 2,
           }}
         >
-          <Box>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
             <Typography variant="h4" component="h1" sx={{ fontWeight: 700 }}>
-              Project Review: {project.name}
+              Project Review{project.name ? `: ${project.name}` : ""}
             </Typography>
-            <Typography
-              variant="subtitle1"
-              color="textSecondary"
-              sx={{ mt: 1 }}
+            <IconButton
+              onClick={handleOpenEditDialog}
+              sx={{ ml: 1 }}
+              aria-label="edit project name"
             >
-              A comprehensive analysis of project performance, feedback, and
-              insights
-            </Typography>
+              <EditIcon />
+            </IconButton>
           </Box>
           <Box sx={{ display: "flex", gap: 2 }}>
             <Button
               variant="outlined"
               startIcon={<CalendarTodayIcon />}
-              sx={{
-                borderRadius: 2,
-                textTransform: "none",
-                fontWeight: 500,
-              }}
+              sx={{ borderRadius: 2, textTransform: "none", fontWeight: 500 }}
             >
               Export Report
             </Button>
@@ -461,6 +477,14 @@ const ProjectReview = () => {
             </Menu>
           </Box>
         </Box>
+
+        <Typography
+          variant="subtitle1"
+          color="textSecondary"
+          sx={{ mt: 1, mb: 3 }}
+        >
+          A comprehensive analysis of project performance, feedback, and insights
+        </Typography>
 
         <Divider sx={{ my: 3 }} />
 
@@ -512,10 +536,115 @@ const ProjectReview = () => {
         </Box>
       </Paper>
 
-      {/* Tab Content */}
+      <Dialog
+        open={isEditDialogOpen}
+        onClose={handleCloseEditDialog}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>
+          {editSection
+            ? editIndex !== null
+              ? `Edit ${editSection}`
+              : `Add ${editSection}`
+            : project.name
+            ? "Edit Project Name"
+            : "Add Project Name"}
+        </DialogTitle>
+        <DialogContent>
+          {editSection === "description" ? (
+            <TextField
+              autoFocus
+              margin="dense"
+              label="Project Description"
+              fullWidth
+              multiline
+              rows={4}
+              variant="outlined"
+              value={newDescription}
+              onChange={(e) => setNewDescription(e.target.value)}
+            />
+          ) : editSection === "objectives" ? (
+            <TextField
+              autoFocus
+              margin="dense"
+              label="Objective"
+              fullWidth
+              variant="outlined"
+              value={newObjective}
+              onChange={(e) => setNewObjective(e.target.value)}
+            />
+          ) : editSection === "highlights" ? (
+            <TextField
+              autoFocus
+              margin="dense"
+              label="Highlight"
+              fullWidth
+              variant="outlined"
+              value={newHighlight}
+              onChange={(e) => setNewHighlight(e.target.value)}
+            />
+          ) : editSection === "risks" ? (
+            <>
+              <TextField
+                select
+                margin="dense"
+                label="Severity"
+                fullWidth
+                variant="outlined"
+                value={newRisk.severity}
+                onChange={(e) => setNewRisk({ ...newRisk, severity: e.target.value })}
+              >
+                <MenuItem value="high">High</MenuItem>
+                <MenuItem value="medium">Medium</MenuItem>
+                <MenuItem value="low">Low</MenuItem>
+              </TextField>
+              <TextField
+                autoFocus
+                margin="dense"
+                label="Risk Description"
+                fullWidth
+                variant="outlined"
+                value={newRisk.description}
+                onChange={(e) => setNewRisk({ ...newRisk, description: e.target.value })}
+              />
+            </>
+          ) : (
+            <TextField
+              autoFocus
+              margin="dense"
+              label="Project Name"
+              fullWidth
+              variant="outlined"
+              value={editedProjectName}
+              onChange={(e) => setEditedProjectName(e.target.value)}
+            />
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseEditDialog}>Cancel</Button>
+          <Button
+            onClick={editSection ? handleSaveSection : handleSaveProjectName}
+            variant="contained"
+            disabled={
+              editSection === "description"
+                ? !newDescription.trim()
+                : editSection === "objectives"
+                ? !newObjective.trim()
+                : editSection === "highlights"
+                ? !newHighlight.trim()
+                : editSection === "risks"
+                ? !newRisk.severity || !newRisk.description.trim()
+                : !editedProjectName.trim()
+            }
+          >
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       <TabPanel value={tabValue} index={0}>
         <Grid container spacing={4}>
-          {/* Project Overview */}
           <Grid item xs={12} md={8}>
             <Paper
               elevation={0}
@@ -526,98 +655,294 @@ const ProjectReview = () => {
                 height: "100%",
               }}
             >
-              <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-                Project Overview
-              </Typography>
-              <Typography variant="body1" paragraph>
-                {project.description}
-              </Typography>
+              <Box sx={{ mb: 2 }}>
+                <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                  Project Overview
+                </Typography>
+              </Box>
+              <Box
+                sx={{
+                  cursor: "pointer",
+                  p: 1,
+                  bgcolor:
+                    selectedSection === "description" ? "rgba(0, 0, 0, 0.04)" : "transparent",
+                  borderRadius: 1,
+                }}
+                onMouseEnter={() => handleSelectSection("description")}
+                onMouseLeave={handleDeselectSection}
+              >
+                {project.description.content ? (
+                  <>
+                    <Typography variant="body1" paragraph>
+                      {project.description.content}
+                    </Typography>
+                    <Typography variant="caption" color="textSecondary">
+                      Created: {project.description.createdAt || "N/A"} | Updated:{" "}
+                      {project.description.updatedAt || "N/A"}
+                    </Typography>
+                  </>
+                ) : (
+                  <Typography variant="body1" color="textSecondary">
+                    No description provided yet. Click to add one.
+                  </Typography>
+                )}
+                {selectedSection === "description" && (
+                  <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      startIcon={<EditIcon />}
+                      onClick={() => handleOpenEditSection("description")}
+                    >
+                      Edit
+                    </Button>
+                  </Box>
+                )}
+              </Box>
 
               <Box sx={{ my: 3 }}>
-                <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
-                  Objectives
-                </Typography>
+                <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                    Objectives
+                  </Typography>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    startIcon={<EditIcon />}
+                    onClick={() => handleOpenEditSection("objectives")}
+                  >
+                    Add
+                  </Button>
+                </Box>
                 <List disablePadding>
-                  {project.objectives.map((objective: string, index: number) => (
-                    <ListItem
-                      key={index}
-                      sx={{
-                        py: 0.5,
-                        px: 0,
-                        display: "flex",
-                        alignItems: "center",
-                      }}
-                    >
-                      <CheckCircleIcon
-                        fontSize="small"
-                        color="primary"
-                        sx={{ mr: 1 }}
-                      />
-                      <Typography variant="body2">{objective}</Typography>
-                    </ListItem>
-                  ))}
+                  {project.objectives.length > 0 ? (
+                    project.objectives.map((objective: any, index: number) => (
+                      <Box
+                        key={index}
+                        sx={{
+                          py: 0.5,
+                          px: 1,
+                          cursor: "pointer",
+                          bgcolor:
+                            selectedSection === "objectives" && selectedIndex === index
+                              ? "rgba(0, 0, 0, 0.04)"
+                              : "transparent",
+                          borderRadius: 1,
+                        }}
+                        onMouseEnter={() => handleSelectSection("objectives", index)}
+                        onMouseLeave={handleDeselectSection}
+                      >
+                        <ListItem sx={{ py: 0 }}>
+                          <CheckCircleIcon fontSize="small" color="primary" sx={{ mr: 1 }} />
+                          <ListItemText
+                            primary={objective.content}
+                            secondary={`Created: ${objective.createdAt || "N/A"} | Updated: ${
+                              objective.updatedAt || "N/A"
+                            }`}
+                          />
+                        </ListItem>
+                        {selectedSection === "objectives" && selectedIndex === index && (
+                          <Box sx={{ mt: 1, display: "flex", gap: 1 }}>
+                            <Button
+                              variant="outlined"
+                              size="small"
+                              startIcon={<EditIcon />}
+                              onClick={() => handleOpenEditSection("objectives", index)}
+                            >
+                              Edit
+                            </Button>
+                            <Button
+                              variant="outlined"
+                              size="small"
+                              startIcon={<DeleteIcon />}
+                              onClick={() => handleDeleteItem("objectives", index)}
+                              color="error"
+                            >
+                              Delete
+                            </Button>
+                          </Box>
+                        )}
+                      </Box>
+                    ))
+                  ) : (
+                    <Typography variant="body2" color="textSecondary">
+                      No objectives added yet.
+                    </Typography>
+                  )}
                 </List>
               </Box>
 
               <Box sx={{ my: 3 }}>
-                <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
-                  Key Highlights
-                </Typography>
+                <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                    Key Highlights
+                  </Typography>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    startIcon={<EditIcon />}
+                    onClick={() => handleOpenEditSection("highlights")}
+                  >
+                    Add
+                  </Button>
+                </Box>
                 <List disablePadding>
-                  {project.highlights.map((highlight: string, index: number) => (
-                    <ListItem
-                      key={index}
-                      sx={{
-                        py: 0.5,
-                        px: 0,
-                        display: "flex",
-                        alignItems: "center",
-                      }}
-                    >
-                      <InfoIcon
-                        fontSize="small"
-                        color="primary"
-                        sx={{ mr: 1 }}
-                      />
-                      <Typography variant="body2">{highlight}</Typography>
-                    </ListItem>
-                  ))}
+                  {project.highlights.length > 0 ? (
+                    project.highlights.map((highlight: any, index: number) => (
+                      <Box
+                        key={index}
+                        sx={{
+                          py: 0.5,
+                          px: 1,
+                          cursor: "pointer",
+                          bgcolor:
+                            selectedSection === "highlights" && selectedIndex === index
+                              ? "rgba(0, 0, 0, 0.04)"
+                              : "transparent",
+                          borderRadius: 1,
+                        }}
+                        onMouseEnter={() => handleSelectSection("highlights", index)}
+                        onMouseLeave={handleDeselectSection}
+                      >
+                        <ListItem sx={{ py: 0 }}>
+                          <InfoIcon fontSize="small" color="primary" sx={{ mr: 1 }} />
+                          <ListItemText
+                            primary={highlight.content}
+                            secondary={`Created: ${highlight.createdAt || "N/A"} | Updated: ${
+                              highlight.updatedAt || "N/A"
+                            }`}
+                          />
+                        </ListItem>
+                        {selectedSection === "highlights" && selectedIndex === index && (
+                          <Box sx={{ mt: 1, display: "flex", gap: 1 }}>
+                            <Button
+                              variant="outlined"
+                              size="small"
+                              startIcon={<EditIcon />}
+                              onClick={() => handleOpenEditSection("highlights", index)}
+                            >
+                              Edit
+                            </Button>
+                            <Button
+                              variant="outlined"
+                              size="small"
+                              startIcon={<DeleteIcon />}
+                              onClick={() => handleDeleteItem("highlights", index)}
+                              color="error"
+                            >
+                              Delete
+                            </Button>
+                          </Box>
+                        )}
+                      </Box>
+                    ))
+                  ) : (
+                    <Typography variant="body2" color="textSecondary">
+                      No highlights added yet.
+                    </Typography>
+                  )}
                 </List>
               </Box>
 
               <Box sx={{ my: 3 }}>
-                <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
-                  Risk Assessment
-                </Typography>
+                <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                    Risk Assessment
+                  </Typography>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    startIcon={<EditIcon />}
+                    onClick={() => handleOpenEditSection("risks")}
+                  >
+                    Add
+                  </Button>
+                </Box>
                 <TableContainer>
                   <Table size="small">
                     <TableHead>
                       <TableRow>
                         <TableCell>Severity</TableCell>
                         <TableCell>Description</TableCell>
+                        <TableCell>History</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {project.risks.map((risk: any, index: number) => (
-                        <TableRow key={index}>
-                          <TableCell>
-                            <Box sx={{ display: "flex", alignItems: "center" }}>
-                              {getSeverityIcon(risk.severity)}
-                              <Typography
-                                variant="body2"
-                                sx={{
-                                  ml: 1,
-                                  textTransform: "capitalize",
-                                  fontWeight: 500,
-                                }}
-                              >
-                                {risk.severity}
-                              </Typography>
-                            </Box>
+                      {project.risks.length > 0 ? (
+                        project.risks.map((risk: any, index: number) => (
+                          <Box
+                            key={index}
+                            sx={{
+                              cursor: "pointer",
+                              bgcolor:
+                                selectedSection === "risks" && selectedIndex === index
+                                  ? "rgba(0, 0, 0, 0.04)"
+                                  : "transparent",
+                            }}
+                            onMouseEnter={() => handleSelectSection("risks", index)}
+                            onMouseLeave={handleDeselectSection}
+                          >
+                            <TableRow>
+                              <TableCell>
+                                <Box sx={{ display: "flex", alignItems: "center" }}>
+                                  {getSeverityIcon(risk.severity)}
+                                  <Typography
+                                    variant="body2"
+                                    sx={{
+                                      ml: 1,
+                                      textTransform: "capitalize",
+                                      fontWeight: 500,
+                                    }}
+                                  >
+                                    {risk.severity}
+                                  </Typography>
+                                </Box>
+                              </TableCell>
+                              <TableCell>{risk.description}</TableCell>
+                              <TableCell>
+                                <Typography variant="caption" color="textSecondary">
+                                  Created: {risk.createdAt || "N/A"}
+                                  <br />
+                                  Updated: {risk.updatedAt || "N/A"}
+                                </Typography>
+                              </TableCell>
+                            </TableRow>
+                            {selectedSection === "risks" && selectedIndex === index && (
+                              <TableRow>
+                                <TableCell colSpan={3}>
+                                  <Box sx={{ mt: 1, display: "flex", gap: 1 }}>
+                                    <Button
+                                      variant="outlined"
+                                      size="small"
+                                      startIcon={<EditIcon />}
+                                      onClick={() => handleOpenEditSection("risks", index)}
+                                    >
+                                      Edit
+                                    </Button>
+                                    <Button
+                                      variant="outlined"
+                                      size="small"
+                                      startIcon={<DeleteIcon />}
+                                      onClick={() => handleDeleteItem("risks", index)}
+                                      color="error"
+                                    >
+                                      Delete
+                                    </Button>
+                                  </Box>
+                                </TableCell>
+                              </TableRow>
+                            )}
+                          </Box>
+                        ))
+                      ) : (
+                        <TableRow>
+                          <TableCell colSpan={3}>
+                            <Typography variant="body2" color="textSecondary" align="center">
+                              No risks added yet.
+                            </Typography>
                           </TableCell>
-                          <TableCell>{risk.description}</TableCell>
                         </TableRow>
-                      ))}
+                      )}
                     </TableBody>
                   </Table>
                 </TableContainer>
@@ -625,7 +950,6 @@ const ProjectReview = () => {
             </Paper>
           </Grid>
 
-          {/* Project Metrics */}
           <Grid item xs={12} md={4}>
             <Paper
               elevation={0}
@@ -662,9 +986,7 @@ const ProjectReview = () => {
                     height: 8,
                     borderRadius: 4,
                     bgcolor: "rgba(0,0,0,0.04)",
-                    "& .MuiLinearProgress-bar": {
-                      borderRadius: 4,
-                    },
+                    "& .MuiLinearProgress-bar": { borderRadius: 4 },
                   }}
                 />
               </Box>
@@ -672,106 +994,65 @@ const ProjectReview = () => {
               <Grid container spacing={2} sx={{ mb: 3 }}>
                 <Grid item xs={6}>
                   <Box
-                    sx={{
-                      p: 2,
-                      bgcolor: "rgba(59, 130, 246, 0.1)",
-                      borderRadius: 2,
-                    }}
+                    sx={{ p: 2, bgcolor: "rgba(59, 130, 246, 0.1)", borderRadius: 2 }}
                   >
-                    <Typography
-                      variant="body2"
-                      color="textSecondary"
-                      gutterBottom
-                    >
+                    <Typography variant="body2" color="textSecondary" gutterBottom>
                       Start Date
                     </Typography>
                     <Typography variant="body1" fontWeight="600">
-                      {project.startDate}
+                      {project.startDate || "N/A"}
                     </Typography>
                   </Box>
                 </Grid>
                 <Grid item xs={6}>
                   <Box
-                    sx={{
-                      p: 2,
-                      bgcolor: "rgba(59, 130, 246, 0.1)",
-                      borderRadius: 2,
-                    }}
+                    sx={{ p: 2, bgcolor: "rgba(59, 130, 246, 0.1)", borderRadius: 2 }}
                   >
-                    <Typography
-                      variant="body2"
-                      color="textSecondary"
-                      gutterBottom
-                    >
+                    <Typography variant="body2" color="textSecondary" gutterBottom>
                       End Date
                     </Typography>
                     <Typography variant="body1" fontWeight="600">
-                      {project.endDate}
+                      {project.endDate || "N/A"}
                     </Typography>
                   </Box>
                 </Grid>
                 <Grid item xs={6}>
                   <Box
-                    sx={{
-                      p: 2,
-                      bgcolor: "rgba(16, 185, 129, 0.1)",
-                      borderRadius: 2,
-                    }}
+                    sx={{ p: 2, bgcolor: "rgba(16, 185, 129, 0.1)", borderRadius: 2 }}
                   >
-                    <Typography
-                      variant="body2"
-                      color="textSecondary"
-                      gutterBottom
-                    >
+                    <Typography variant="body2" color="textSecondary" gutterBottom>
                       Budget
                     </Typography>
                     <Typography variant="body1" fontWeight="600">
-                      {project.budget}
+                      {project.budget || "N/A"}
                     </Typography>
                   </Box>
                 </Grid>
                 <Grid item xs={6}>
                   <Box
-                    sx={{
-                      p: 2,
-                      bgcolor: "rgba(245, 158, 11, 0.1)",
-                      borderRadius: 2,
-                    }}
+                    sx={{ p: 2, bgcolor: "rgba(245, 158, 11, 0.1)", borderRadius: 2 }}
                   >
-                    <Typography
-                      variant="body2"
-                      color="textSecondary"
-                      gutterBottom
-                    >
+                    <Typography variant="body2" color="textSecondary" gutterBottom>
                       Spent
                     </Typography>
                     <Typography variant="body1" fontWeight="600">
-                      {project.spent}
+                      {project.spent || "N/A"}
                     </Typography>
                   </Box>
                 </Grid>
               </Grid>
 
               <Box
-                sx={{
-                  p: 2,
-                  bgcolor: "rgba(99, 102, 241, 0.1)",
-                  borderRadius: 2,
-                  mb: 3,
-                }}
+                sx={{ p: 2, bgcolor: "rgba(99, 102, 241, 0.1)", borderRadius: 2, mb: 3 }}
               >
                 <Typography variant="subtitle2" gutterBottom>
                   Status
                 </Typography>
                 <Chip
-                  label={project.status}
+                  label={project.status || "Not Started"}
                   color="primary"
                   size="small"
-                  sx={{
-                    fontWeight: 600,
-                    fontSize: "0.875rem",
-                    px: 1,
-                  }}
+                  sx={{ fontWeight: 600, fontSize: "0.875rem", px: 1 }}
                 />
               </Box>
 
@@ -787,7 +1068,7 @@ const ProjectReview = () => {
                     Team Members
                   </Typography>
                   <Typography variant="h6" fontWeight="600">
-                    12
+                    0
                   </Typography>
                 </Grid>
                 <Grid item xs={6}>
@@ -795,7 +1076,7 @@ const ProjectReview = () => {
                     Milestones
                   </Typography>
                   <Typography variant="h6" fontWeight="600">
-                    8/12
+                    0/0
                   </Typography>
                 </Grid>
                 <Grid item xs={6}>
@@ -803,7 +1084,7 @@ const ProjectReview = () => {
                     Open Tasks
                   </Typography>
                   <Typography variant="h6" fontWeight="600">
-                    24
+                    0
                   </Typography>
                 </Grid>
                 <Grid item xs={6}>
@@ -811,7 +1092,7 @@ const ProjectReview = () => {
                     Completed
                   </Typography>
                   <Typography variant="h6" fontWeight="600">
-                    87
+                    0
                   </Typography>
                 </Grid>
               </Grid>
@@ -821,234 +1102,215 @@ const ProjectReview = () => {
       </TabPanel>
 
       <TabPanel value={tabValue} index={1}>
-  <Grid container spacing={4}>
-    <Grid item xs={12}>
-      <Paper
-        elevation={0}
-        sx={{
-          p: 3,
-          borderRadius: 3,
-          boxShadow: "0 2px 20px rgba(0,0,0,0.05)",
-          mb: 4,
-        }}
-      >
-        <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>
-          Add Your Feedback
-        </Typography>
-        <TextField
-          fullWidth
-          multiline
-          rows={3}
-          placeholder="Share your thoughts, feedback, or questions about the project..."
-          value={newComment}
-          onChange={(e) => setNewComment(e.target.value)}
-          variant="outlined"
-          sx={{ mb: 2 }}
-        />
-        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-          <Button
-            startIcon={<AttachFileIcon />}
-            sx={{
-              borderRadius: 2,
-              textTransform: "none",
-              fontWeight: 500,
-            }}
-          >
-            Attach Files
-          </Button>
-          <Button
-            variant="contained"
-            endIcon={<SendIcon />}
-            onClick={handleAddComment}
-            disabled={!newComment.trim()}
-            sx={{
-              borderRadius: 2,
-              textTransform: "none",
-              fontWeight: 500,
-              boxShadow: 2,
-            }}
-          >
-            Submit Feedback
-          </Button>
-        </Box>
-      </Paper>
-    </Grid>
+        <Grid container spacing={4}>
+          <Grid item xs={12}>
+            <Paper
+              elevation={0}
+              sx={{
+                p: 3,
+                borderRadius: 3,
+                boxShadow: "0 2px 20px rgba(0,0,0,0.05)",
+                mb: 4,
+              }}
+            >
+              <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>
+                Add Your Feedback
+              </Typography>
+              <TextField
+                fullWidth
+                multiline
+                rows={3}
+                placeholder="Share your thoughts, feedback, or questions about the project..."
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                variant="outlined"
+                sx={{ mb: 2 }}
+              />
+              <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                <Button
+                  startIcon={<AttachFileIcon />}
+                  sx={{ borderRadius: 2, textTransform: "none", fontWeight: 500 }}
+                >
+                  Attach Files
+                </Button>
+                <Button
+                  variant="contained"
+                  endIcon={<SendIcon />}
+                  onClick={handleAddComment}
+                  disabled={!newComment.trim()}
+                  sx={{
+                    borderRadius: 2,
+                    textTransform: "none",
+                    fontWeight: 500,
+                    boxShadow: 2,
+                  }}
+                >
+                  Submit Feedback
+                </Button>
+              </Box>
+            </Paper>
+          </Grid>
 
-    <Grid item xs={12}>
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          mb: 3,
-        }}
-      >
-        <Typography variant="h6" sx={{ fontWeight: 600 }}>
-          Feedback & Comments ({feedback.length})
-        </Typography>
-
-        <Box sx={{ display: "flex", gap: 2 }}>
-          <TextField
-            size="small"
-            placeholder="Search feedback..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            sx={{
-              width: 220,
-              "& .MuiOutlinedInput-root": {
-                borderRadius: 2,
-              },
-            }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon fontSize="small" />
-                </InputAdornment>
-              ),
-            }}
-          />
-
-          <Button
-            variant="outlined"
-            startIcon={<FilterListIcon />}
-            onClick={handleFilterClick}
-            sx={{
-              borderRadius: 2,
-              textTransform: "none",
-              fontWeight: 500,
-            }}
-          >
-            Filter
-          </Button>
-          <Menu
-            anchorEl={filterAnchorEl}
-            open={Boolean(filterAnchorEl)}
-            onClose={handleFilterClose}
-          >
-            <MenuItem onClick={handleFilterClose}>All Feedback</MenuItem>
-            <MenuItem onClick={handleFilterClose}>Positive Only</MenuItem>
-            <MenuItem onClick={handleFilterClose}>Negative Only</MenuItem>
-            <MenuItem onClick={handleFilterClose}>Neutral Only</MenuItem>
-            <MenuItem onClick={handleFilterClose}>With Replies</MenuItem>
-          </Menu>
-
-          <Button
-            variant="outlined"
-            startIcon={<SortIcon />}
-            sx={{
-              borderRadius: 2,
-              textTransform: "none",
-              fontWeight: 500,
-            }}
-          >
-            Sort
-          </Button>
-        </Box>
-      </Box>
-
-      {feedback.length > 0 ? (
-        feedback.map((item) => (
-          <Paper
-            key={item.id}
-            elevation={0}
-            sx={{
-              p: 3,
-              borderRadius: 3,
-              boxShadow: "0 2px 20px rgba(0,0,0,0.05)",
-              mb: 3,
-            }}
-          >
+          <Grid item xs={12}>
             <Box
               sx={{
                 display: "flex",
                 justifyContent: "space-between",
-                alignItems: "flex-start",
-                mb: 2,
+                alignItems: "center",
+                mb: 3,
               }}
             >
-              <Box sx={{ display: "flex", alignItems: "center" }}>
-                <Avatar
-                  sx={{ bgcolor: "#3b82f6", width: 40, height: 40, mr: 2 }}
+              <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                Feedback & Comments ({feedback.length})
+              </Typography>
+
+              <Box sx={{ display: "flex", gap: 2 }}>
+                <TextField
+                  size="small"
+                  placeholder="Search feedback..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  sx={{ width: 220, "& .MuiOutlinedInput-root": { borderRadius: 2 } }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchIcon fontSize="small" />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+
+                <Button
+                  variant="outlined"
+                  startIcon={<FilterListIcon />}
+                  onClick={handleFilterClick}
+                  sx={{ borderRadius: 2, textTransform: "none", fontWeight: 500 }}
                 >
-                  {item.author.name.charAt(0)}
-                </Avatar>
-                <Box>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                    {item.author.name}
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary">
-                    {item.author.role} • {item.date}
-                  </Typography>
-                </Box>
-              </Box> {/* Added missing closing Box tag */}
-              <Box>{getSentimentIcon(item.sentiment)}</Box>
+                  Filter
+                </Button>
+                <Menu
+                  anchorEl={filterAnchorEl}
+                  open={Boolean(filterAnchorEl)}
+                  onClose={handleFilterClose}
+                >
+                  <MenuItem onClick={handleFilterClose}>All Feedback</MenuItem>
+                  <MenuItem onClick={handleFilterClose}>Positive Only</MenuItem>
+                  <MenuItem onClick={handleFilterClose}>Negative Only</MenuItem>
+                  <MenuItem onClick={handleFilterClose}>Neutral Only</MenuItem>
+                  <MenuItem onClick={handleFilterClose}>With Replies</MenuItem>
+                </Menu>
+
+                <Button
+                  variant="outlined"
+                  startIcon={<SortIcon />}
+                  sx={{ borderRadius: 2, textTransform: "none", fontWeight: 500 }}
+                >
+                  Sort
+                </Button>
+              </Box>
             </Box>
 
-            <Typography variant="body1" paragraph sx={{ mt: 2 }}>
-              {item.content}
-            </Typography>
-
-            <Box sx={{ display: "flex", gap: 1, mt: 2 }}>
-              <Button
-                size="small"
-                startIcon={<ThumbUpIcon />}
-                sx={{ borderRadius: 2, textTransform: "none" }}
-              >
-                Helpful
-              </Button>
-              <Button
-                size="small"
-                startIcon={<ThumbDownIcon />}
-                sx={{ borderRadius: 2, textTransform: "none" }}
-              >
-                Not Helpful
-              </Button>
-              <Button
-                size="small"
-                sx={{ borderRadius: 2, textTransform: "none" }}
-              >
-                Reply
-              </Button>
-            </Box>
-
-            {item.replies && item.replies.length > 0 && (
-              <Box sx={{ mt: 3, ml: 5 }}>
-                {item.replies.map((reply) => (
-                  <Box key={reply.id} sx={{ mb: 3 }}>
-                    <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                      <Avatar
-                        sx={{ bgcolor: "#10b981", width: 32, height: 32, mr: 1.5 }}
-                      >
-                        {reply.author.name.charAt(0)}
+            {feedback.length > 0 ? (
+              feedback.map((item) => (
+                <Paper
+                  key={item.id}
+                  elevation={0}
+                  sx={{
+                    p: 3,
+                    borderRadius: 3,
+                    boxShadow: "0 2px 20px rgba(0,0,0,0.05)",
+                    mb: 3,
+                  }}
+                >
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "flex-start",
+                      mb: 2,
+                    }}
+                  >
+                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                      <Avatar sx={{ bgcolor: "#3b82f6", width: 40, height: 40, mr: 2 }}>
+                        {item.author.name.charAt(0)}
                       </Avatar>
                       <Box>
-                        <Typography variant="subtitle2">
-                          {reply.author.name}
+                        <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                          {item.author.name}
                         </Typography>
-                        <Typography variant="caption" color="textSecondary">
-                          {reply.author.role} • {reply.date}
+                        <Typography variant="body2" color="textSecondary">
+                          {item.author.role} • {item.date}
                         </Typography>
                       </Box>
                     </Box>
-                    <Typography variant="body2" sx={{ ml: 6 }}>
-                      {reply.content}
-                    </Typography>
+                    <Box>{getSentimentIcon(item.sentiment)}</Box>
                   </Box>
-                ))}
+
+                  <Typography variant="body1" paragraph sx={{ mt: 2 }}>
+                    {item.content}
+                  </Typography>
+
+                  <Box sx={{ display: "flex", gap: 1, mt: 2 }}>
+                    <Button
+                      size="small"
+                      startIcon={<ThumbUpIcon />}
+                      sx={{ borderRadius: 2, textTransform: "none" }}
+                    >
+                      Helpful
+                    </Button>
+                    <Button
+                      size="small"
+                      startIcon={<ThumbDownIcon />}
+                      sx={{ borderRadius: 2, textTransform: "none" }}
+                    >
+                      Not Helpful
+                    </Button>
+                    <Button
+                      size="small"
+                      sx={{ borderRadius: 2, textTransform: "none" }}
+                    >
+                      Reply
+                    </Button>
+                  </Box>
+
+                  {item.replies && item.replies.length > 0 && (
+                    <Box sx={{ mt: 3, ml: 5 }}>
+                      {item.replies.map((reply) => (
+                        <Box key={reply.id} sx={{ mb: 3 }}>
+                          <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+                            <Avatar
+                              sx={{ bgcolor: "#10b981", width: 32, height: 32, mr: 1.5 }}
+                            >
+                              {reply.author.name.charAt(0)}
+                            </Avatar>
+                            <Box>
+                              <Typography variant="subtitle2">
+                                {reply.author.name}
+                              </Typography>
+                              <Typography variant="caption" color="textSecondary">
+                                {reply.author.role} • {reply.date}
+                              </Typography>
+                            </Box>
+                          </Box>
+                          <Typography variant="body2" sx={{ ml: 6 }}>
+                            {reply.content}
+                          </Typography>
+                        </Box>
+                      ))}
+                    </Box>
+                  )}
+                </Paper>
+              ))
+            ) : (
+              <Box sx={{ textAlign: "center", py: 4 }}>
+                <Typography variant="body1" color="textSecondary">
+                  No feedback has been submitted yet.
+                </Typography>
               </Box>
             )}
-          </Paper>
-        ))
-      ) : (
-        <Box sx={{ textAlign: "center", py: 4 }}>
-          <Typography variant="body1" color="textSecondary">
-            No feedback has been submitted yet.
-          </Typography>
-        </Box>
-      )}
-    </Grid>
-  </Grid>
-</TabPanel>
+          </Grid>
+        </Grid>
+      </TabPanel>
 
       <TabPanel value={tabValue} index={2}>
         <Grid container spacing={4}>
@@ -1069,12 +1331,7 @@ const ProjectReview = () => {
                 <TextField
                   size="small"
                   placeholder="Search communications..."
-                  sx={{
-                    width: 220,
-                    "& .MuiOutlinedInput-root": {
-                      borderRadius: 2,
-                    },
-                  }}
+                  sx={{ width: 220, "& .MuiOutlinedInput-root": { borderRadius: 2 } }}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
@@ -1086,137 +1343,120 @@ const ProjectReview = () => {
                 <Button
                   variant="outlined"
                   startIcon={<FilterListIcon />}
-                  sx={{
-                    borderRadius: 2,
-                    textTransform: "none",
-                    fontWeight: 500,
-                  }}
+                  sx={{ borderRadius: 2, textTransform: "none", fontWeight: 500 }}
                 >
                   Filter
                 </Button>
                 <Button
                   variant="contained"
-                  sx={{
-                    borderRadius: 2,
-                    textTransform: "none",
-                    fontWeight: 500,
-                  }}
+                  sx={{ borderRadius: 2, textTransform: "none", fontWeight: 500 }}
                 >
                   Record New Communication
                 </Button>
               </Box>
             </Box>
 
-            {communicationLogs.map((log) => (
-              <Accordion
-                key={log.id}
-                elevation={0}
-                sx={{
-                  mb: 2,
-                  borderRadius: "12px !important",
-                  overflow: "hidden",
-                  boxShadow: "0 2px 20px rgba(0,0,0,0.05)",
-                  "&:before": {
-                    display: "none",
-                  },
-                }}
-              >
-                <AccordionSummary
-                  expandIcon={<ExpandMoreIcon />}
-                  aria-controls={`panel-${log.id}-content`}
-                  id={`panel-${log.id}-header`}
-                  sx={{ px: 3 }}
+            {communicationLogs.length > 0 ? (
+              communicationLogs.map((log) => (
+                <Accordion
+                  key={log.id}
+                  elevation={0}
+                  sx={{
+                    mb: 2,
+                    borderRadius: "12px !important",
+                    overflow: "hidden",
+                    boxShadow: "0 2px 20px rgba(0,0,0,0.05)",
+                    "&:before": { display: "none" },
+                  }}
                 >
-                  <Box sx={{ width: "100%" }}>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        width: "100%",
-                      }}
-                    >
-                      <Box sx={{ display: "flex", alignItems: "center" }}>
-                        <Avatar
-                          sx={{
-                            bgcolor:
-                              log.stakeholder.type === "Client"
-                                ? "#3b82f6"
-                                : "#10b981",
-                            width: 40,
-                            height: 40,
-                            mr: 2,
-                          }}
-                        >
-                          {log.stakeholder.type === "Client" ? (
-                            <BusinessIcon fontSize="small" />
-                          ) : (
-                            <PersonIcon fontSize="small" />
-                          )}
-                        </Avatar>
-                        <Box>
-                          <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                            {log.stakeholder.name}
-                          </Typography>
-                          <Typography variant="body2" color="textSecondary">
-                            {log.stakeholder.type} • {log.date} • {log.channel}
-                          </Typography>
-                        </Box>
-                      </Box>
-
-                      <Chip
-                        label={log.sentiment}
-                        size="small"
-                        color={
-                          log.sentiment === "positive"
-                            ? "success"
-                            : log.sentiment === "negative"
-                            ? "error"
-                            : "default"
-                        }
+                  <AccordionSummary
+                    expandIcon={<ExpandMoreIcon />}
+                    aria-controls={`panel-${log.id}-content`}
+                    id={`panel-${log.id}-header`}
+                    sx={{ px: 3 }}
+                  >
+                    <Box sx={{ width: "100%" }}>
+                      <Box
                         sx={{
-                          textTransform: "capitalize",
-                          fontWeight: 500,
-                        }}
-                      />
-                    </Box>
-                  </Box>
-                </AccordionSummary>
-                <AccordionDetails sx={{ px: 3, pb: 3 }}>
-                  <Typography variant="body1" paragraph>
-                    <strong>Contact Person:</strong> {log.stakeholder.contactPerson},{" "}
-                    {log.stakeholder.position}
-                  </Typography>
-                  <Typography variant="body1" paragraph>
-                    <strong>Summary:</strong> {log.summary}
-                  </Typography>
-
-                  <Typography variant="subtitle2" sx={{ mt: 2, mb: 1 }}>
-                    Action Items:
-                  </Typography>
-                  <List disablePadding>
-                    {log.action_items.map((item, index) => (
-                      <ListItem
-                        key={index}
-                        sx={{
-                          py: 0.5,
-                          px: 0,
                           display: "flex",
+                          justifyContent: "space-between",
                           alignItems: "center",
+                          width: "100%",
                         }}
                       >
-                        <CheckCircleIcon
-                          fontSize="small"
-                          color="primary"
-                          sx={{ mr: 1 }}
+                        <Box sx={{ display: "flex", alignItems: "center" }}>
+                          <Avatar
+                            sx={{
+                              bgcolor: log.stakeholder.type === "Client" ? "#3b82f6" : "#10b981",
+                              width: 40,
+                              height: 40,
+                              mr: 2,
+                            }}
+                          >
+                            {log.stakeholder.type === "Client" ? (
+                              <BusinessIcon fontSize="small" />
+                            ) : (
+                              <PersonIcon fontSize="small" />
+                            )}
+                          </Avatar>
+                          <Box>
+                            <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                              {log.stakeholder.name}
+                            </Typography>
+                            <Typography variant="body2" color="textSecondary">
+                              {log.stakeholder.type} • {log.date} • {log.channel}
+                            </Typography>
+                          </Box>
+                        </Box>
+
+                        <Chip
+                          label={log.sentiment}
+                          size="small"
+                          color={
+                            log.sentiment === "positive"
+                              ? "success"
+                              : log.sentiment === "negative"
+                              ? "error"
+                              : "default"
+                          }
+                          sx={{ textTransform: "capitalize", fontWeight: 500 }}
                         />
-                        <Typography variant="body2">{item}</Typography>
-                      </ListItem>
-                    ))}
-                  </List>
-                </AccordionDetails>
-              </Accordion>
-            ))}
+                      </Box>
+                    </Box>
+                  </AccordionSummary>
+                  <AccordionDetails sx={{ px: 3, pb: 3 }}>
+                    <Typography variant="body1" paragraph>
+                      <strong>Contact Person:</strong> {log.stakeholder.contactPerson},{" "}
+                      {log.stakeholder.position}
+                    </Typography>
+                    <Typography variant="body1" paragraph>
+                      <strong>Summary:</strong> {log.summary}
+                    </Typography>
+
+                    <Typography variant="subtitle2" sx={{ mt: 2, mb: 1 }}>
+                      Action Items:
+                    </Typography>
+                    <List disablePadding>
+                      {log.action_items.map((item, index) => (
+                        <ListItem
+                          key={index}
+                          sx={{ py: 0.5, px: 0, display: "flex", alignItems: "center" }}
+                        >
+                          <CheckCircleIcon fontSize="small" color="primary" sx={{ mr: 1 }} />
+                          <Typography variant="body2">{item}</Typography>
+                        </ListItem>
+                      ))}
+                    </List>
+                  </AccordionDetails>
+                </Accordion>
+              ))
+            ) : (
+              <Box sx={{ textAlign: "center", py: 4 }}>
+                <Typography variant="body1" color="textSecondary">
+                  No communications recorded yet.
+                </Typography>
+              </Box>
+            )}
           </Grid>
         </Grid>
       </TabPanel>
@@ -1240,115 +1480,110 @@ const ProjectReview = () => {
                 <Button
                   variant="outlined"
                   startIcon={<FilterListIcon />}
-                  sx={{
-                    borderRadius: 2,
-                    textTransform: "none",
-                    fontWeight: 500,
-                  }}
+                  sx={{ borderRadius: 2, textTransform: "none", fontWeight: 500 }}
                 >
                   Filter by Role
                 </Button>
                 <Button
                   variant="contained"
-                  sx={{
-                    borderRadius: 2,
-                    textTransform: "none",
-                    fontWeight: 500,
-                  }}
+                  sx={{ borderRadius: 2, textTransform: "none", fontWeight: 500 }}
                 >
                   Request New Insights
                 </Button>
               </Box>
             </Box>
 
-            {teamInsights.map((insight) => (
-              <Card
-                key={insight.id}
-                elevation={0}
-                sx={{
-                  borderRadius: 3,
-                  boxShadow: "0 2px 20px rgba(0,0,0,0.05)",
-                  mb: 3,
-                  overflow: "visible",
-                }}
-              >
-                <CardContent sx={{ p: 3 }}>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "flex-start",
-                      mb: 2,
-                    }}
-                  >
-                    <Box sx={{ display: "flex", alignItems: "center" }}>
-                      <Avatar
-                        sx={{ bgcolor: "#6366f1", width: 40, height: 40, mr: 2 }}
-                      >
-                        {insight.member.name.charAt(0)}
-                      </Avatar>
-                      <Box>
-                        <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                          {insight.member.name}
-                        </Typography>
-                        <Typography variant="body2" color="textSecondary">
-                          {insight.member.role} • {insight.date}
-                        </Typography>
+            {teamInsights.length > 0 ? (
+              teamInsights.map((insight) => (
+                <Card
+                  key={insight.id}
+                  elevation={0}
+                  sx={{
+                    borderRadius: 3,
+                    boxShadow: "0 2px 20px rgba(0,0,0,0.05)",
+                    mb: 3,
+                    overflow: "visible",
+                  }}
+                >
+                  <CardContent sx={{ p: 3 }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "flex-start",
+                        mb: 2,
+                      }}
+                    >
+                      <Box sx={{ display: "flex", alignItems: "center" }}>
+                        <Avatar sx={{ bgcolor: "#6366f1", width: 40, height: 40, mr: 2 }}>
+                          {insight.member.name.charAt(0)}
+                        </Avatar>
+                        <Box>
+                          <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                            {insight.member.name}
+                          </Typography>
+                          <Typography variant="body2" color="textSecondary">
+                            {insight.member.role} • {insight.date}
+                          </Typography>
+                        </Box>
                       </Box>
-                    </Box>
-                    <Tooltip title="Team Member Performance Rating">
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          bgcolor: "rgba(99, 102, 241, 0.1)",
-                          p: 1,
-                          borderRadius: 2,
-                        }}
-                      >
-                        <Rating
-                          value={insight.rating}
-                          precision={0.5}
-                          readOnly
-                          size="small"
-                        />
-                        <Typography
-                          variant="body2"
-                          sx={{ fontWeight: 500, ml: 1 }}
-                        >
-                          {insight.rating.toFixed(1)}
-                        </Typography>
-                      </Box>
-                    </Tooltip>
-                  </Box>
-
-                  <Typography variant="body1" paragraph sx={{ mt: 2 }}>
-                    {insight.content}
-                  </Typography>
-
-                  <Box sx={{ mt: 3 }}>
-                    <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                      Focus Areas:
-                    </Typography>
-                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-                      {insight.focus_areas.map((area, index) => (
-                        <Chip
-                          key={index}
-                          label={area}
-                          size="small"
+                      <Tooltip title="Team Member Performance Rating">
+                        <Box
                           sx={{
-                            borderRadius: 2,
+                            display: "flex",
+                            alignItems: "center",
                             bgcolor: "rgba(99, 102, 241, 0.1)",
-                            color: "#6366f1",
-                            fontWeight: 500,
+                            p: 1,
+                            borderRadius: 2,
                           }}
-                        />
-                      ))}
+                        >
+                          <Rating
+                            value={insight.rating}
+                            precision={0.5}
+                            readOnly
+                            size="small"
+                          />
+                          <Typography variant="body2" sx={{ fontWeight: 500, ml: 1 }}>
+                            {insight.rating.toFixed(1)}
+                          </Typography>
+                        </Box>
+                      </Tooltip>
                     </Box>
-                  </Box>
-                </CardContent>
-              </Card>
-            ))}
+
+                    <Typography variant="body1" paragraph sx={{ mt: 2 }}>
+                      {insight.content}
+                    </Typography>
+
+                    <Box sx={{ mt: 3 }}>
+                      <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                        Focus Areas:
+                      </Typography>
+                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                        {insight.focus_areas.map((area, index) => (
+                          <Chip
+                            key={index}
+                            label={area}
+                            size="small"
+                            sx={{
+                              borderRadius: 2,
+                              bgcolor: "rgba(99, 102, 241, 0.1)",
+                              color: "#6366f1",
+                              fontWeight: 500,
+                            }}
+                          />
+                        ))}
+                      </Box>
+                    </Box>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <Box sx={{ textAlign: "center", py: 4 }}>
+                <Typography variant="body1" color="textSecondary">q
+                  No team insights available yet.
+                </Typography>
+              </Box>
+            )}
           </Grid>
         </Grid>
       </TabPanel>
