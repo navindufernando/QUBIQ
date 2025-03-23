@@ -118,6 +118,7 @@ const ProjectReview = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [filterAnchorEl, setFilterAnchorEl] = useState<null | HTMLElement>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [filterOption, setFilterOption] = useState<string>("All Feedback"); // New state for filter
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editedProjectName, setEditedProjectName] = useState("");
   const [editSection, setEditSection] = useState<string | null>(null);
@@ -162,6 +163,11 @@ const ProjectReview = () => {
     setFilterAnchorEl(null);
   };
 
+  const handleFilterSelect = (option: string) => {
+    setFilterOption(option);
+    setFilterAnchorEl(null);
+  };
+
   const handleAddComment = () => {
     if (!newComment.trim()) return;
     const newFeedbackItem = {
@@ -196,7 +202,7 @@ const ProjectReview = () => {
               ...item,
               content: editFeedbackContent,
               sentiment: editFeedbackSentiment,
-              date: new Date().toISOString().split("T")[0], // Update date on edit
+              date: new Date().toISOString().split("T")[0],
             }
           : item
       )
@@ -383,6 +389,16 @@ const ProjectReview = () => {
         return <InfoIcon color="info" />;
     }
   };
+
+  // Filter feedback based on selected filter option
+  const filteredFeedback = feedback.filter((item) => {
+    if (filterOption === "All Feedback") return true;
+    if (filterOption === "Positive Only") return item.sentiment === "positive";
+    if (filterOption === "Negative Only") return item.sentiment === "negative";
+    if (filterOption === "Neutral Only") return item.sentiment === "neutral";
+    if (filterOption === "With Replies") return item.replies && item.replies.length > 0;
+    return true;
+  });
 
   if (!project) {
     return null;
@@ -1319,7 +1335,7 @@ const ProjectReview = () => {
               }}
             >
               <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                Feedback & Comments ({feedback.length})
+                Feedback & Comments ({filteredFeedback.length})
               </Typography>
 
               <Box sx={{ display: "flex", gap: 2 }}>
@@ -1344,18 +1360,28 @@ const ProjectReview = () => {
                   onClick={handleFilterClick}
                   sx={{ borderRadius: 2, textTransform: "none", fontWeight: 500 }}
                 >
-                  Filter
+                  Filter: {filterOption}
                 </Button>
                 <Menu
                   anchorEl={filterAnchorEl}
                   open={Boolean(filterAnchorEl)}
                   onClose={handleFilterClose}
                 >
-                  <MenuItem onClick={handleFilterClose}>All Feedback</MenuItem>
-                  <MenuItem onClick={handleFilterClose}>Positive Only</MenuItem>
-                  <MenuItem onClick={handleFilterClose}>Negative Only</MenuItem>
-                  <MenuItem onClick={handleFilterClose}>Neutral Only</MenuItem>
-                  <MenuItem onClick={handleFilterClose}>With Replies</MenuItem>
+                  <MenuItem onClick={() => handleFilterSelect("All Feedback")}>
+                    All Feedback
+                  </MenuItem>
+                  <MenuItem onClick={() => handleFilterSelect("Positive Only")}>
+                    Positive Only
+                  </MenuItem>
+                  <MenuItem onClick={() => handleFilterSelect("Negative Only")}>
+                    Negative Only
+                  </MenuItem>
+                  <MenuItem onClick={() => handleFilterSelect("Neutral Only")}>
+                    Neutral Only
+                  </MenuItem>
+                  <MenuItem onClick={() => handleFilterSelect("With Replies")}>
+                    With Replies
+                  </MenuItem>
                 </Menu>
 
                 <Button
@@ -1368,8 +1394,8 @@ const ProjectReview = () => {
               </Box>
             </Box>
 
-            {feedback.length > 0 ? (
-              feedback.map((item) => (
+            {filteredFeedback.length > 0 ? (
+              filteredFeedback.map((item) => (
                 <Paper
                   key={item.id}
                   elevation={0}
@@ -1493,7 +1519,7 @@ const ProjectReview = () => {
             ) : (
               <Box sx={{ textAlign: "center", py: 4 }}>
                 <Typography variant="body1" color="textSecondary">
-                  No feedback has been submitted yet.
+                  No feedback matches the current filter.
                 </Typography>
               </Box>
             )}
