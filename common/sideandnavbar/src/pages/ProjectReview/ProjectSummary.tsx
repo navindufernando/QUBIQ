@@ -1,4 +1,3 @@
-// src/pages/ProjectReview/ProjectSummary.tsx
 import { useState } from "react";
 import {
   Grid, Paper, Typography, Box, LinearProgress, Chip, Divider, List, ListItem, ListItemText,
