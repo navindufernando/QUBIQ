@@ -180,20 +180,20 @@ export default function ProjectReview() {
             <Typography variant="body1" color="textSecondary" sx={{ mb: 2 }}>Once you add a project name, you can:</Typography>
             <ul style={{ listStyle: "none", padding: 0 }}>
               <li>
-                <Typography variant="body1">
-                  <CheckCircleIcon fontSize="small" color="primary" sx={{ mr: 1, verticalAlign: "middle" }} /> 
+                <Typography variant="body1" sx={{ display: "flex", alignItems: "center" }}>
+                  <CheckCircleIcon fontSize="small" color="primary" sx={{ mr: 1 }} />
                   Track progress and metrics
                 </Typography>
               </li>
               <li>
-                <Typography variant="body1">
-                  <CheckCircleIcon fontSize="small" color="primary" sx={{ mr: 1, verticalAlign: "middle" }} /> 
+                <Typography variant="body1" sx={{ display: "flex", alignItems: "center" }}>
+                  <CheckCircleIcon fontSize="small" color="primary" sx={{ mr: 1 }} />
                   Add objectives and highlights
                 </Typography>
               </li>
               <li>
-                <Typography variant="body1">
-                  <CheckCircleIcon fontSize="small" color="primary" sx={{ mr: 1, verticalAlign: "middle" }} /> 
+                <Typography variant="body1" sx={{ display: "flex", alignItems: "center" }}>
+                  <CheckCircleIcon fontSize="small" color="primary" sx={{ mr: 1 }} />
                   Manage risks and feedback
                 </Typography>
               </li>
