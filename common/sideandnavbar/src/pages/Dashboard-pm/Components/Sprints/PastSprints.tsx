@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { getAllSprints } from '../../../../services/SprintAPI';
 import { Box, Card, CardActionArea, CardContent, Chip, FormControl, Grid2, IconButton, InputLabel, LinearProgress, MenuItem, Pagination, Select, Skeleton, Tooltip, Typography } from '@mui/material';
 import { AssessmentOutlined, Refresh } from '@mui/icons-material';
+import { useAuth } from '../../../Signup&Login/AuthContext';
 
 // Enhanced sprint interface to include all required fields
 interface Sprints {
@@ -23,6 +24,7 @@ const PastSprints: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5);
   const [error, setError] = useState<string | null>(null);
+  const { user, isAuthenticated } = useAuth();
 
   useEffect(() => {
     fetchSprints();
@@ -30,9 +32,14 @@ const PastSprints: React.FC = () => {
 
   const fetchSprints = async () => {
     try {
+      console.log("user: ", user?.firstName)
+      if (!isAuthenticated || !user) {
+        setError('You must be logged in to view sprints');
+        return;
+      }
       setLoading(true);
       setError(null);
-      const data = await getAllSprints();
+      const data = await getAllSprints(user.id);
       
       // Filter to show only the completed sprints
       const completedSprints = data.filter((sprint: Sprints) => sprint.status === 'Completed');
