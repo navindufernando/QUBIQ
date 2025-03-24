@@ -6,6 +6,7 @@ import Sprintrouter from './routes/sprint.route';
 import ProjectRouter from './routes/project.route';
 import Taskrouter from './routes/task.route';
 import MemberRoute from './routes/member.route';
+import DeveloperRouter from './routes/developer.route';
 import UserRouter from './routes/user.route';
 import cors from 'cors';
 import { MetricsClient } from '@prisma/client/runtime/library';
@@ -20,7 +21,7 @@ app.use(express.json());
 // CORS configuration
 app.use(cors({
   origin: 'http://localhost:5173',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'], 
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'], 
   allowedHeaders: ['Content-Type', 'Authorization']
 }))
 
@@ -38,6 +39,9 @@ app.use('/member', MemberRoute);
 
 // Mount sprint related routes
 app.use('/sprint', Sprintrouter);
+
+// Mount developer dashboard related routes
+app.use('/dev', DeveloperRouter);
 
 // Mount payment related routes
 app.use("/api/payments", PaymentRoute);

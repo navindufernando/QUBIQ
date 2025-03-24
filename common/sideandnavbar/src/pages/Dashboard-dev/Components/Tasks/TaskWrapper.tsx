@@ -1,8 +1,11 @@
 import {
+  Avatar,
   Badge,
   Box,
   Button,
   Divider,
+  MenuItem,
+  Select,
   Table,
   TableBody,
   TableCell,
@@ -13,21 +16,35 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import CalendarMonthOutlinedIcon from "@mui/icons-material/CalendarMonthOutlined";
 import FlagTwoToneIcon from "@mui/icons-material/FlagTwoTone";
+import axios from "axios";
+import { useState } from "react";
 
 interface Task {
   taskName: string;
-  assignees: string[]; // if the images are URLs (change later if necessary)
-  dueDate: string;
-  priority: string;
+  assigneeName: string;
+  id: number;
+  name: string;
+  description: string;
+  startDate: string;
+  endDate: string;
   status: string;
+  projectId: string;
+  assigneeId: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface TaskListProps {
   tasks: Task[];
   status: string;
+  onStatusChange: (taskId: number, newStatus: string) => void;
 }
 
-const TaskWrapper: React.FC<TaskListProps> = ({ tasks, status }) => {
+const TaskWrapper: React.FC<TaskListProps> = ({
+  tasks,
+  status,
+  onStatusChange,
+}) => {
   const taskNum = tasks.length;
 
   return (
@@ -79,7 +96,7 @@ const TaskWrapper: React.FC<TaskListProps> = ({ tasks, status }) => {
               <TableCell sx={{ fontWeight: "bold" }}>Tasks</TableCell>
               <TableCell sx={{ fontWeight: "bold" }}>Assignee</TableCell>
               <TableCell sx={{ fontWeight: "bold" }}>Due Date</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Priority</TableCell>
+              {/* <TableCell sx={{ fontWeight: "bold" }}>Priority</TableCell> */}
               <TableCell sx={{ fontWeight: "bold" }}>Status</TableCell>
             </TableRow>
           </TableHead>
@@ -89,13 +106,28 @@ const TaskWrapper: React.FC<TaskListProps> = ({ tasks, status }) => {
                 key={i}
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
               >
-                <TableCell>{task.taskName}</TableCell>
-                <TableCell>{task.assignees}</TableCell>
+                <TableCell>{task.name}</TableCell>
                 <TableCell>
-                  {task.dueDate || <CalendarMonthOutlinedIcon />}
+                  <Avatar sx={{ width: 33, height: 33, fontSize: "0.975" }}>
+                    {task.assigneeName.charAt(0)}
+                  </Avatar>
                 </TableCell>
-                <TableCell>{task.priority || <FlagTwoToneIcon />}</TableCell>
-                <TableCell>{task.status}</TableCell>
+                <TableCell>
+                  {task.endDate || <CalendarMonthOutlinedIcon />}
+                </TableCell>
+                {/* <TableCell>{task.priority || <FlagTwoToneIcon />}</TableCell> */}
+                <TableCell>
+                  <Select
+                    value={task.status}
+                    onChange={(e) => onStatusChange(task.id, e.target.value)}
+                    sx={{ width: "100%" }}
+                  >
+                    <MenuItem value="TO_DO">To Do</MenuItem>
+                    <MenuItem value="IN_PROGRESS">In Progress</MenuItem>
+                    <MenuItem value="COMPLETED">Completed</MenuItem>
+                    <MenuItem value="BLOCKED">Blocked</MenuItem>
+                  </Select>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>

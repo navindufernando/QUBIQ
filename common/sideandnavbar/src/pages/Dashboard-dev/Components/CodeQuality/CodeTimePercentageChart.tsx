@@ -9,10 +9,11 @@ import {
   Typography,
 } from "@mui/material";
 import { Legend } from "recharts";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 const CodeTimePercentageChart = () => {
-  const [timePeriod, setTimePeriod] = useState<string>("This week");
+  const [timePeriod, setTimePeriod] = useState<string>("today");
 
   const handleTimePeriodChange = (event: SelectChangeEvent) => {
     setTimePeriod(event.target.value);
@@ -23,7 +24,25 @@ const CodeTimePercentageChart = () => {
     { id: "Other Coding Time", value: 50, color: "#2E96FF" },
   ];
 
-  const COLORS = ["#8884d8", "#82ca9d"];
+  const [codeTimeStat, setCodeTimeStat] = useState([]);
+
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:3000/dev/codetime-total",
+          {
+            params: { timePeriod },
+          }
+        );
+        setCodeTimeStat(response.data);
+      } catch (error) {
+        console.error("Error fetching code time:", error);
+      }
+    };
+
+    fetchTasks();
+  }, [timePeriod]);
 
   return (
     <>
@@ -45,10 +64,10 @@ const CodeTimePercentageChart = () => {
               displayEmpty
               size="small"
             >
-              <MenuItem value="Today">Today</MenuItem>
-              <MenuItem value="Yesterday">Yesterday</MenuItem>
-              <MenuItem value="This week">This Week</MenuItem>
-              <MenuItem value="Last week">Last Week</MenuItem>
+              <MenuItem value="today">Today</MenuItem>
+              <MenuItem value="yesterday">Yesterday</MenuItem>
+              <MenuItem value="this_week">This Week</MenuItem>
+              <MenuItem value="last_week">Last Week</MenuItem>
             </Select>
           </FormControl>
         </Box>
