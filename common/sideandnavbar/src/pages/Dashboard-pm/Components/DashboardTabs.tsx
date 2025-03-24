@@ -21,14 +21,14 @@ const DashboardTabs = () => {
         return <CreateSprint/>;
       case 1: 
         return <TeamProgress/>;
+      // case 2:
+      //   return <Workload/>;
       case 2:
-        return <Workload/>;
-      case 3:
         return <ProjectOverview/>;
-      case 4:
+      case 3:
         return <CustomCharts/>;
       default:
-        return null;
+        return <CreateSprint/>;
     }
   }
 
@@ -37,13 +37,12 @@ const DashboardTabs = () => {
     <Box sx={{
       width: '100%',
       bgcolor: 'background.paper',
-      borderColor: 'divider',
-      borderBottom: 1,
+      mb: 2,
     }}>
-      <Tabs value={value} onChange={handleChange} centered>
+      <Tabs variant='scrollable' scrollButtons value={value} onChange={handleChange} centered>
         <Tab label="Sprints" />
         <Tab label="Progress Tracking" />
-        <Tab label="Workload" />
+        {/* <Tab label="Workload" /> */}
         <Tab label="Project Overview" />
         <Tab label="Custom Charts" />
       </Tabs>

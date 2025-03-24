@@ -2,12 +2,14 @@ import { Box, Button, Chip, Divider, Grid2, IconButton, Paper, Tooltip, Typograp
 import AddIcon from '@mui/icons-material/Add';
 import { getActiveSprint, getSprintById, updateSprint } from '../../../../services/SprintAPI';
 import { useCallback, useEffect, useState } from 'react';
-import { CalendarTodayOutlined, Flag, SpeedOutlined, EditNote, CheckCircle, Warning } from '@mui/icons-material';
+import { CalendarTodayOutlined, SpeedOutlined, EditNote, CheckCircle, Warning } from '@mui/icons-material';
 import PastSprints from './PastSprints';
 import CreateModal from './CreateModal';
 import { Sprintdata } from './CreateModal';
+import { useAuth } from '../../../Signup&Login/AuthContext';
 
 const CreateSprint: React.FC = () => {
+    const { user, isAuthenticated } = useAuth();
     const [openModal, setOpenModal] = useState(false);
 
     const handleOpen = useCallback(() => {
@@ -27,31 +29,43 @@ const CreateSprint: React.FC = () => {
         startDate: string;
         endDate: string;
         projectId: string;
-    } | null>(null);;
+    } | null>(null);
 
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [daysRemaining, setDaysRemaining] = useState<number | null>(null);
     const [sprintToUpdate, setSprintToUpdate] = useState<Sprintdata | null>(null);
     const [sprintDateRange, setSprintDateRange] = useState('');
+    const [error, setError] = useState<string | null>(null);
 
     // Function to open the modal in update mode
     const handleOpenUpdateModal = async (sprintId: string) => {
         try {
-            const sprintDetails = await getSprintById(sprintId);
+            if (!isAuthenticated || !user) {
+                setError('You must be logged in to view sprints');
+                return;
+            }
+            const sprintDetails = await getSprintById(sprintId, user.id);
             setSprintToUpdate(sprintDetails);
             setOpenModal(true);
         } catch (error) {
             console.error('Error fetching sprint details: ', error)
+            setError('Could not fetch sprint details. Please try again.');
         }
     }
 
     // Fetch the active sprint details
     useEffect(() => {
         const fetchSprint = async () => {
+            if (!isAuthenticated || !user) {
+                setError('You must be logged in to view sprints');
+                return;
+            }
+
             try {
                 setLoading(true);
+                setError(null);
 
-                const data = await getActiveSprint();
+                const data = await getActiveSprint(user.id);
                 console.log('Fetched sprint data: ', data);
 
                 if (data) {
@@ -75,29 +89,48 @@ const CreateSprint: React.FC = () => {
                 }
 
             } catch (error) {
-                console.error('Failed to fetch project: ', error);
+                console.error('Failed to fetch sprint: ', error);
+                setError('Failed to load sprint data. Please try again.');
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchSprint();
-    }, []);
+        if (isAuthenticated) {
+            fetchSprint();
+        }
+    }, [isAuthenticated, user]);
+
+    if (!isAuthenticated) {
+        return (
+            <Box sx={{ padding: 3, width: '100%' }}>
+                <Typography variant="h6" color="error">
+                    You must be logged in to view sprints
+                </Typography>
+            </Box>
+        );
+    }
 
     return (
-        <Box sx={{ padding: 3 }}>
+        <Box sx={{ padding: 3, width: '100%' }}>
+            {error && (
+                <Paper elevation={3} sx={{ p: 2, mb: 3, bgcolor: 'error.light', color: 'error.dark' }}>
+                    <Typography>{error}</Typography>
+                </Paper>
+            )}
+            
             <Grid2 container spacing={3}>
-                <Grid2 sx={{ xs: 12, md: 8 }}>
+                <Grid2 sx={{ xs: 12, md: 12, width: '100%', display: 'flex', flexGrow: 1 }}>
                     <Paper elevation={3} sx={{
                         padding: 3,
                         borderRadius: 2,
                         background: 'linear-gradient(to right, #f5f7fa, #ffffff)',
-                        height: '100%'
+                        height: '100%',
+                        width: '100%'
                     }}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 2 }}>
                             <Typography variant='h5' fontWeight='600'>
                                 Sprint Overview
-
                             </Typography>
                             <Chip
                                 sx={{ marginLeft: 'auto', marginRight: 1 }}
@@ -125,16 +158,11 @@ const CreateSprint: React.FC = () => {
                                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 2 }}>
                                     <Box>
                                         <Typography variant='h6'>
-                                            {sprintData.sprintName}
+                                            <strong>{sprintData.sprintName}</strong>
                                         </Typography>
-                                        <Box sx={{ display: 'flex', alignItems: 'center', marginTop: 1 }}>
-                                            <Typography variant="body2" color="text.secondary">
-                                                Current sprint in progress
-                                            </Typography>
-                                        </Box>
                                     </Box>
 
-                                    {daysRemaining !== null && sprintData.status === 'Ongoing' && (
+                                    {daysRemaining !== null && sprintData.status === 'In Progress' && (
                                         <Tooltip title={`${daysRemaining} days until sprint end`}>
                                             <Chip icon={<SpeedOutlined />} label={`${daysRemaining} days until sprint end`} color='warning' variant='filled' sx={{ fontWeight: 'bold' }} />
                                         </Tooltip>
@@ -171,8 +199,8 @@ const CreateSprint: React.FC = () => {
                                         color="error"
                                         variant="outlined"
                                     />
-                                    {sprintData.status === 'Ongoing' && (
-                                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginLeft: 7 }}>
+                                    {sprintData.status === 'In Progress' && (
+                                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginLeft: 4 }}>
                                             <IconButton
                                                 size='medium'
                                                 color='primary'
@@ -194,17 +222,18 @@ const CreateSprint: React.FC = () => {
                     </Paper>
                 </Grid2>
 
-                <Grid2 sx={{ xs: 12, md: 8 }}>
+                <Grid2 sx={{ xs: 12, md: 12, width: '100%', display: 'flex', flexGrow: 1 }}>
                     <Paper elevation={3} sx={{
                         padding: 3,
                         borderRadius: 2,
                         background: 'linear-gradient(to right, #f5f7fa, #ffffff)',
-                        height: '100%'
+                        height: '100%',
+                        width: '100%'
                     }}>
                         <PastSprints />
                     </Paper>
                 </Grid2>
-                <Grid2 sx={{ xs: 12, md: 4 }}>
+                <Grid2 sx={{ xs: 12, md: 12, width: '100%', display: 'flex', flexGrow: 1 }}>
                     <Paper elevation={3} sx={{
                         padding: 3,
                         borderRadius: 2,
@@ -213,6 +242,7 @@ const CreateSprint: React.FC = () => {
                         justifyContent: 'center',
                         alignItems: 'center',
                         height: '100%',
+                        width: '100%',
                         background: 'linear-gradient(to bottom right, #f0f4f8, #d1e3fa)'
                     }}>
                         <Typography variant='h6' align='center' gutterBottom>
@@ -244,6 +274,7 @@ const CreateSprint: React.FC = () => {
                 handleClose={handleClose}
                 sprintData={sprintToUpdate}
                 sprintId={sprintData?.id || null}
+                userId={user?.id || ''}
             />
         </Box>
     );

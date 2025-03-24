@@ -7,8 +7,10 @@ import ProjectRouter from './routes/project.route';
 import Taskrouter from './routes/task.route';
 import MemberRoute from './routes/member.route';
 import DeveloperRouter from './routes/developer.route';
+import UserRouter from './routes/user.route';
 import cors from 'cors';
 import { MetricsClient } from '@prisma/client/runtime/library';
+import PaymentRoute from './routes/payments';
 
 const app = express();
 const prisma = new PrismaClient();
@@ -22,6 +24,9 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'], 
   allowedHeaders: ['Content-Type', 'Authorization']
 }))
+
+// Mount user related routes
+app.use('/user', UserRouter);
 
 // Mount project related routes
 app.use('/project', ProjectRouter);
@@ -37,6 +42,9 @@ app.use('/sprint', Sprintrouter);
 
 // Mount developer dashboard related routes
 app.use('/dev', DeveloperRouter);
+
+// Mount payment related routes
+app.use("/api/payments", PaymentRoute);
 
 // Root endpoint
 app.get('/', (req: Request, res: Response) => {

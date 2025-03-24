@@ -81,6 +81,51 @@ export class TaskController {
         }
     }
 
+    // controller method to retrieve tasks by the status count
+    static async getTaskByCount(req: Request, res: Response): Promise<any> {
+        try {
+            const { projectId } = req.params;
+
+            if (!projectId) {
+                return res.status(400).json({ error: 'Project ID is required' });
+            }
+
+            const taskCounts = await taskService.getTaskByCount(projectId);
+
+            if (!taskCounts) {
+                return res.status(404).json({ error: 'No tasks found for this project' });
+            }
+    
+            res.status(200).json(taskCounts);
+
+        } catch (error) {
+            res.status(500).json({ error: 'Failed to fetch task count'})
+        }
+    }
+
+    // Controller method to retrieve tasks assigned to a particular project in specific sprint
+    static async getTasksForProjectInSprint(req: Request, res: Response): Promise<any> {
+        try {
+            const { projectId, sprintId } = req.params;
+
+            if (!projectId || !sprintId) {
+                return res.status(400).json({ error: 'Project ID and Sprint ID are required'});
+            }
+
+            // get tasks for the given project and sprint
+            const tasks = await taskService.getTasksForProjectInSprint(projectId, sprintId);
+
+            if (!tasks || tasks.length === 0) {
+                return res.status(404).json({ error: 'No tasks found for this project in the specific sprint.'});
+            }
+
+            res.status(200).json(tasks);
+        } catch (error) {
+            res.status(500).json({error: 'Failed to fetch for the project in the specific sprint'});
+        }
+    }
+
+
         // Controller method to update a task by ID
     static async updateTask(req: Request, res: Response): Promise<any> {
         try {

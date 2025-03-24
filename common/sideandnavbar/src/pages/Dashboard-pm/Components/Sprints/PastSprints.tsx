@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { getAllSprints } from '../../../../services/SprintAPI';
-import { Box, Card, CardActionArea, CardContent, Chip, FormControl, Grid2, IconButton, InputLabel, LinearProgress, MenuItem, Select, Skeleton, Tooltip, Typography } from '@mui/material';
+import { Box, Card, CardActionArea, CardContent, Chip, FormControl, Grid2, IconButton, InputLabel, LinearProgress, MenuItem, Pagination, Select, Skeleton, Tooltip, Typography } from '@mui/material';
 import { AssessmentOutlined, Refresh } from '@mui/icons-material';
+import { useAuth } from '../../../Signup&Login/AuthContext';
 
 // Enhanced sprint interface to include all required fields
 interface Sprints {
@@ -23,6 +24,7 @@ const PastSprints: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5);
   const [error, setError] = useState<string | null>(null);
+  const { user, isAuthenticated } = useAuth();
 
   useEffect(() => {
     fetchSprints();
@@ -30,9 +32,14 @@ const PastSprints: React.FC = () => {
 
   const fetchSprints = async () => {
     try {
+      console.log("user: ", user?.firstName)
+      if (!isAuthenticated || !user) {
+        setError('You must be logged in to view sprints');
+        return;
+      }
       setLoading(true);
       setError(null);
-      const data = await getAllSprints();
+      const data = await getAllSprints(user.id);
       
       // Filter to show only the completed sprints
       const completedSprints = data.filter((sprint: Sprints) => sprint.status === 'Completed');
@@ -215,10 +222,50 @@ const PastSprints: React.FC = () => {
                       %
                     </Typography>
                   </Box>
+
+                  {/* Sprint Metrics */}
+                  <Grid2 container spacing={16} textAlign='center'>
+                    <Grid2 sx={{ xs: 6, sm: 3 }}>
+                      <Typography variant='body1' color='info' sx={{ fontWeight: 'bold' }}>
+                        90%
+                      </Typography>
+                      <Typography variant='body2'>
+                        Completed
+                      </Typography>
+                    </Grid2>
+                    <Grid2 sx={{ xs: 6, sm: 3 }}>
+                      <Typography variant='body1' color='warning' sx={{ fontWeight: 'bold' }}>
+                        24
+                      </Typography>
+                      <Typography variant='body2'>
+                        Tasks
+                      </Typography>
+                    </Grid2>
+                    <Grid2 sx={{ xs: 6, sm: 3 }}>
+                      <Typography variant='body1' color='error' sx={{ fontWeight: 'bold' }}>
+                        12
+                      </Typography>
+                      <Typography variant='body2'>
+                        Bugs Found
+                      </Typography>
+                    </Grid2>
+                  </Grid2>
                 </CardContent>
               </CardActionArea>
             </Card>
           ))}
+          {/* Pagination */}
+          {filsteredSprints.length > itemsPerPage && (
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+              <Pagination 
+                count={totalPages} 
+                page={currentPage} 
+                onChange={handlePageChange} 
+                color="primary" 
+                size="large"
+              />
+            </Box>
+          )}
         </>
       )}
     </Box>

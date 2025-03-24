@@ -8,44 +8,52 @@ const projectService = new ProjectService();
 export class ProjectController {
     static async createProject(req: Request, res: Response): Promise<any> {
         try {
-            // extract the data from the request body
+            // Extract the data from the request body
             const {
                 projectName,
                 description,
                 startDate,
                 endDate,
             } = req.body;
-
-            // Validate necessary data
+    
+            // Validate necessary data if provided, or allow nulls
             if (!projectName || !startDate || !endDate) {
-                return res.status(400).json({ error: 'project name, start date end date and team members are required.'});
+                // Only return an error if both projectName, startDate, and endDate are missing
+                return res.status(400).json({ error: 'Project name, start date, and end date are required.' });
             }
-
+    
             // Convert the startDate and endDate to Date objects
             const startDateObj = new Date(startDate);
             const endDateObj = new Date(endDate);
-
-            // Check if dates are valid
-            if (isNaN(startDateObj.getTime()) || isNaN(endDateObj.getTime())) {
+    
+            // Check if the dates are valid (and not NaN)
+            if (isNaN(startDateObj.getTime())) {
                 return res.status(400).json({
-                    error: 'Invalid date format.',
+                    error: 'Invalid start date format. Please use YYYY-MM-DD format.',
                 });
             }
-
+    
+            if (isNaN(endDateObj.getTime())) {
+                return res.status(400).json({
+                    error: 'Invalid end date format. Please use YYYY-MM-DD format.',
+                });
+            }
+    
             // Create a new project by calling the service method
             const newProject = await projectService.createProject({
-                projectName,
-                description,
+                projectName: projectName || null, // Allow null if not provided
+                description: description || null, // Allow null if not provided
                 startDate: startDateObj,
                 endDate: endDateObj,
             });
-
-            // Respond of the created Project
+    
+            // Respond with the created Project
             res.status(201).json(newProject);
         } catch (error) {
-            res.status(500).json({error: 'Failed to create a new project.'});
+            res.status(500).json({ error: 'Failed to create a new project.' });
         }
     }
+    
 
     // Controller method to retrieve all the projects
     static async getAllProjects(req: Request, res: Response): Promise<any> {
