@@ -1,4 +1,3 @@
-// src/pages/ProjectReview/types.ts
 export interface TabPanelProps {
     children?: React.ReactNode;
     index: number;
