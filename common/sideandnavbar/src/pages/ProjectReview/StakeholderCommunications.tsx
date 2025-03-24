@@ -1,4 +1,3 @@
-// src/pages/ProjectReview/StakeholderCommunications.tsx
 import { Grid, Typography, Box, TextField, Button, Accordion, AccordionSummary, AccordionDetails, Avatar, Chip, List, ListItem } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import BusinessIcon from "@mui/icons-material/Business";
