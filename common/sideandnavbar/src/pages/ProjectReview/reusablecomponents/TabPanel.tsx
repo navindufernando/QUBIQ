@@ -1,4 +1,3 @@
-// src/pages/ProjectReview/components/TabPanel.tsx
 import { Box } from "@mui/material";
 import { TabPanelProps } from "../types";
 
