@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import axios from 'axios';
+import { analyzeCode } from './codeAnalyzer';
 
 export async function activate(context: vscode.ExtensionContext) {
 
@@ -7,10 +8,10 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	console.log('Congratulations, your extension "qubiq-extension" is now active!');
 
-	const disposable = vscode.commands.registerCommand('qubiq-extension.helloWorld', () => {
-
-		vscode.window.showInformationMessage('Hello World from Qubiq-extension!');
-	});
+	const disposable = vscode.workspace.onDidSaveTextDocument(document => {
+		const code = document.getText();
+		analyzeCode(code);
+	})
 
 	context.subscriptions.push(disposable);
 }

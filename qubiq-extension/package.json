@@ -39,6 +39,8 @@
     "typescript": "^5.8.2"
   },
   "dependencies": {
-    "axios": "^1.8.4"
+    "axios": "^1.8.4",
+    "complexity-report": "^2.0.0-alpha",
+    "plato": "^1.7.0"
   }
 }
