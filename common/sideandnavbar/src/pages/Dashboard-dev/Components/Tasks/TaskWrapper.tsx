@@ -5,6 +5,7 @@ import {
   Button,
   Divider,
   MenuItem,
+  Paper,
   Select,
   Table,
   TableBody,
@@ -49,7 +50,9 @@ const TaskWrapper: React.FC<TaskListProps> = ({
 
   return (
     <>
-      <Box sx={{ p: 3, bgcolor: "background.paper", marginBottom: 4 }}>
+      <Paper elevation={3} sx={{ p: 3, marginBottom: 4, borderRadius: 4,
+        background: "linear-gradient(to right,#F5F7FA, #ffffff)",
+      }}>
         <Box
           sx={{
             display: "flex",
@@ -72,67 +75,63 @@ const TaskWrapper: React.FC<TaskListProps> = ({
               />
             </Box>
           </Box>
-          <Button
-            variant="outlined"
-            href="#outlined-buttons"
-            sx={{
-              borderRadius: "100%",
-              width: 35,
-              height: 35,
-              minWidth: 0,
-              padding: 0,
-            }}
-          >
-            <AddIcon />
-          </Button>
         </Box>
         <Divider
           variant="middle"
           sx={{ my: 1, marginX: 4, borderBottomWidth: 4 }}
         />
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell sx={{ fontWeight: "bold" }}>Tasks</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Assignee</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Due Date</TableCell>
-              {/* <TableCell sx={{ fontWeight: "bold" }}>Priority</TableCell> */}
-              <TableCell sx={{ fontWeight: "bold" }}>Status</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {tasks.map((task, i) => (
-              <TableRow
-                key={i}
-                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-              >
-                <TableCell>{task.name}</TableCell>
-                <TableCell>
-                  <Avatar sx={{ width: 33, height: 33, fontSize: "0.975" }}>
-                    {task.assigneeName.charAt(0)}
-                  </Avatar>
-                </TableCell>
-                <TableCell>
-                  {task.endDate || <CalendarMonthOutlinedIcon />}
-                </TableCell>
-                {/* <TableCell>{task.priority || <FlagTwoToneIcon />}</TableCell> */}
-                <TableCell>
-                  <Select
-                    value={task.status}
-                    onChange={(e) => onStatusChange(task.id, e.target.value)}
-                    sx={{ width: "100%" }}
-                  >
-                    <MenuItem value="TO_DO">To Do</MenuItem>
-                    <MenuItem value="IN_PROGRESS">In Progress</MenuItem>
-                    <MenuItem value="COMPLETED">Completed</MenuItem>
-                    <MenuItem value="BLOCKED">Blocked</MenuItem>
-                  </Select>
-                </TableCell>
+        { taskNum == 0 ? (
+          <Typography
+          variant="subtitle1"
+          sx={{ textAlign: "center", mt: 4, mb: 2 }}
+          >
+            There are no tasks available in this category.
+          </Typography>
+        ) : (
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell sx={{ fontWeight: "bold" }}>Tasks</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Assignee</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Due Date</TableCell>
+                {/* <TableCell sx={{ fontWeight: "bold" }}>Priority</TableCell> */}
+                <TableCell sx={{ fontWeight: "bold" }}>Status</TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </Box>
+            </TableHead>
+            <TableBody>
+              {tasks.map((task, i) => (
+                <TableRow
+                  key={i}
+                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                >
+                  <TableCell>{task.name}</TableCell>
+                  <TableCell>
+                    <Avatar sx={{ width: 33, height: 33, fontSize: "0.975" }}>
+                      {task.assigneeName.charAt(0)}
+                    </Avatar>
+                  </TableCell>
+                  <TableCell>
+                    {task.endDate || <CalendarMonthOutlinedIcon />}
+                  </TableCell>
+                  {/* <TableCell>{task.priority || <FlagTwoToneIcon />}</TableCell> */}
+                  <TableCell>
+                    <Select
+                      value={task.status}
+                      onChange={(e) => onStatusChange(task.id, e.target.value)}
+                      sx={{ width: "100%" }}
+                    >
+                      <MenuItem value="TO_DO">To Do</MenuItem>
+                      <MenuItem value="IN_PROGRESS">In Progress</MenuItem>
+                      <MenuItem value="COMPLETED">Completed</MenuItem>
+                      <MenuItem value="BLOCKED">Blocked</MenuItem>
+                    </Select>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+      </Paper>
     </>
   );
 };

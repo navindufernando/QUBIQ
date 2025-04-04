@@ -90,7 +90,7 @@ const SkillImprovements = () => {
 
   return (
     <>
-      <Paper elevation={2} sx={{ p: 2, height: "100%", mt: 4 }}>
+      <Paper elevation={3} sx={{ p: 2, height: "100%", mt: 4, borderRadius: 4, background: "linear-gradient(to right,#F5F7FA, #ffffff)" }}>
         <Typography variant="h6" gutterBottom>
           Potential Skill Improvements
         </Typography>

@@ -5,7 +5,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 const Calendar = () => {
   return (
     <>
-      <Paper elevation={3} sx={{ p: 2 }}>
+      <Paper elevation={3} sx={{ p: 2, borderRadius: 4 }}>
         <Typography variant="h6" gutterBottom>
           Calendar
         </Typography>

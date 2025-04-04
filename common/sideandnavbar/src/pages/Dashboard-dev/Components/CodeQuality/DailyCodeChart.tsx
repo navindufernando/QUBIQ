@@ -49,7 +49,7 @@ const DailyCodeChart = () => {
 
   return (
     <>
-      <Paper elevation={2} sx={{ p: 2, height: "100%", mt: 2 }}>
+      <Paper elevation={3} sx={{ p: 2, height: "100%", mt: 2, borderRadius: 4, background: "linear-gradient(to right,#F5F7FA, #ffffff)" }}>
         <Box
           sx={{
             display: "flex",

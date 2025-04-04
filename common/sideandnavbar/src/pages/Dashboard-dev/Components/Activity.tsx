@@ -64,7 +64,7 @@ const Activity = () => {
 
   return (
     <>
-      <Paper elevation={6} sx={{ p: 2, mt: 2 }}>
+      <Paper elevation={3} sx={{ p: 2, mt: 2, borderRadius: 4 }}>
         <Typography variant="h6" gutterBottom>
           Recent Activity
         </Typography>

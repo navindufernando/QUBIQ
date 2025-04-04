@@ -46,7 +46,7 @@ const CodeTimePercentageChart = () => {
 
   return (
     <>
-      <Paper elevation={2} sx={{ width: "100%", p: 2, mt: 4, mb: 2 }}>
+      <Paper elevation={3} sx={{ width: "100%", p: 2, mt: 4, mb: 2, borderRadius: 4, background: "linear-gradient(to right,#F5F7FA, #ffffff)" }}>
         <Box
           sx={{
             display: "flex",

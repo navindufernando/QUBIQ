@@ -8,8 +8,8 @@ import DashboardTabs from "./Components/DashboardTabs";
 
 const DevDashboard = () => {
   return (
-    <div className="bg-[#E2DDFF] -m-6 p-2">
-      <Grid2 container spacing={3}>
+    <div className="-m-6 px-12 py-6">
+      <Grid2 container spacing={6}>
         <Grid2 size={{ xs: 12, md: 8 }}>
           <DashboardTabs />
         </Grid2>
