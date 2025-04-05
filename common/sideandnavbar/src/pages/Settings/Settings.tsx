@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react"; // Added useEffect for timeout
 import PersonIcon from "@mui/icons-material/Person";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import SecurityIcon from "@mui/icons-material/Security";
@@ -33,6 +33,7 @@ const profileStore = {
 const Settings = () => {
   const [activeTab, setActiveTab] = useState("profile");
   const [profilePic, setProfilePic] = useState(null);
+  const [saveStatus, setSaveStatus] = useState(null); // New state for save feedback
 
   const tabs = [
     { id: "profile", label: "Profile", icon: "user" },
@@ -76,7 +77,16 @@ const Settings = () => {
       project: formData.get("project")
     };
     profileStore.setProfile(updatedProfile);
+    setSaveStatus("Profile saved successfully!"); // Set success message
   };
+
+  // Clear save status after 3 seconds
+  useEffect(() => {
+    if (saveStatus) {
+      const timer = setTimeout(() => setSaveStatus(null), 3000);
+      return () => clearTimeout(timer); // Cleanup timeout on unmount or status change
+    }
+  }, [saveStatus]);
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -98,6 +108,13 @@ const Settings = () => {
               <h2 className="text-xl font-medium text-gray-800 mb-6">
                 Personal Information
               </h2>
+
+              {/* Success Message */}
+              {saveStatus && (
+                <div className="mb-4 p-3 bg-green-100 text-green-700 rounded-md">
+                  {saveStatus}
+                </div>
+              )}
 
               <div className="flex mb-8">
                 <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mr-6">
