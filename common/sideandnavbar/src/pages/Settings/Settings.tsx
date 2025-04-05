@@ -9,25 +9,10 @@ import CreditCardIcon from "@mui/icons-material/CreditCard";
 import WbSunnyIcon from "@mui/icons-material/WbSunny";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import PaletteIcon from "@mui/icons-material/Palette";
-
-
-const profileStore = {
-  profile: {
-    firstName: "John",
-    lastName: "Smith",
-    email: "john.smith@example.com",
-    phone: "+94 71 831 7219",
-    bio: "Project Manager with 5+ years of experience in agile development environments.",
-    picture: null
-  },
-  setProfile: (newProfile) => {
-    profileStore.profile = { ...profileStore.profile, ...newProfile };
-  }
-};
+import EditIcon from "@mui/icons-material/Edit";
 
 const Settings = () => {
   const [activeTab, setActiveTab] = useState("profile");
-  const [profilePic, setProfilePic] = useState(null);
 
   const tabs = [
     { id: "profile", label: "Profile", icon: "user" },
@@ -54,127 +39,96 @@ const Settings = () => {
     }
   };
 
-  const handleProfileSave = (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const updatedProfile = {
-      firstName: formData.get("firstName"),
-      lastName: formData.get("lastName"),
-      email: formData.get("email"),
-      phone: formData.get("phone"),
-      bio: formData.get("bio"),
-      picture: profilePic || profileStore.profile.picture
-    };
-    profileStore.setProfile(updatedProfile);
-  };
-
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfilePic(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
   const renderContent = () => {
     switch (activeTab) {
       case "profile":
         return (
-          <form onSubmit={handleProfileSave}>
-            <div>
-              <h2 className="text-xl font-medium text-gray-800 mb-6">
-                Personal Information
-              </h2>
+          <div>
+            <h2 className="text-xl font-medium text-gray-800 mb-6">
+              Personal Information
+            </h2>
 
-              <div className="flex mb-8">
-                <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mr-6">
-                  {profilePic || profileStore.profile.picture ? (
-                    <img src={profilePic || profileStore.profile.picture} alt="Profile" className="w-full h-full rounded-full object-cover" />
-                  ) : (
-                    <PersonIcon className="h-12 w-12 text-gray-400" />
-                  )}
-                </div>
-                <div>
-                  <h3 className="font-medium text-gray-900">Profile Picture</h3>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="mt-2"
-                  />
-                </div>
+            <div className="flex mb-8">
+              <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mr-6">
+                <PersonIcon className="h-12 w-12 text-gray-400" />
               </div>
-
-              <div className="grid grid-cols-2 gap-6 mb-8">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    First name
-                  </label>
-                  <input
-                    name="firstName"
-                    type="text"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    defaultValue={profileStore.profile.firstName}
-                  />
+              <div>
+                <h3 className="font-medium text-gray-900">Profile Picture</h3>
+                <p className="text-gray-500 mb-3 text-sm">
+                  This will be displayed on your profile and in comments
+                </p>
+                <div className="flex space-x-2">
+                  <button className="px-4 py-2 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-700">
+                    Upload new picture
+                  </button>
+                  <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md text-sm hover:bg-gray-50">
+                    Remove
+                  </button>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Last name
-                  </label>
-                  <input
-                    name="lastName"
-                    type="text"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    defaultValue={profileStore.profile.lastName}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Email address
-                  </label>
-                  <input
-                    name="email"
-                    type="email"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    defaultValue={profileStore.profile.email}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Phone number
-                  </label>
-                  <input
-                    name="phone"
-                    type="tel"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    defaultValue={profileStore.profile.phone}
-                  />
-                </div>
-                <div className="col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Bio
-                  </label>
-                  <textarea
-                    name="bio"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 h-24"
-                    defaultValue={profileStore.profile.bio}
-                  ></textarea>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Brief description for your profile. URLs are hyperlinked.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex justify-end">
-                <button type="submit" className="px-4 py-2 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-700">
-                  Save changes
-                </button>
               </div>
             </div>
-          </form>
+
+            <div className="grid grid-cols-2 gap-6 mb-8">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  First name
+                </label>
+                <input
+                  type="text"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2"
+                  defaultValue="John"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Last name
+                </label>
+                <input
+                  type="text"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2"
+                  defaultValue="Smith"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Email address
+                </label>
+                <input
+                  type="email"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2"
+                  defaultValue="john.smith@example.com"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Phone number
+                </label>
+                <input
+                  type="tel"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2"
+                  defaultValue="+94 71 831 7219"
+                />
+              </div>
+              <div className="col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Bio
+                </label>
+                <textarea
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 h-24"
+                  defaultValue="Project Manager with 5+ years of experience in agile development environments."
+                ></textarea>
+                <p className="text-xs text-gray-500 mt-1">
+                  Brief description for your profile. URLs are hyperlinked.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex justify-end">
+              <button className="px-4 py-2 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-700">
+                Save changes
+              </button>
+            </div>
+          </div>
         );
       case "notifications":
         return (
@@ -505,57 +459,50 @@ const Settings = () => {
               <h3 className="font-medium text-gray-900 mb-4">Payment Method</h3>
 
               <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Card Number
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    placeholder="1234 5678 9012 3456"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Expiry Date
-                    </label>
-                    <input
-                      type="text"
-                      className="w-full border border-gray-300 rounded-md px-3 py-2"
-                      placeholder="MM/YY"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      CVC
-                    </label>
-                    <input
-                      type="text"
-                      className="w-full border border-gray-300 rounded-md px-3 py-2"
-                      placeholder="123"
-                    />
+                {/* Demo Card 1 */}
+                <div className="bg-white p-4 rounded-lg border border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <div className="w-12 h-8 bg-gray-100 rounded flex items-center justify-center mr-3">
+                        <CreditCardIcon className="h-6 w-6 text-gray-600" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900">
+                          Visa ending in 1234
+                        </p>
+                        <p className="text-sm text-gray-500">Expires 06/25</p>
+                      </div>
+                    </div>
+                    <button className="text-gray-600 hover:text-gray-900">
+                      <EditIcon className="h-5 w-5" />
+                    </button>
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Cardholder Name
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    placeholder="John Smith"
-                  />
+                {/* Demo Card 2 */}
+                <div className="bg-white p-4 rounded-lg border border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <div className="w-12 h-8 bg-gray-100 rounded flex items-center justify-center mr-3">
+                        <CreditCardIcon className="h-6 w-6 text-gray-600" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900">
+                          MasterCard ending in 5678
+                        </p>
+                        <p className="text-sm text-gray-500">Expires 09/26</p>
+                      </div>
+                    </div>
+                    <button className="text-gray-600 hover:text-gray-900">
+                      <EditIcon className="h-5 w-5" />
+                    </button>
+                  </div>
                 </div>
               </div>
 
-              <div className="mt-4">
-                <button className="px-4 py-2 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-700">
-                  Save Payment Method
-                </button>
-              </div>
+              <button className="mt-4 text-indigo-600 hover:text-indigo-700 font-medium text-sm">
+                Add payment method
+              </button>
             </div>
           </div>
         );
@@ -595,4 +542,3 @@ const Settings = () => {
 };
 
 export default Settings;
-export { profileStore };
