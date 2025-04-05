@@ -5,15 +5,10 @@ import PersonIcon from "@mui/icons-material/Person";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import SecurityIcon from "@mui/icons-material/Security";
 import VisibilityIcon from "@mui/icons-material/Visibility";
-import ExtensionIcon from "@mui/icons-material/Extension";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
 import WbSunnyIcon from "@mui/icons-material/WbSunny";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import PaletteIcon from "@mui/icons-material/Palette";
-import ViewComfyIcon from "@mui/icons-material/ViewComfy";
-import TrelloIcon from "@mui/icons-material/ViewKanban";
-import GitHubIcon from "@mui/icons-material/Code";
-import VideocamIcon from "@mui/icons-material/Videocam";
 import EditIcon from "@mui/icons-material/Edit";
 
 const Settings = () => {
@@ -24,7 +19,6 @@ const Settings = () => {
     { id: "notifications", label: "Notifications", icon: "bell" },
     { id: "security", label: "Security & Privacy", icon: "shield" },
     { id: "appearance", label: "Appearance", icon: "eye" },
-    { id: "integrations", label: "Integrations", icon: "puzzle" },
     { id: "billing", label: "Billing", icon: "credit-card" },
   ];
 
@@ -38,8 +32,6 @@ const Settings = () => {
         return <SecurityIcon className="h-5 w-5" />;
       case "eye":
         return <VisibilityIcon className="h-5 w-5" />;
-      case "puzzle":
-        return <ExtensionIcon className="h-5 w-5" />;
       case "credit-card":
         return <CreditCardIcon className="h-5 w-5" />;
       default:
@@ -355,98 +347,6 @@ const Settings = () => {
                 </button>
               </div>
             </div>
-
-            <div className="mb-8">
-              <h3 className="font-medium text-gray-900 mb-4">
-                Two-Factor Authentication
-              </h3>
-              <p className="text-gray-500 text-sm mb-4">
-                Add an extra layer of security to your account
-              </p>
-
-              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-md">
-                <div>
-                  <p className="font-medium text-gray-700">
-                    Two-factor authentication is disabled
-                  </p>
-                  <p className="text-gray-500 text-sm">
-                    Protect your account by enabling 2FA
-                  </p>
-                </div>
-                <button className="px-4 py-2 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-700">
-                  Enable
-                </button>
-              </div>
-            </div>
-
-            <div className="mb-8">
-              <h3 className="font-medium text-gray-900 mb-4">Sessions</h3>
-              <p className="text-gray-500 text-sm mb-4">
-                Manage your active sessions
-              </p>
-
-              <div className="bg-white shadow overflow-hidden rounded-md">
-                <ul role="list" className="divide-y divide-gray-200">
-                  <li className="px-4 py-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium text-gray-700">
-                          Chrome on Windows
-                        </p>
-                        <div className="flex items-center text-sm text-gray-500">
-                          <p>192.168.1.123</p>
-                          <span className="mx-2">•</span>
-                          <p>Current session</p>
-                        </div>
-                      </div>
-                      <span className="px-2 py-1 text-xs text-green-800 bg-green-100 rounded-full">
-                        Active now
-                      </span>
-                    </div>
-                  </li>
-                  <li className="px-4 py-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium text-gray-700">
-                          Safari on Mac
-                        </p>
-                        <div className="flex items-center text-sm text-gray-500">
-                          <p>86.75.30.9</p>
-                          <span className="mx-2">•</span>
-                          <p>2 days ago</p>
-                        </div>
-                      </div>
-                      <button className="text-red-600 text-sm font-medium hover:text-red-700">
-                        Revoke
-                      </button>
-                    </div>
-                  </li>
-                  <li className="px-4 py-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium text-gray-700">
-                          Mobile App on iPhone
-                        </p>
-                        <div className="flex items-center text-sm text-gray-500">
-                          <p>104.214.139.88</p>
-                          <span className="mx-2">•</span>
-                          <p>5 days ago</p>
-                        </div>
-                      </div>
-                      <button className="text-red-600 text-sm font-medium hover:text-red-700">
-                        Revoke
-                      </button>
-                    </div>
-                  </li>
-                </ul>
-              </div>
-            </div>
-
-            <div className="flex justify-end">
-              <button className="px-4 py-2 bg-red-600 text-white rounded-md text-sm hover:bg-red-700">
-                Log out all other sessions
-              </button>
-            </div>
           </div>
         );
       case "appearance":
@@ -548,205 +448,61 @@ const Settings = () => {
             </div>
           </div>
         );
-      case "integrations":
-        return (
-          <div>
-            <h2 className="text-xl font-medium text-gray-800 mb-6">
-              Integrations
-            </h2>
-
-            <div className="mb-8 space-y-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <div className="w-12 h-12 flex items-center justify-center rounded-md bg-blue-100 mr-4">
-                    <TrelloIcon className="h-8 w-8 text-blue-500" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium text-gray-900">Trello</h3>
-                    <p className="text-gray-500 text-sm">
-                      Import and sync Trello boards
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center">
-                  <span className="mr-2 text-sm text-green-700 font-medium">
-                    Connected
-                  </span>
-                  <button className="text-red-600 text-sm font-medium hover:text-red-700">
-                    Disconnect
-                  </button>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <div className="w-12 h-12 flex items-center justify-center rounded-md bg-purple-100 mr-4">
-                    <GitHubIcon className="h-8 w-8 text-purple-500" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium text-gray-900">GitHub</h3>
-                    <p className="text-gray-500 text-sm">
-                      Link repositories and track issues
-                    </p>
-                  </div>
-                </div>
-                <button className="px-4 py-2 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-700">
-                  Connect
-                </button>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <div className="w-12 h-12 flex items-center justify-center rounded-md bg-red-100 mr-4">
-                    <VideocamIcon className="h-8 w-8 text-red-500" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium text-gray-900">Zoom</h3>
-                    <p className="text-gray-500 text-sm">
-                      Schedule and join meetings
-                    </p>
-                  </div>
-                </div>
-                <button className="px-4 py-2 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-700">
-                  Connect
-                </button>
-              </div>
-            </div>
-          </div>
-        );
       case "billing":
         return (
           <div>
             <h2 className="text-xl font-medium text-gray-800 mb-6">
-              Billing & Subscription
+              Billing
             </h2>
-
-            <div className="mb-8">
-              <h3 className="font-medium text-gray-900 mb-4">Current Plan</h3>
-
-              <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h4 className="text-lg font-medium text-gray-900">
-                      Pro Plan
-                    </h4>
-                    <p className="text-gray-500">$29/month</p>
-                  </div>
-                  <span className="px-3 py-1 text-sm text-green-700 bg-green-100 rounded-full">
-                    Active
-                  </span>
-                </div>
-                <div className="space-y-1 text-sm text-gray-500">
-                  <p>• Unlimited projects</p>
-                  <p>• Advanced analytics</p>
-                  <p>• Priority support</p>
-                  <p>• Custom integrations</p>
-                </div>
-                <div className="mt-4">
-                  <button className="text-indigo-600 hover:text-indigo-700 font-medium text-sm">
-                    Change plan
-                  </button>
-                </div>
-              </div>
-            </div>
 
             <div className="mb-8">
               <h3 className="font-medium text-gray-900 mb-4">Payment Method</h3>
 
-              <div className="bg-white p-4 rounded-lg border border-gray-200">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <div className="w-12 h-8 bg-gray-100 rounded flex items-center justify-center mr-3">
-                      <CreditCardIcon className="h-6 w-6 text-gray-600" />
+              <div className="space-y-4">
+                {/* Demo Card 1 */}
+                <div className="bg-white p-4 rounded-lg border border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <div className="w-12 h-8 bg-gray-100 rounded flex items-center justify-center mr-3">
+                        <CreditCardIcon className="h-6 w-6 text-gray-600" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900">
+                          Visa ending in 1234
+                        </p>
+                        <p className="text-sm text-gray-500">Expires 06/25</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-medium text-gray-900">
-                        Visa ending in 4242
-                      </p>
-                      <p className="text-sm text-gray-500">Expires 12/24</p>
-                    </div>
+                    <button className="text-gray-600 hover:text-gray-900">
+                      <EditIcon className="h-5 w-5" />
+                    </button>
                   </div>
-                  <button className="text-gray-600 hover:text-gray-900">
-                    <EditIcon className="h-5 w-5" />
-                  </button>
+                </div>
+
+                {/* Demo Card 2 */}
+                <div className="bg-white p-4 rounded-lg border border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <div className="w-12 h-8 bg-gray-100 rounded flex items-center justify-center mr-3">
+                        <CreditCardIcon className="h-6 w-6 text-gray-600" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900">
+                          MasterCard ending in 5678
+                        </p>
+                        <p className="text-sm text-gray-500">Expires 09/26</p>
+                      </div>
+                    </div>
+                    <button className="text-gray-600 hover:text-gray-900">
+                      <EditIcon className="h-5 w-5" />
+                    </button>
+                  </div>
                 </div>
               </div>
 
               <button className="mt-4 text-indigo-600 hover:text-indigo-700 font-medium text-sm">
                 Add payment method
               </button>
-            </div>
-
-            <div className="mb-8">
-              <h3 className="font-medium text-gray-900 mb-4">
-                Billing History
-              </h3>
-
-              <div className="bg-white shadow overflow-hidden rounded-md">
-                <ul role="list" className="divide-y divide-gray-200">
-                  <li className="px-4 py-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium text-gray-900">
-                          Pro Plan - Monthly
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          February 1, 2024
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-medium text-gray-900">$29.00</p>
-                        <a
-                          href="#"
-                          className="text-indigo-600 hover:text-indigo-700 text-sm"
-                        >
-                          Download
-                        </a>
-                      </div>
-                    </div>
-                  </li>
-                  <li className="px-4 py-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium text-gray-900">
-                          Pro Plan - Monthly
-                        </p>
-                        <p className="text-sm text-gray-500">January 1, 2024</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-medium text-gray-900">$29.00</p>
-                        <a
-                          href="#"
-                          className="text-indigo-600 hover:text-indigo-700 text-sm"
-                        >
-                          Download
-                        </a>
-                      </div>
-                    </div>
-                  </li>
-                  <li className="px-4 py-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium text-gray-900">
-                          Pro Plan - Monthly
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          December 1, 2023
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-medium text-gray-900">$29.00</p>
-                        <a
-                          href="#"
-                          className="text-indigo-600 hover:text-indigo-700 text-sm"
-                        >
-                          Download
-                        </a>
-                      </div>
-                    </div>
-                  </li>
-                </ul>
-              </div>
             </div>
           </div>
         );
