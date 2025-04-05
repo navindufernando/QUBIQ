@@ -131,31 +131,31 @@ const Profile = () => {
               <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-2">
                 <PeopleIcon className="h-8 w-8 text-blue-500" />
               </div>
-              <p className="text-xs text-gray-600">Naveesha</p>
+              <p className="text-xs text-gray-600">Ashini</p>
             </div>
             <div className="text-center">
               <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-2">
                 <PeopleIcon className="h-8 w-8 text-blue-500" />
               </div>
-              <p className="text-xs text-gray-600">Warsha</p>
+              <p className="text-xs text-gray-600">Navindu</p>
             </div>
             <div className="text-center">
               <div className="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center mx-auto mb-2">
                 <PeopleIcon className="h-8 w-8 text-blue-500" />
               </div>
-              <p className="text-xs text-gray-600">Supun</p>
+              <p className="text-xs text-gray-600">Manula</p>
             </div>
             <div className="text-center">
               <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-2">
                 <PeopleIcon className="h-8 w-8 text-blue-500" />
               </div>
-              <p className="text-xs text-gray-600">Tharindu</p>
+              <p className="text-xs text-gray-600">jaith</p>
             </div>
             <div className="text-center">
               <div className="w-16 h-16 rounded-full bg-yellow-100 flex items-center justify-center mx-auto mb-2">
                 <PeopleIcon className="h-8 w-8 text-blue-500" />
               </div>
-              <p className="text-xs text-gray-600">Lahiru</p>
+              <p className="text-xs text-gray-600">Inuthi</p>
             </div>
           </div>
         </div>
