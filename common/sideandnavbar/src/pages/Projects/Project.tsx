@@ -35,17 +35,18 @@ import EqualizerIcon from "@mui/icons-material/Equalizer";
 import SearchIcon from "@mui/icons-material/Search";
 import ColorLensIcon from "@mui/icons-material/ColorLens";
 import SortIcon from "@mui/icons-material/Sort";
-import FilterListIcon from "@mui/icons-material/FilterList";
 import LabelIcon from "@mui/icons-material/Label";
+import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 
 const Project = () => {
   const [projectName, setProjectName] = useState("");
   const [projectColor, setProjectColor] = useState("#3b82f6"); // Default blue color
   const [projects, setProjects] = useState<
-    { id: string; name: string; color: string }[]
+    { id: string; name: string; color: string; createdAt: number }[]
   >([]);
   const [isFormVisible, setIsFormVisible] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc"); // Default to newest first
   const navigate = useNavigate();
 
   // Load existing projects on component mount
@@ -53,10 +54,17 @@ const Project = () => {
     const existingProjects = JSON.parse(
       localStorage.getItem("projects") || "[]"
     );
-    setProjects(existingProjects);
+    
+    // Add createdAt field if missing from older projects
+    const updatedProjects = existingProjects.map(project => ({
+      ...project,
+      createdAt: project.createdAt || parseInt(project.id) // Use ID as fallback timestamp
+    }));
+    
+    setProjects(updatedProjects);
 
     // If no projects exist, show the form by default
-    if (existingProjects.length === 0) {
+    if (updatedProjects.length === 0) {
       setIsFormVisible(true);
     }
   }, []);
@@ -74,11 +82,14 @@ const Project = () => {
       localStorage.getItem("projects") || "[]"
     );
 
+    const timestamp = Date.now();
+
     // Create new project object
     const newProject = {
-      id: Date.now().toString(),
+      id: timestamp.toString(),
       name: projectName,
       color: projectColor,
+      createdAt: timestamp,
     };
 
     // Add new project to array and save to localStorage
@@ -106,6 +117,10 @@ const Project = () => {
     setProjects(updatedProjects);
   };
 
+  const toggleSortOrder = () => {
+    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+  };
+
   const colorOptions = [
     { value: "#3b82f6", label: "Blue" },
     { value: "#10b981", label: "Green" },
@@ -121,10 +136,27 @@ const Project = () => {
   const getProgressValue = () => Math.floor(Math.random() * 100);
   const getTaskCount = () => Math.floor(Math.random() * 10);
 
-  // Filter projects based on search term
-  const filteredProjects = projects.filter((project) =>
-    project.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Filter projects based on search term and sort by date created
+  const filteredAndSortedProjects = projects
+    .filter((project) =>
+      project.name.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => {
+      if (sortOrder === "asc") {
+        return a.createdAt - b.createdAt; // Oldest first
+      } else {
+        return b.createdAt - a.createdAt; // Newest first
+      }
+    });
+
+  const formatDate = (timestamp) => {
+    const date = new Date(timestamp);
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
 
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
@@ -346,26 +378,15 @@ const Project = () => {
 
             <Button
               variant="outlined"
-              startIcon={<FilterListIcon />}
-              sx={{
-                borderRadius: 2,
-                textTransform: "none",
-                fontWeight: 500,
-              }}
-            >
-              Filter
-            </Button>
-
-            <Button
-              variant="outlined"
               startIcon={<SortIcon />}
+              onClick={toggleSortOrder}
               sx={{
                 borderRadius: 2,
                 textTransform: "none",
                 fontWeight: 500,
               }}
             >
-              Sort
+              {sortOrder === "desc" ? "Newest First" : "Oldest First"}
             </Button>
           </Box>
         </Box>
@@ -536,18 +557,18 @@ const Project = () => {
           }}
         >
           <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-            Your Projects ({filteredProjects.length})
+            Your Projects ({filteredAndSortedProjects.length})
           </Typography>
-          {filteredProjects.length > 0 && searchTerm && (
+          {filteredAndSortedProjects.length > 0 && searchTerm && (
             <Typography variant="body2" color="textSecondary">
-              Showing {filteredProjects.length} of {projects.length} projects
+              Showing {filteredAndSortedProjects.length} of {projects.length} projects
             </Typography>
           )}
         </Box>
 
-        {filteredProjects.length > 0 ? (
+        {filteredAndSortedProjects.length > 0 ? (
           <Grid container spacing={3}>
-            {filteredProjects.map((project) => (
+            {filteredAndSortedProjects.map((project) => (
               <Grid item xs={12} md={6} lg={4} key={project.id}>
                 <Card
                   sx={{
@@ -667,26 +688,14 @@ const Project = () => {
                       >
                         <Box sx={{ display: "flex", gap: 1 }}>
                           <Chip
-                            icon={<CheckCircleIcon fontSize="small" />}
-                            label={`${getTaskCount()} Done`}
+                            icon={<CalendarTodayIcon fontSize="small" />}
+                            label={formatDate(project.createdAt)}
                             size="small"
                             sx={{
                               fontSize: "0.75rem",
                               borderRadius: 2,
-                              bgcolor: "rgba(16, 185, 129, 0.1)",
-                              color: "#10b981",
-                              fontWeight: 500,
-                            }}
-                          />
-                          <Chip
-                            icon={<TimerIcon fontSize="small" />}
-                            label={`${getTaskCount()} In Progress`}
-                            size="small"
-                            sx={{
-                              fontSize: "0.75rem",
-                              borderRadius: 2,
-                              bgcolor: "rgba(245, 158, 11, 0.1)",
-                              color: "#f59e0b",
+                              bgcolor: "rgba(59, 130, 246, 0.1)",
+                              color: "#3b82f6",
                               fontWeight: 500,
                             }}
                           />
@@ -720,6 +729,33 @@ const Project = () => {
                             )}
                           </AvatarGroup>
                         </Box>
+                      </Box>
+
+                      <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
+                        <Chip
+                          icon={<CheckCircleIcon fontSize="small" />}
+                          label={`${getTaskCount()} Done`}
+                          size="small"
+                          sx={{
+                            fontSize: "0.75rem",
+                            borderRadius: 2,
+                            bgcolor: "rgba(16, 185, 129, 0.1)",
+                            color: "#10b981",
+                            fontWeight: 500,
+                          }}
+                        />
+                        <Chip
+                          icon={<TimerIcon fontSize="small" />}
+                          label={`${getTaskCount()} In Progress`}
+                          size="small"
+                          sx={{
+                            fontSize: "0.75rem",
+                            borderRadius: 2,
+                            bgcolor: "rgba(245, 158, 11, 0.1)",
+                            color: "#f59e0b",
+                            fontWeight: 500,
+                          }}
+                        />
                       </Box>
                     </CardContent>
                   </CardActionArea>
