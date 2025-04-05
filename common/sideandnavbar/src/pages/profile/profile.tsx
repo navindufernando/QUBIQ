@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
@@ -15,9 +15,16 @@ import CardGiftcardIcon from '@mui/icons-material/CardGiftcard';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import PublicIcon from '@mui/icons-material/Public';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
+import { profileStore } from '../settings/Settings'; // Corrected import path
 
 const Profile = () => {
   const navigate = useNavigate();
+  const [profile, setProfile] = useState(profileStore.profile);
+
+  useEffect(() => {
+    const updateProfile = () => setProfile({ ...profileStore.profile });
+    updateProfile();
+  }, []);
 
   const handleEditClick = () => {
     navigate('/settings');
@@ -27,7 +34,6 @@ const Profile = () => {
     <div className="flex flex-row">
       {/* Left Side - Profile Section */}
       <div className="w-1/3 bg-white rounded-lg shadow-sm mr-4">
-        {/* User profile section with dropdown */}
         <div className="relative">
           <div className="absolute top-4 right-4">
             <div className="dropdown">
@@ -38,9 +44,13 @@ const Profile = () => {
           </div>
           <div className="flex flex-col items-center justify-center p-8">
             <div className="w-32 h-32 mb-4 flex items-center justify-center bg-gray-100 rounded-full">
-              <PersonIcon style={{ fontSize: 80 }} className="text-gray-400" />
+              {profile.picture ? (
+                <img src={profile.picture} alt="Profile" className="w-full h-full rounded-full object-cover" />
+              ) : (
+                <PersonIcon style={{ fontSize: 80 }} className="text-gray-400" />
+              )}
             </div>
-            <h2 className="text-lg font-medium mt-2">Team Member</h2>
+            <h2 className="text-lg font-medium mt-2">{`${profile.firstName} ${profile.lastName}`}</h2>
             <p className="text-gray-600 mb-1">Gampaha</p>
             <p className="text-gray-600 mb-4">Sri Lanka</p>
             <Button 
@@ -62,7 +72,6 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* Info Items */}
         <div>
           <div className="flex items-center py-4 px-8 border-t border-gray-100">
             <div className="w-8 h-8 flex items-center justify-center mr-3">
@@ -82,14 +91,14 @@ const Profile = () => {
             <div className="w-8 h-8 flex items-center justify-center mr-3">
               <PhoneIcon className="h-5 w-5 text-gray-500" />
             </div>
-            <span className="text-gray-700">+94 70 222 4201</span>
+            <span className="text-gray-700">{profile.phone}</span>
           </div>
 
           <div className="flex items-center py-4 px-8 border-t border-gray-100">
             <div className="w-8 h-8 flex items-center justify-center mr-3">
               <EmailIcon className="h-5 w-5 text-gray-500" />
             </div>
-            <span className="text-gray-700">Kavishka@gmail.com</span>
+            <span className="text-gray-700">{profile.email}</span>
           </div>
 
           <div className="flex items-center py-4 px-8 border-t border-gray-100">
@@ -103,7 +112,6 @@ const Profile = () => {
 
       {/* Right Side - UI Developer and Projects Sections */}
       <div className="w-2/3">
-        {/* UI Developer Section with dropdown */}
         <div className="bg-white rounded-lg shadow-sm p-8 mb-4 relative">
           <div className="absolute top-4 right-4">
             <div className="dropdown">
@@ -160,25 +168,24 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* Projects Section with dropdown */}
         <div className="bg-white rounded-lg shadow-sm p-8 relative">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-medium text-gray-800">Projects</h2>
-              <a href="#" className="text-purple-600 text-sm">View all</a>
-        </div>
+            <a href="#" className="text-purple-600 text-sm">View all</a>
+          </div>
   
-        <div className="grid grid-cols-3 gap-4">
-          <div className="p-4 border border-gray-100 rounded-lg">
-            <div className="w-full h-32 bg-gray-200 rounded-lg mb-3 flex items-center justify-center">
-              <ImageIcon className="h-10 w-10 text-gray-400" />
+          <div className="grid grid-cols-3 gap-4">
+            <div className="p-4 border border-gray-100 rounded-lg">
+              <div className="w-full h-32 bg-gray-200 rounded-lg mb-3 flex items-center justify-center">
+                <ImageIcon className="h-10 w-10 text-gray-400" />
+              </div>
+              <p className="text-sm text-gray-700">E-Commerce Website</p>
             </div>
-            <p className="text-sm text-gray-700">E-Commerce Website</p>
-        </div>
             <div className="p-4 border border-gray-100 rounded-lg">
               <div className="w-full h-32 bg-gray-200 rounded-lg mb-3 flex items-center justify-center">
                 <MenuBookIcon className="h-10 w-10 text-gray-400" />
               </div>
-              <p className="text-sm text-gray-700">Traiding Platform</p>
+              <p className="text-sm text-gray-700">Trading Platform</p>
             </div>
             <div className="p-4 border border-gray-100 rounded-lg">
               <div className="w-full h-32 bg-gray-200 rounded-lg mb-3 flex items-center justify-center">
