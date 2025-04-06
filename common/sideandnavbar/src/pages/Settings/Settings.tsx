@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PersonIcon from "@mui/icons-material/Person";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import SecurityIcon from "@mui/icons-material/Security";
@@ -33,6 +33,7 @@ const profileStore = {
 const Settings = () => {
   const [activeTab, setActiveTab] = useState("profile");
   const [profilePic, setProfilePic] = useState(null);
+  const [saveStatus, setSaveStatus] = useState(null);
 
   const tabs = [
     { id: "profile", label: "Profile", icon: "user" },
@@ -76,7 +77,15 @@ const Settings = () => {
       project: formData.get("project")
     };
     profileStore.setProfile(updatedProfile);
+    setSaveStatus("Profile saved successfully!");
   };
+
+  useEffect(() => {
+    if (saveStatus) {
+      const timer = setTimeout(() => setSaveStatus(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [saveStatus]);
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -99,7 +108,13 @@ const Settings = () => {
                 Personal Information
               </h2>
 
-              <div className="flex mb-8">
+              {saveStatus && (
+                <div className="mb-4 p-3 bg-green-100 text-green-700 rounded-md">
+                  {saveStatus}
+                </div>
+              )}
+
+              <div className="flex mb-8 items-center">
                 <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mr-6">
                   {profilePic || profileStore.profile.picture ? (
                     <img src={profilePic || profileStore.profile.picture} alt="Profile" className="w-full h-full rounded-full object-cover" />
@@ -113,8 +128,18 @@ const Settings = () => {
                     type="file"
                     accept="image/*"
                     onChange={handleImageUpload}
-                    className="mt-2"
+                    className="hidden" // Hide the default file input
+                    id="profile-pic-upload"
                   />
+                  <label htmlFor="profile-pic-upload">
+                    <button
+                      type="button"
+                      className="mt-2 px-4 py-2 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-700"
+                      onClick={() => document.getElementById("profile-pic-upload").click()}
+                    >
+                      Upload Picture
+                    </button>
+                  </label>
                 </div>
               </div>
 
