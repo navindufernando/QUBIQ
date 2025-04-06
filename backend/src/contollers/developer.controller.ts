@@ -66,9 +66,10 @@ export class DeveloperController {
     //@access   public
     static async getCodeTime(req: Request, res: Response): Promise<any> {
         try{
-            const { id, timePeriod } = req.params;
-            const devId = Number(id);
-            const codeTime = await developerService.getCodeTime(devId, timePeriod);
+            const userId = req.query.userId as string;
+            const timePeriod = req.query.timePeriod as string;
+            // const { id, timePeriod } = req.params;
+            const codeTime = await developerService.getCodeTime(userId, timePeriod);
             res.status(200).json(codeTime);
         } catch (error) {
             res.status(500).json({ error: 'Failed to fetch the code time'});
@@ -80,9 +81,9 @@ export class DeveloperController {
     //@access   public
     static async getTotalCodeTime(req: Request, res: Response): Promise<any> {
         try{
-            const { id, timePeriod } = req.params;
-            const devId = Number(id);
-            const totalCodeTime = await developerService.getTotalCodeTime(devId, timePeriod);
+            const userId = req.query.userId as string;
+            const timePeriod = req.query.timePeriod as string;
+            const totalCodeTime = await developerService.getTotalCodeTime(userId, timePeriod);
             res.status(200).json(totalCodeTime);
         } catch (error) {
             res.status(500).json({ error: 'Failed to fetch the total code time'});
