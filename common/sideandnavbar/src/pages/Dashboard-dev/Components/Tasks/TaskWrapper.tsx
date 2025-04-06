@@ -50,9 +50,15 @@ const TaskWrapper: React.FC<TaskListProps> = ({
 
   return (
     <>
-      <Paper elevation={3} sx={{ p: 3, marginBottom: 4, borderRadius: 4,
-        background: "linear-gradient(to right,#F5F7FA, #ffffff)",
-      }}>
+      <Paper
+        elevation={3}
+        sx={{
+          p: 3,
+          marginBottom: 4,
+          borderRadius: 4,
+          background: "linear-gradient(to right,#F5F7FA, #ffffff)",
+        }}
+      >
         <Box
           sx={{
             display: "flex",
@@ -80,10 +86,10 @@ const TaskWrapper: React.FC<TaskListProps> = ({
           variant="middle"
           sx={{ my: 1, marginX: 4, borderBottomWidth: 4 }}
         />
-        { taskNum == 0 ? (
+        {taskNum == 0 ? (
           <Typography
-          variant="subtitle1"
-          sx={{ textAlign: "center", mt: 4, mb: 2 }}
+            variant="subtitle1"
+            sx={{ textAlign: "center", mt: 4, mb: 2 }}
           >
             There are no tasks available in this category.
           </Typography>
