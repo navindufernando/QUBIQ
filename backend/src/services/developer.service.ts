@@ -8,10 +8,7 @@ const prisma = new PrismaClient();
 export class DeveloperService {
 
     async getAllTasks(id: number) {
-        // return await prisma.task.findMany({
-        //     where: { assigneeId: id }
-        // });
-
+        
         const tasks = await prisma.task.findMany({
             where: { assigneeId: id },
             include: {

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Box } from "@mui/material";
 import TaskWrapper from "./TaskWrapper";
 import axios from "axios";
+import { useAuth } from "../../../Signup&Login/AuthContext";
 
 interface Task {
   taskName: string;
@@ -20,11 +21,15 @@ interface Task {
 
 const Tasks = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
+  const { user } = useAuth();
+  const userId = user?.id;
 
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/dev/tasks");
+        const response = await axios.get("http://localhost:3000/dev/tasks", {
+          params: { userId },
+        });
         setTasks(response.data);
       } catch (error) {
         console.error("Error fetching tasks:", error);
@@ -36,6 +41,7 @@ const Tasks = () => {
 
   useEffect(() => {
     console.log(tasks);
+    console.log(userId);
   }, [tasks]);
 
   const handleStatusChange = async (taskId: number, newStatus: string) => {

@@ -12,9 +12,9 @@ export class DeveloperController {
     //@access   public
     static async getAllTasks(req: Request, res: Response): Promise<any> {
         try {
-            // const { id } = req.params;
-            // const devId = Number(id);
-            const devId = 1;
+            const userId = req.query.userId as string;
+            const devId = Number(userId)
+            console.log(userId);
 
             const tasks = await developerService.getAllTasks(devId);
             res.status(200).json(tasks);
