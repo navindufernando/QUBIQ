@@ -35,6 +35,9 @@ interface Sprint {
 }
 
 const TaskChart = () => {
+  const [sprintSelection, setSprintSelection] = useState("all_sprints");
+  const [sprintData1, setSprintData] = useState([]);
+
   const sprintData: Sprint[] = [
     {
       id: 1,
@@ -134,7 +137,16 @@ const TaskChart = () => {
   };
 
   return (
-    <Paper elevation={3} sx={{ p: 2, width: "100%", mt: 2, borderRadius: 4, background: "linear-gradient(to right,#F5F7FA, #ffffff)" }}>
+    <Paper
+      elevation={3}
+      sx={{
+        p: 2,
+        width: "100%",
+        mt: 2,
+        borderRadius: 4,
+        background: "linear-gradient(to right,#F5F7FA, #ffffff)",
+      }}
+    >
       <Box
         sx={{
           display: "flex",

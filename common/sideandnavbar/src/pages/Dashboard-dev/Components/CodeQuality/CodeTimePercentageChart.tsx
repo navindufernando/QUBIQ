@@ -8,7 +8,6 @@ import {
   SelectChangeEvent,
   Typography,
 } from "@mui/material";
-import { Legend } from "recharts";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useAuth } from "../../../Signup&Login/AuthContext";
@@ -21,6 +20,7 @@ interface codeTimeStat {
 
 const CodeTimePercentageChart = () => {
   const [timePeriod, setTimePeriod] = useState<string>("today");
+  const [codeTimeStat, setCodeTimeStat] = useState<codeTimeStat[]>([]);
   const { user } = useAuth();
   const userId = user?.id;
 
@@ -28,20 +28,13 @@ const CodeTimePercentageChart = () => {
     setTimePeriod(event.target.value);
   };
 
-  // const codingTimeStats = [
-  //   { id: "Quality Coding Time", value: 20, color: "#02B2AF" },
-  //   { id: "Other Coding Time", value: 50, color: "#2E96FF" },
-  // ];
-
-  const [codeTimeStat, setCodeTimeStat] = useState<codeTimeStat[]>([]);
-
   useEffect(() => {
     const fetchTasks = async () => {
       try {
         const response = await axios.get(
           "http://localhost:3000/dev/codetime-total",
           {
-            params: { timePeriod },
+            params: { userId, timePeriod },
           }
         );
         setCodeTimeStat(response.data);

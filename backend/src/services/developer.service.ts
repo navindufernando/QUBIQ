@@ -2,6 +2,7 @@
 // Handles database operations related to developer dashboard using prisma
 import { PrismaClient } from "@prisma/client";
 import { subDays, startOfWeek, endOfWeek, startOfDay, endOfDay, getDay } from 'date-fns';
+import { time } from "node:console";
 
 const prisma = new PrismaClient();
 
@@ -65,7 +66,6 @@ export class DeveloperService {
     async getCodeTime(userId: string, timePeriod: string) {
         const dateFilter = this.getDateFilter(timePeriod);
 
-        // make skill codetime db
         const codeTimeRecords = await prisma.codingTime.findMany({
             where: {
                 userId: userId,
@@ -87,7 +87,6 @@ export class DeveloperService {
     async getTotalCodeTime(userId: string, timePeriod: string) {
         const dateFilter = this.getDateFilter(timePeriod);
 
-        // make skill codetime db
         const codeTimeRecords = await prisma.codingTime.findMany({
             where: {
                 userId: userId,
@@ -114,6 +113,52 @@ export class DeveloperService {
             { id: "Quality Coding Time", value: totalQualityTime.toFixed(1), color: "#02B2AF" },
             { id: "Other Coding Time", value: totalOtherTime.toFixed(1), color: "#2E96FF" },
         ];
+    }
+
+    async getCodeTimeInsight(userId: string, timePeriod: string) {
+        const dateFilter = this.getDateFilter(timePeriod);
+        
+        const codeTimeRecords = await prisma.codingTime.findMany({
+            where: {
+                userId: userId,
+                date: dateFilter
+            },
+            take: 7,
+            orderBy: {
+                date: 'asc'
+            }
+        });
+
+        console.log(codeTimeRecords)
+
+        return codeTimeRecords.map((record, i) => ({
+            weekDayIndex: i,
+            time: parseFloat((record.totalCodingTimeMinutes / 60).toFixed(1)),
+        }));
+    }
+
+    async getSprintsForDeveloper(userId: string, timePeriod: string) {
+        
+        const sprints = await prisma.sprint.findMany({
+            where: {
+                tasks: {
+                    some: {
+                        assigneeId: userId,
+                    }, 
+                },
+            },
+            include: {
+                tasks: true
+            }
+        });
+
+        // Filter tasks for the developer
+        const developerSprints = sprints.map(sprint => ({
+            ...sprint,
+            tasks: sprint.tasks.filter(task => task.developer === developerName),
+        }));
+
+        return developerSprints;
     }
 
     async updateTaskStatus(id: number, data: any) {

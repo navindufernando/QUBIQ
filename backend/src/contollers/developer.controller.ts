@@ -14,7 +14,6 @@ export class DeveloperController {
         try {
             const userId = req.query.userId as string;
             const devId = Number(userId)
-            console.log(userId);
 
             const tasks = await developerService.getAllTasks(devId);
             res.status(200).json(tasks);
@@ -68,7 +67,6 @@ export class DeveloperController {
         try{
             const userId = req.query.userId as string;
             const timePeriod = req.query.timePeriod as string;
-            // const { id, timePeriod } = req.params;
             const codeTime = await developerService.getCodeTime(userId, timePeriod);
             res.status(200).json(codeTime);
         } catch (error) {
@@ -90,14 +88,29 @@ export class DeveloperController {
         }
     }
 
+    //@desc     Get total coding time for the developer in the selected period
+    //@route    GET /dev/codetimeinsight
+    //@access   public
+    static async getCodeTimeInsight(req: Request, res: Response): Promise<any> {
+        try{
+            const userId = req.query.userId as string;
+            const timePeriod = req.query.timePeriod as string;
+            const codeTimeInsight = await developerService.getCodeTimeInsight(userId, timePeriod);
+            res.status(200).json(codeTimeInsight);
+        } catch (error) {
+            res.status(500).json({ error: 'Failed to fetch the total code time insight'});
+        }
+    }
+
     //@desc     Get all the sprints for the developer
     //@route    GET /dev/sprints
     //@access   public
-    static async getSprints(req: Request, res: Response): Promise<any> {
+    static async getSprintsForDeveloper(req: Request, res: Response): Promise<any> {
         try{
-            const { id } = req.params;
-            const devId = Number(id);
-
+            const userId = req.query.userId as string;
+            const timePeriod = req.query.timePeriod as string;
+            const sprints = await developerService.getSprintsForDeveloper(userId, timePeriod);
+            res.status(200).json(sprints);
         } catch (error) {
             res.status(500).json({ error: 'Failed to fetch the sprints'});
         }

@@ -14,14 +14,13 @@ import { useAuth } from "../../../Signup&Login/AuthContext";
 
 const DailyCodeChart = () => {
   const [timePeriod, setTimePeriod] = useState<string>("this_week");
+  const [codeTime, setCodeTime] = useState([]);
   const { user } = useAuth();
   const userId = user?.id;
 
   const handleTimePeriodChange = (event: SelectChangeEvent) => {
     setTimePeriod(event.target.value);
   };
-
-  const [codeTime, setCodeTime] = useState([]);
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -37,10 +36,6 @@ const DailyCodeChart = () => {
 
     fetchTasks();
   }, [timePeriod]);
-
-  useEffect(() => {
-    console.log(codeTime);
-  }, [codeTime]);
 
   const valueFormatter = (value: number | null) => `${value} hrs`;
 
