@@ -2,34 +2,19 @@ export interface ProjectData {
     id: string;
     name: string;
     description?: string;
-    startDate?: string;
-    endDate?: string;
-    status?: string;
     completion: number;
-    budget?: string;
-    spent?: string;
     createdAt: Date;
     updatedAt?: Date;
-    creatorId: string;
+    startDate?: string;
+    endDate?: string;
+    budget?: string;
+    spent?: string;
+    status?: string;
     creator: {
         firstName: string;
         lastName: string;
         role: string;
     };
-    objectives: Array<Objective>;
-    risks: Array<Risk>;
-    highlights: Array<Highlight>;
-    feedbackItems: FeedbackItem[];
-    communicationLogs: CommunicationLog[];
-    teamInsights: TeamInsight[];
-}
-
-export interface ProjectReview {
-    id: string;
-    projectId: string;
-    createdAt: Date;
-    updatedAt?: Date;
-    creatorId: string;
     objectives: Objective[];
     risks: Risk[];
     highlights: Highlight[];
@@ -37,6 +22,9 @@ export interface ProjectReview {
     communicationLogs: CommunicationLog[];
     teamInsights: TeamInsight[];
 }
+
+// Alias ProjectReview to ProjectData for consistency
+export type ProjectReview = ProjectData;
 
 export interface Objective {
     id: string;
@@ -68,15 +56,13 @@ export interface FeedbackItem {
     content: string;
     sentiment: string;
     date: string;
-    projectReviewId: string;
     authorId: string;
     author: {
         firstName: string;
         lastName: string;
         role: string;
-        avatar?: string | null;
     };
-    replies: Array<Reply>;
+    replies: Reply[];
 }
 
 export interface Reply {
@@ -88,7 +74,6 @@ export interface Reply {
         firstName: string;
         lastName: string;
         role: string;
-        avatar?: string | null;
     };
 }
 
