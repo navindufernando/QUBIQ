@@ -27,11 +27,9 @@ export class TeamInsightController {
             );
             res.status(201).json(teamInsight);
         } catch (error) {
-            // Assert that error is an instance of Error
             if (error instanceof Error) {
                 res.status(500).json({ message: error.message });
             } else {
-                // Handle cases where error is not an Error instance
                 res.status(500).json({ message: 'An unexpected error occurred' });
             }
         }
@@ -43,11 +41,9 @@ export class TeamInsightController {
             await teamInsightService.deleteTeamInsight(insightId);
             res.status(204).send();
         } catch (error) {
-            // Assert that error is an instance of Error
             if (error instanceof Error) {
                 res.status(500).json({ message: error.message });
             } else {
-                // Handle cases where error is not an Error instance
                 res.status(500).json({ message: 'An unexpected error occurred' });
             }
         }
