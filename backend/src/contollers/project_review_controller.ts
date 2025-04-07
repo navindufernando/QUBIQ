@@ -14,6 +14,11 @@ export class ProjectReviewController {
                 return;
             }
 
+            if (!name) {
+                res.status(400).json({ message: 'Project name is required' });
+                return;
+            }
+
             const projectReview = await projectReviewService.createProjectReview(
                 name,
                 creatorId,
@@ -41,6 +46,16 @@ export class ProjectReviewController {
                 return;
             }
             res.status(200).json(projectReview);
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+            res.status(500).json({ message: errorMessage });
+        }
+    }
+
+    async getAllProjectReviews(req: Request, res: Response): Promise<void> {
+        try {
+            const projectReviews = await projectReviewService.getAllProjectReviews();
+            res.status(200).json(projectReviews);
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
             res.status(500).json({ message: errorMessage });
