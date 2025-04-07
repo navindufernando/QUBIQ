@@ -15,8 +15,9 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import SearchIcon from "@mui/icons-material/Search";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import { FeedbackItem } from "./types";
-import apiService from "./../../../../../backend/src/services/apiService";
+import apiService from "../../services/apiService";
 import { useParams } from "react-router-dom";
+import { useAuth } from './../Signup&Login/AuthContext';
 
 interface CommentsFeedbackProps {
   feedback: FeedbackItem[];
@@ -34,7 +35,7 @@ export default function CommentsFeedback({ feedback, setFeedback, handleEditFeed
   const [showReplyInput, setShowReplyInput] = useState<{ [key: string]: boolean }>({});
 
   const { projectId } = useParams<{ projectId: string }>();
-  const token = localStorage.getItem("token") || ""; // Assume token is stored in localStorage
+  const { user } = useAuth();
 
   const handleAddComment = async () => {
     if (!newComment.trim() || !projectId) return;
@@ -43,8 +44,7 @@ export default function CommentsFeedback({ feedback, setFeedback, handleEditFeed
         projectId,
         newComment,
         newSentiment,
-        new Date().toISOString().split("T")[0],
-        token
+        new Date().toISOString().split("T")[0]
       );
       setFeedback([newFeedbackItem, ...feedback]);
       setNewComment("");
@@ -82,8 +82,7 @@ export default function CommentsFeedback({ feedback, setFeedback, handleEditFeed
       const newReply = await apiService.createReply(
         feedbackId,
         replyText,
-        new Date().toISOString().split("T")[0],
-        token
+        new Date().toISOString().split("T")[0]
       );
       setFeedback(feedback.map((item) => item.id === feedbackId ? { ...item, replies: [...item.replies, newReply] } : item));
       setReplyInputs((prev) => ({ ...prev, [feedbackId]: "" }));
@@ -95,7 +94,7 @@ export default function CommentsFeedback({ feedback, setFeedback, handleEditFeed
 
   const handleDeleteFeedback = async (id: string) => {
     try {
-      await apiService.deleteFeedback(id, token);
+      await apiService.deleteFeedback(id);
       setFeedback(feedback.filter((item) => item.id !== id));
     } catch (error) {
       console.error("Failed to delete feedback:", error);
@@ -190,8 +189,12 @@ export default function CommentsFeedback({ feedback, setFeedback, handleEditFeed
                 <Button size="small" startIcon={<ThumbUpIcon />} sx={{ borderRadius: 2, textTransform: "none" }}>Helpful</Button>
                 <Button size="small" startIcon={<ThumbDownIcon />} sx={{ borderRadius: 2, textTransform: "none" }}>Not Helpful</Button>
                 <Button size="small" onClick={() => toggleReplyInput(item.id)} sx={{ borderRadius: 2, textTransform: "none" }}>Reply</Button>
-                <Button size="small" startIcon={<EditIcon />} onClick={() => handleEditFeedback(item.id)} sx={{ borderRadius: 2, textTransform: "none" }}>Edit</Button>
-                <Button size="small" startIcon={<DeleteIcon />} onClick={() => handleDeleteFeedback(item.id)} color="error" sx={{ borderRadius: 2, textTransform: "none" }}>Delete</Button>
+                {item.authorId === user?.id && (
+                  <>
+                    <Button size="small" startIcon={<EditIcon />} onClick={() => handleEditFeedback(item.id)} sx={{ borderRadius: 2, textTransform: "none" }}>Edit</Button>
+                    <Button size="small" startIcon={<DeleteIcon />} onClick={() => handleDeleteFeedback(item.id)} color="error" sx={{ borderRadius: 2, textTransform: "none" }}>Delete</Button>
+                  </>
+                )}
               </Box>
               {showReplyInput[item.id] && (
                 <Box sx={{ mt: 2 }}>

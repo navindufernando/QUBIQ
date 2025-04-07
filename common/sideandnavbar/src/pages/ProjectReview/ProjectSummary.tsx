@@ -10,7 +10,7 @@ import ErrorIcon from "@mui/icons-material/Error";
 import WarningIcon from "@mui/icons-material/Warning";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import apiService from "./../../../../../backend/src/services/apiService";
+import apiService from "../../services/apiService";
 
 interface ProjectSummaryProps {
   project: ProjectData;

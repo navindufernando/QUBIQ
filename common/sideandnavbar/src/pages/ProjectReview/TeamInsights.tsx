@@ -6,7 +6,7 @@ import {
 } from "@mui/material";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import DeleteIcon from "@mui/icons-material/Delete";
-import apiService from "./../../../../../backend/src/services/apiService";
+import apiService from "../../services/apiService";
 import { useParams } from "react-router-dom";
 
 interface TeamInsight {
