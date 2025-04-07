@@ -1,12 +1,20 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.analyzeCode = analyzeCode;
-const eslint_1 = require("eslint");
+// import config from "eslint.config.mjs";
 async function analyzeCode(code) {
-    console.log("working");
-    const eslint = new eslint_1.ESLint();
-    const results = await eslint.lintText(code);
-    console.log(results);
+    console.log(code);
+    // const configPath = require("path").resolve(__dirname, "qubiq-extension", "D:/IIT/Year_2/SDGP/app-final/QUBIQ/qubiq-extension/eslint.config.mjs")
+    // console.log("config path: ", configPath)
+    // const eslint = new ESLint({
+    //     overrideConfigFile: configPath
+    // });
+    // try{
+    //     const results = await eslint.lintText(code);
+    //     console.log(results)
+    // } catch (err) {
+    //     console.error(err);
+    // }
     // const result = results[0];
     // const analysis = {
     //     errors: result.errorCount,
