@@ -22,9 +22,25 @@ export interface ProjectData {
         lastName: string;
         role: string;
     };
-    objectives: Array<{ id: string; content: string; createdAt: string; updatedAt: string | null }>;
-    risks: Array<{ id: string; severity: string; description: string; createdAt: string; updatedAt: string | null }>;
-    highlights: Array<{ id: string; content: string; createdAt: string; updatedAt: string | null }>;
+    objectives: Array<{
+        id: string;
+        content: string;
+        createdAt: string | Date;
+        updatedAt: string | Date | null;
+    }>;
+    risks: Array<{
+        id: string;
+        severity: string;
+        description: string;
+        createdAt: string | Date;
+        updatedAt: string | Date | null;
+    }>;
+    highlights: Array<{
+        id: string;
+        content: string;
+        createdAt: string | Date;
+        updatedAt: string | Date | null;
+    }>;
     feedbackItems: FeedbackItem[];
     communicationLogs: CommunicationLog[];
     teamInsights: TeamInsight[];
@@ -47,64 +63,34 @@ export interface FeedbackItem {
         id: string;
         content: string;
         date: string;
-        author: { firstName: string; lastName: string; role: string; avatar?: string | null };
+        author: {
+            firstName: string;
+            lastName: string;
+            role: string;
+            avatar?: string | null;
+        };
     }>;
 }
 
 export interface CommunicationLog {
     id: string;
-    stakeholder: {
-        name: string;
-        type: string;
-        contactPerson: string;
-        position: string;
-    };
+    stakeholderName: string;
+    stakeholderType: string;
+    contactPerson: string;
+    position: string;
     date: string;
     channel: string;
     sentiment: string;
     summary: string;
-    action_items: string[];
+    actionItems: string[];
 }
 
 export interface TeamInsight {
     id: string;
-    member: {
-        name: string;
-        role: string;
-    };
+    memberName: string;
+    memberRole: string;
     date: string;
     rating: number;
     content: string;
-    focus_areas: string[];
+    focusAreas: string[];
 }
-
-// Remove mock data
-export const mockProjectData: ProjectData = {
-    id: "",
-    name: "",
-    description: "",
-    startDate: "",
-    endDate: "",
-    status: "",
-    completion: 0,
-    budget: "",
-    spent: "",
-    createdAt: new Date(),
-    updatedAt: null,
-    creatorId: "",
-    creator: {
-        firstName: "",
-        lastName: "",
-        role: "",
-    },
-    objectives: [],
-    risks: [],
-    highlights: [],
-    feedbackItems: [],
-    communicationLogs: [],
-    teamInsights: [],
-};
-
-export const mockFeedback: FeedbackItem[] = [];
-export const mockCommunicationLogs: CommunicationLog[] = [];
-export const mockTeamInsights: TeamInsight[] = [];
