@@ -56,10 +56,13 @@ const CreateSprint: React.FC = () => {
     // Fetch the active sprint details
     useEffect(() => {
         const fetchSprint = async () => {
+
             if (!isAuthenticated || !user) {
                 setError('You must be logged in to view sprints');
                 return;
             }
+
+            console.log("user: ", user);
 
             try {
                 setLoading(true);
