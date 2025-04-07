@@ -21,53 +21,68 @@ import AddIcon from '@mui/icons-material/Add';
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import { profileStore } from '../settings/Settings';
+import { getProfile } from '../../services/authAPI';
+import { useAuth } from '../Signup&Login/AuthContext';
 
 const Profile = () => {
   const navigate = useNavigate();
-  const [profile, setProfile] = useState(() => {
-    const savedProfile = localStorage.getItem('profile');
-    return savedProfile ? JSON.parse(savedProfile) : profileStore.profile;
+  const { user } = useAuth();
+  const [profile, setProfile] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    bio: '',
+    picture: null,
+    city: '',
+    country: '',
+    role: '',
+    team: '',
+    project: ''
   });
   
-  // Team Members State
-  const [teamMembers, setTeamMembers] = useState(() => {
-    const savedTeam = localStorage.getItem('teamMembers');
-    return savedTeam ? JSON.parse(savedTeam) : [];
-  });
+  const [teamMembers, setTeamMembers] = useState<string[]>([]);
   const [isAdding, setIsAdding] = useState(false);
   const [newMemberName, setNewMemberName] = useState('');
-  const [editingIndex, setEditingIndex] = useState(null);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editName, setEditName] = useState('');
-  const [menuAnchorEl, setMenuAnchorEl] = useState(null);
-  const [activeMenuIndex, setActiveMenuIndex] = useState(null);
+  const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
+  const [activeMenuIndex, setActiveMenuIndex] = useState<number | null>(null);
   
-  // Projects State
-  const [projects, setProjects] = useState(() => {
+  const [projects, setProjects] = useState<{ name: string; icon: string; image: string | null }[]>([]);
+  const [isAddingProject, setIsAddingProject] = useState(false);
+  const [newProjectName, setNewProjectName] = useState('');
+  const [editingProjectIndex, setEditingProjectIndex] = useState<number | null>(null);
+  const [editProjectName, setEditProjectName] = useState('');
+  const [projectMenuAnchorEl, setProjectMenuAnchorEl] = useState<null | HTMLElement>(null);
+  const [activeProjectMenuIndex, setActiveProjectMenuIndex] = useState<number | null>(null);
+  const [selectedProjectImage, setSelectedProjectImage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await getProfile();
+        setProfile(response.data);
+      } catch (error) {
+        console.error('Failed to fetch profile:', error);
+      }
+    };
+
+    fetchProfile();
+
+    // Load team members and projects from localStorage
+    const savedTeam = localStorage.getItem('teamMembers');
+    if (savedTeam) setTeamMembers(JSON.parse(savedTeam));
+
     const savedProjects = localStorage.getItem('projects');
-    return savedProjects ? JSON.parse(savedProjects) : [
+    setProjects(savedProjects ? JSON.parse(savedProjects) : [
       { name: 'E-Commerce Website', icon: 'ImageIcon', image: null },
       { name: 'Trading Platform', icon: 'MenuBookIcon', image: null },
       { name: 'Chat Application', icon: 'CardGiftcardIcon', image: null },
       { name: 'Mobile Development', icon: 'ShoppingCartIcon', image: null },
       { name: 'Web Development', icon: 'PublicIcon', image: null },
       { name: 'Portfolio', icon: 'DarkModeIcon', image: null },
-    ];
-  });
-  const [isAddingProject, setIsAddingProject] = useState(false);
-  const [newProjectName, setNewProjectName] = useState('');
-  const [editingProjectIndex, setEditingProjectIndex] = useState(null);
-  const [editProjectName, setEditProjectName] = useState('');
-  const [projectMenuAnchorEl, setProjectMenuAnchorEl] = useState(null);
-  const [activeProjectMenuIndex, setActiveProjectMenuIndex] = useState(null);
-  const [selectedProjectImage, setSelectedProjectImage] = useState(null);
-
-  useEffect(() => {
-    const updateProfile = () => {
-      setProfile({ ...profileStore.profile });
-      localStorage.setItem('profile', JSON.stringify(profileStore.profile));
-    };
-    updateProfile();
+    ]);
   }, []);
 
   useEffect(() => {
@@ -91,13 +106,13 @@ const Profile = () => {
     }
   };
 
-  const handleEditMember = (index) => {
+  const handleEditMember = (index: number) => {
     setEditingIndex(index);
     setEditName(teamMembers[index]);
     handleCloseMenu();
   };
 
-  const handleSaveEdit = (index) => {
+  const handleSaveEdit = (index: number) => {
     if (editName.trim()) {
       const updatedMembers = [...teamMembers];
       updatedMembers[index] = editName.trim();
@@ -107,13 +122,13 @@ const Profile = () => {
     }
   };
 
-  const handleDeleteMember = (index) => {
+  const handleDeleteMember = (index: number) => {
     const updatedMembers = teamMembers.filter((_, i) => i !== index);
     setTeamMembers(updatedMembers);
     handleCloseMenu();
   };
 
-  const handleOpenMenu = (event, index) => {
+  const handleOpenMenu = (event: React.MouseEvent<HTMLElement>, index: number) => {
     setMenuAnchorEl(event.currentTarget);
     setActiveMenuIndex(index);
   };
@@ -138,13 +153,13 @@ const Profile = () => {
     }
   };
 
-  const handleEditProject = (index) => {
+  const handleEditProject = (index: number) => {
     setEditingProjectIndex(index);
     setEditProjectName(projects[index].name);
     handleCloseProjectMenu();
   };
 
-  const handleSaveProjectEdit = (index) => {
+  const handleSaveProjectEdit = (index: number) => {
     if (editProjectName.trim()) {
       const updatedProjects = [...projects];
       updatedProjects[index] = {
@@ -159,13 +174,13 @@ const Profile = () => {
     }
   };
 
-  const handleDeleteProject = (index) => {
+  const handleDeleteProject = (index: number) => {
     const updatedProjects = projects.filter((_, i) => i !== index);
     setProjects(updatedProjects);
     handleCloseProjectMenu();
   };
 
-  const handleOpenProjectMenu = (event, index) => {
+  const handleOpenProjectMenu = (event: React.MouseEvent<HTMLElement>, index: number) => {
     setProjectMenuAnchorEl(event.currentTarget);
     setActiveProjectMenuIndex(index);
   };
@@ -175,18 +190,18 @@ const Profile = () => {
     setActiveProjectMenuIndex(null);
   };
 
-  const handleProjectImageChange = (event) => {
-    const file = event.target.files[0];
+  const handleProjectImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setSelectedProjectImage(reader.result);
+        setSelectedProjectImage(reader.result as string);
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const getIconComponent = (iconName) => {
+  const getIconComponent = (iconName: string) => {
     switch (iconName) {
       case 'ImageIcon': return <ImageIcon className="h-10 w-10 text-gray-400" />;
       case 'MenuBookIcon': return <MenuBookIcon className="h-10 w-10 text-gray-400" />;
@@ -361,11 +376,11 @@ const Profile = () => {
             open={Boolean(menuAnchorEl)}
             onClose={handleCloseMenu}
           >
-            <MenuItem onClick={() => handleEditMember(activeMenuIndex)}>
+            <MenuItem onClick={() => handleEditMember(activeMenuIndex!)}>
               <EditIcon fontSize="small" className="mr-2 text-gray-600" />
               Edit
             </MenuItem>
-            <MenuItem onClick={() => handleDeleteMember(activeMenuIndex)}>
+            <MenuItem onClick={() => handleDeleteMember(activeMenuIndex!)}>
               <DeleteIcon fontSize="small" className="mr-2 text-gray-600" />
               Delete
             </MenuItem>
@@ -414,7 +429,7 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* Projects Section with Edit/Delete/Add Functionality */}
+        {/* Projects Section */}
         <div className="bg-white rounded-lg shadow-sm p-8 relative">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-medium text-gray-800">Projects</h2>
@@ -513,7 +528,7 @@ const Profile = () => {
             )}
           </div>
 
-          {/* Context Menu for Edit/Delete Projects */}
+          {/* Context Menu for Projects */}
           <Menu
             id={`project-menu-${activeProjectMenuIndex}`}
             anchorEl={projectMenuAnchorEl}
@@ -521,11 +536,11 @@ const Profile = () => {
             open={Boolean(projectMenuAnchorEl)}
             onClose={handleCloseProjectMenu}
           >
-            <MenuItem onClick={() => handleEditProject(activeProjectMenuIndex)}>
+            <MenuItem onClick={() => handleEditProject(activeProjectMenuIndex!)}>
               <EditIcon fontSize="small" className="mr-2 text-gray-600" />
               Edit
             </MenuItem>
-            <MenuItem onClick={() => handleDeleteProject(activeProjectMenuIndex)}>
+            <MenuItem onClick={() => handleDeleteProject(activeProjectMenuIndex!)}>
               <DeleteIcon fontSize="small" className="mr-2 text-gray-600" />
               Delete
             </MenuItem>
