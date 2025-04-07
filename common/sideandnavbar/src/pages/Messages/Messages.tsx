@@ -1,25 +1,28 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
-  Box, 
-  Typography, 
-  TextField, 
-  Button, 
-  Paper, 
-  List,
-  ListItem,
-  ListItemText,
-  InputAdornment,
-  Avatar,
-  IconButton,
-  Menu,
-  MenuItem,
-  ThemeProvider,
-  createTheme
+  Box, Typography, TextField, Button, Paper, List, ListItem, 
+  ListItemText, InputAdornment, Avatar, IconButton, ThemeProvider, createTheme 
 } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import SearchIcon from '@mui/icons-material/Search';
-import AttachFileIcon from '@mui/icons-material/AttachFile';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
+
+// Types
+interface Message {
+  id: number;
+  text: string;
+  timestamp: string;
+  sender: 'user' | 'ASANA';
+  senderName: string;
+  avatarUrl?: string;
+}
+
+interface Chat {
+  id: number;
+  name: string;
+  is_group: boolean;
+  last_message?: string;
+  last_message_time?: string;
+}
 
 const theme = createTheme({
   palette: {
@@ -38,116 +41,81 @@ const theme = createTheme({
   typography: {
     fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
   },
-  components: {
-    MuiButton: {
-      styleOverrides: {
-        root: {
-          textTransform: 'none',
-        },
-      },
-    },
-  },
 });
 
-interface Message {
-  id: number;
-  text: string;
-  timestamp: string;
-  sender: 'user' | 'ASANA';
-}
-
-interface Chat {
-  id: number;
-  name: string;
-  messages: Message[];
-}
-
 const ChatInbox = () => {
-  const [chats, setChats] = useState<Chat[]>([
-    {
-      id: 1,
-      name: 'Inuthi',
-      messages: [
-        {
-          id: 1,
-          text: "Hi Navindu,\nAre you free for a quick call?",
-          timestamp: "10:34 AM",
-          sender: "ASANA"
-        },
-        {
-          id: 2,
-          text: "Yes, I'm free",
-          timestamp: "8:54 PM",
-          sender: "user"
-        }
-      ]
-    },
-    {
-      id: 2,
-      name: 'Timothy',
-      messages: [
-        {
-          id: 3,
-          text: "I will schedule a meeting",
-          timestamp: "9:38 PM",
-          sender: "ASANA"
-        }
-      ]
-    },
-    {
-      id: 3,
-      name: 'ASANA',
-      messages: [
-        {
-          id: 4,
-          text: "Reminder on today's design review meeting",
-          timestamp: "1:05 PM",
-          sender: "ASANA"
-        }
-      ]
-    }
-  ]);
-
-  const [selectedChat, setSelectedChat] = useState<Chat | null>(chats[0]);
+  const [chats, setChats] = useState<Chat[]>([]);
+  const [selectedChat, setSelectedChat] = useState<Chat | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  
-  // Menu state
-  const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
-  const open = Boolean(menuAnchorEl);
-  
-  const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
-    setMenuAnchorEl(event.currentTarget);
-  };
-  
-  const handleMenuClose = () => {
-    setMenuAnchorEl(null);
-  };
+  const currentUserId = 4; // Assuming the current user has ID 4
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
+  // Fetch chats on component mount
   useEffect(() => {
-    scrollToBottom();
-  }, [selectedChat?.messages]);
+    const fetchChats = async () => {
+      try {
+        const response = await fetch(`http://localhost:5000/api/chats/${currentUserId}`);
+        const data = await response.json();
+        setChats(data);
+        if (data.length > 0) {
+          setSelectedChat(data[0]);
+        }
+      } catch (error) {
+        console.error('Error fetching chats:', error);
+      }
+    };
+    fetchChats();
+  }, []);
 
-  const handleSendMessage = () => {
+  // Fetch messages when selected chat changes
+  useEffect(() => {
+    if (selectedChat) {
+      const fetchMessages = async () => {
+        try {
+          const response = await fetch(`http://localhost:5000/api/chats/${selectedChat.id}/messages`);
+          const data = await response.json();
+          setMessages(data);
+        } catch (error) {
+          console.error('Error fetching messages:', error);
+        }
+      };
+      fetchMessages();
+    }
+  }, [selectedChat]);
+
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  const handleSendMessage = async () => {
     if (newMessage.trim() && selectedChat) {
-      const message: Message = {
-        id: selectedChat.messages.length + 1,
-        text: newMessage,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        sender: 'user'
-      };
-      const updatedChat = {
-        ...selectedChat,
-        messages: [...selectedChat.messages, message]
-      };
-      setChats(chats.map(chat => chat.id === updatedChat.id ? updatedChat : chat));
-      setSelectedChat(updatedChat);
-      setNewMessage('');
+      try {
+        const response = await fetch(`http://localhost:5000/api/chats/${selectedChat.id}/messages`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            text: newMessage,
+            senderId: currentUserId
+          })
+        });
+        
+        if (response.ok) {
+          const newMsg = await response.json();
+          setMessages([...messages, {
+            id: newMsg.id,
+            text: newMsg.text,
+            timestamp: new Date(newMsg.sent_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            sender: 'user',
+            senderName: 'You'
+          }]);
+          setNewMessage('');
+        }
+      } catch (error) {
+        console.error('Error sending message:', error);
+      }
     }
   };
 
@@ -158,9 +126,15 @@ const ChatInbox = () => {
     }
   };
 
-  const filteredChats = chats.filter(chat =>
-    chat.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const handleSearch = async () => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/chats/search?query=${searchQuery}&userId=${currentUserId}`);
+      const data = await response.json();
+      setChats(data);
+    } catch (error) {
+      console.error('Error searching chats:', error);
+    }
+  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -168,89 +142,39 @@ const ChatInbox = () => {
         {/* Chat Inbox */}
         <Box sx={{ display: 'flex', flexDirection: 'column', width: '75%', bgcolor: 'background.paper' }}>
           {/* Chat Header */}
-          <Box sx={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'space-between', 
-            p: 2, 
-            borderBottom: 1, 
-            borderColor: 'divider',
-            bgcolor: 'background.paper'
-          }}>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Avatar 
-                src="" 
-                alt={selectedChat?.name}
-                sx={{ width: 40, height: 40, mr: 1.5 }}
-              />
-              <Box>
-                <Typography variant="subtitle1" fontWeight="medium">
-                  {selectedChat ? selectedChat.name : 'Select a chat'}
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  {selectedChat ? 'Last seen 25 min ago' : ''}
-                </Typography>
+          {selectedChat && (
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 2, borderBottom: 1, borderColor: 'divider' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <Avatar src="" alt={selectedChat.name} sx={{ width: 40, height: 40, mr: 1.5 }} />
+                <Typography variant="subtitle1" fontWeight="medium">{selectedChat.name}</Typography>
               </Box>
             </Box>
-            <IconButton>
-              <MoreVertIcon />
-            </IconButton>
-          </Box>
+          )}
 
           {/* Messages Container */}
-          <Box sx={{ 
-            flexGrow: 1, 
-            overflowY: 'auto', 
-            p: 2, 
-            bgcolor: '#f8f9fa', 
-            display: 'flex', 
-            flexDirection: 'column', 
-            gap: 2
-          }}>
-            {selectedChat ? (
-              selectedChat.messages.map((message) => (
-                <Box 
-                  key={message.id} 
-                  sx={{ 
-                    display: 'flex', 
-                    justifyContent: message.sender === 'user' ? 'flex-end' : 'flex-start',
-                  }}
-                >
+          <Box sx={{ flexGrow: 1, overflowY: 'auto', p: 2, bgcolor: '#f8f9fa', display: 'flex', flexDirection: 'column', gap: 2 }}>
+            {messages.length > 0 ? (
+              messages.map((message) => (
+                <Box key={message.id} sx={{ display: 'flex', justifyContent: message.sender === 'user' ? 'flex-end' : 'flex-start' }}>
                   {message.sender !== 'user' && (
-                    <Avatar 
-                      src="" 
-                      alt={selectedChat.name}
-                      sx={{ 
-                        width: 32, 
-                        height: 32, 
-                        mr: 1,
-                        alignSelf: 'flex-end',
-                        mb: 0.5
-                      }}
-                    />
+                    <Avatar src={message.avatarUrl} alt={message.senderName} sx={{ width: 32, height: 32, mr: 1, alignSelf: 'flex-end', mb: 0.5 }} />
                   )}
-                  <Paper 
-                    elevation={0}
-                    sx={{ 
-                      maxWidth: '70%', 
-                      p: 1.5, 
-                      borderRadius: 2,
-                      bgcolor: message.sender === 'user' ? '#9f86ff' : 'white',
-                      color: message.sender === 'user' ? 'white' : 'inherit',
-                      boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
-                    }}
-                  >
-                    <Typography 
-                      variant="body2" 
-                      sx={{ whiteSpace: 'pre-wrap', lineHeight: 1.5 }}
-                    >
+                  <Paper elevation={0} sx={{ 
+                    maxWidth: '70%', 
+                    p: 1.5, 
+                    borderRadius: 2,
+                    bgcolor: message.sender === 'user' ? '#9f86ff' : 'white',
+                    color: message.sender === 'user' ? 'white' : 'inherit'
+                  }}>
+                    {message.sender !== 'user' && (
+                      <Typography variant="caption" fontWeight="bold" sx={{ display: 'block', mb: 0.5 }}>
+                        {message.senderName}
+                      </Typography>
+                    )}
+                    <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', lineHeight: 1.5 }}>
                       {message.text}
                     </Typography>
-                    <Typography 
-                      variant="caption" 
-                      color={message.sender === 'user' ? 'rgba(255,255,255,0.8)' : 'text.secondary'} 
-                      sx={{ mt: 0.5, display: 'block', textAlign: 'right' }}
-                    >
+                    <Typography variant="caption" color={message.sender === 'user' ? 'rgba(255,255,255,0.8)' : 'text.secondary'} sx={{ mt: 0.5, display: 'block', textAlign: 'right' }}>
                       {message.timestamp}
                     </Typography>
                   </Paper>
@@ -258,7 +182,7 @@ const ChatInbox = () => {
               ))
             ) : (
               <Typography variant="body2" sx={{ textAlign: 'center', color: 'text.secondary', mt: 4 }}>
-                Select a chat to view messages
+                {selectedChat ? 'No messages yet' : 'Select a chat to view messages'}
               </Typography>
             )}
             <div ref={messagesEndRef} />
@@ -266,21 +190,8 @@ const ChatInbox = () => {
 
           {/* Message Input */}
           {selectedChat && (
-            <Box sx={{ 
-              p: 2, 
-              bgcolor: 'background.paper', 
-              borderTop: 1, 
-              borderColor: 'divider' 
-            }}>
-              <Box sx={{ 
-                display: 'flex', 
-                gap: 1, 
-                alignItems: 'flex-end', 
-                bgcolor: '#f5f5f5', 
-                borderRadius: 2, 
-                p: 0.5, 
-                pl: 2 
-              }}>
+            <Box sx={{ p: 2, bgcolor: 'background.paper', borderTop: 1, borderColor: 'divider' }}>
+              <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-end', bgcolor: '#f5f5f5', borderRadius: 2, p: 0.5, pl: 2 }}>
                 <TextField
                   multiline
                   maxRows={4}
@@ -290,33 +201,9 @@ const ChatInbox = () => {
                   placeholder="Type a message..."
                   fullWidth
                   variant="standard"
-                  InputProps={{
-                    disableUnderline: true,
-                    sx: { 
-                      fontSize: '0.9rem', 
-                      fontFamily: "'Segoe UI', sans-serif",
-                      minHeight: '36px',
-                      maxHeight: '100px',
-                      pt: 0.75,
-                      pb: 0.75
-                    }
-                  }}
+                  InputProps={{ disableUnderline: true }}
                 />
-                <IconButton size="small" sx={{ color: 'text.secondary', mr: 0.5 }}>
-                  <AttachFileIcon fontSize="small" />
-                </IconButton>
-                <IconButton 
-                  onClick={handleSendMessage}
-                  sx={{ 
-                    bgcolor: 'primary.main', 
-                    color: 'white',
-                    borderRadius: 1.5,
-                    p: 1,
-                    '&:hover': {
-                      bgcolor: 'primary.dark',
-                    }
-                  }}
-                >
+                <IconButton onClick={handleSendMessage} sx={{ bgcolor: 'primary.main', color: 'white', borderRadius: 1.5, p: 1 }}>
                   <SendIcon fontSize="small" />
                 </IconButton>
               </Box>
@@ -325,23 +212,13 @@ const ChatInbox = () => {
         </Box>
 
         {/* Right Sidebar */}
-        <Box sx={{ 
-          width: '25%', 
-          height: '100%', 
-          bgcolor: '#E2DDFF',
-          display: 'flex',
-          flexDirection: 'column'
-        }}>
-          <Box sx={{ 
-            p: 1, 
-            display: 'flex', 
-            alignItems: 'center',
-            justifyContent: 'space-between'
-          }}>
+        <Box sx={{ width: '25%', height: '100%', bgcolor: '#E2DDFF', display: 'flex', flexDirection: 'column' }}>
+          <Box sx={{ p: 1, display: 'flex', alignItems: 'center' }}>
             <TextField
               placeholder="Search chats..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
               size="small"
               InputProps={{
                 startAdornment: (
@@ -349,82 +226,15 @@ const ChatInbox = () => {
                     <SearchIcon sx={{ fontSize: '0.8rem' }} />
                   </InputAdornment>
                 ),
-                sx: { 
-                  bgcolor: 'background.paper', 
-                  borderRadius: 1.5,
-                  fontSize: '0.7rem',
-                  height: '28px',
-                  '& .MuiOutlinedInput-input': {
-                    padding: '4px 8px 4px 0'
-                  }
-                }
+                sx: { bgcolor: 'background.paper', borderRadius: 1.5, fontSize: '0.7rem', height: '28px' }
               }}
-              sx={{
-                width: '75%',
-                maxWidth: '160px',
-                '& .MuiInputAdornment-root': {
-                  marginRight: 0
-                }
-              }}
+              sx={{ width: '100%', maxWidth: '160px' }}
             />
-            <IconButton 
-              size="small"
-              onClick={handleMenuClick}
-              aria-controls={open ? "options-menu" : undefined}
-              aria-haspopup="true"
-              aria-expanded={open ? "true" : undefined}
-              sx={{ 
-                color: 'primary.dark',
-                bgcolor: 'background.paper',
-                width: 28,
-                height: 28
-              }}
-            >
-              <MoreVertIcon fontSize="small" />
-            </IconButton>
-            <Menu
-              id="options-menu"
-              anchorEl={menuAnchorEl}
-              open={open}
-              onClose={handleMenuClose}
-              MenuListProps={{
-                'aria-labelledby': 'options-button',
-              }}
-              anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'right',
-              }}
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              PaperProps={{
-                sx: {
-                  bgcolor: '#f5f5f5',
-                  width: 180,
-                  mt: 0.5,
-                  boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-                  '& .MuiMenuItem-root': {
-                    fontSize: '0.9rem',
-                    py: 1
-                  }
-                }
-              }}
-            >
-              <MenuItem onClick={handleMenuClose}>Create a group</MenuItem>
-              <MenuItem onClick={handleMenuClose}>Delete messages</MenuItem>
-              <MenuItem onClick={handleMenuClose}>Personal chats</MenuItem>
-              <MenuItem onClick={handleMenuClose}>Board meetings</MenuItem>
-            </Menu>
           </Box>
 
           {/* Chat List */}
-          <List sx={{ 
-            overflowY: 'auto', 
-            flexGrow: 1,
-            padding: 0
-          }}>
-            {filteredChats.map(chat => (
+          <List sx={{ overflowY: 'auto', flexGrow: 1, padding: 0 }}>
+            {chats.map(chat => (
               <ListItem 
                 key={chat.id}
                 onClick={() => setSelectedChat(chat)}
@@ -432,9 +242,7 @@ const ChatInbox = () => {
                   p: 1.5, 
                   cursor: 'pointer',
                   bgcolor: selectedChat?.id === chat.id ? '#D1C8FF' : 'transparent',
-                  '&:hover': {
-                    bgcolor: '#D1C8FF'
-                  }
+                  '&:hover': { bgcolor: '#D1C8FF' }
                 }}
               >
                 <Avatar sx={{ mr: 1.5, width: 36, height: 36 }} />
@@ -442,8 +250,8 @@ const ChatInbox = () => {
                   primary={<Typography fontWeight="bold">{chat.name}</Typography>} 
                   secondary={
                     <Typography variant="caption" color="text.secondary" noWrap>
-                      {chat.messages[chat.messages.length-1]?.text.substring(0, 25)}
-                      {chat.messages[chat.messages.length-1]?.text.length > 25 ? '...' : ''}
+                      {chat.last_message?.substring(0, 25)}
+                      {chat.last_message && chat.last_message.length > 25 ? '...' : ''}
                     </Typography>
                   }
                 />
