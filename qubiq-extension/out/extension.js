@@ -39,14 +39,7 @@ const vscode = __importStar(require("vscode"));
 const codeAnalyzer_1 = require("./codeAnalyzer");
 async function activate(context) {
     console.log('Congratulations 🎉, Qubiq Extension Activated!');
-    // let disposable = vscode.commands.registerCommand("qubiq-extension.helloWorld", function () {
-    // 	console.log("pass")
-    // 	vscode.window.showInformationMessage("Test passed!");
-    // });
-    // context.subscriptions.push(disposable) ;
     const disposable = vscode.workspace.onDidSaveTextDocument(document => {
-        // console.log(`✅ File saved: ${document.uri.fsPath}`);
-        // console.log('🟢 Qubiq Extension Activated');
         const code = document.getText();
         (0, codeAnalyzer_1.analyzeCode)(code);
     });

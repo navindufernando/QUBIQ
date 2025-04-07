@@ -1,7 +1,14 @@
 // developer.service.ts 
 // Handles database operations related to developer dashboard using prisma
 import { PrismaClient } from "@prisma/client";
+import axios from "axios";
 import { subDays, startOfWeek, endOfWeek, startOfDay, endOfDay, getDay } from 'date-fns';
+import { OpenAI } from "openai";
+
+// Initialize OpenAI with your API key
+const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
 
 const prisma = new PrismaClient();
 
@@ -133,6 +140,40 @@ export class DeveloperService {
             where: { id },
             data
         });
+    }
+
+    async getCodeAnalysis(code: string) {
+        try {
+            const response = await openai.chat.completions.create({
+                model: "gpt-4o-mini", // Or you can use gpt-4 if available
+                messages: [
+                    { 
+                        role: "system", 
+                        content: "You are a code reviewer that provides short, focused improvement tips"
+                    }, 
+                    { 
+                        role: "user", 
+                        content: `Here is a the code:\n\n${code}\n\nGive me only 2 suggestions. Each should include:
+                        - "issueType":
+                        - "description": a very short reason (max 14 words)
+
+                        Respond in **JSON array format** only, like this:
+                        [
+                        { "issueType": "", "description": "" },
+                        { "issueType": "", "description": "" }
+                        ]
+
+                        Do not include anything else in the output` 
+                    }
+                ],
+                temperature: 0.7,
+                max_tokens: 150,
+            });
+            console.log(response.choices[0].message.content);
+        } catch (error) {
+            console.log(error);
+        }
+        return
     }
 
     // Helper func to get dateFilter

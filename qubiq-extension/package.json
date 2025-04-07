@@ -10,7 +10,6 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:qubiq-extension.helloWorld",
     "onStartupFinished",
     "onDidSaveTextDocument"
   ],

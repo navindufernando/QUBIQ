@@ -12,6 +12,8 @@ DeveloperRouter.get('/skillimp', DeveloperController.getSkillImprovements);
 DeveloperRouter.get('/codetime', DeveloperController.getCodeTime);
 DeveloperRouter.get('/codetime-total', DeveloperController.getTotalCodeTime);
 
+DeveloperRouter.post('/devcode', DeveloperController.getCodeAnalysis);
+
 DeveloperRouter.patch('/tasks/:id', DeveloperController.updateTaskStatus);
 // DeveloperRouter.get('/sprints', DeveloperController.getSprints);
 
