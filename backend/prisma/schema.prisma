@@ -35,6 +35,11 @@ model User {
   comments          Comment[]
   notifications     Notification[]
   sprints           Sprint[]
+  projectReviews    ProjectReview[]     // Relation to new ProjectReview model
+  feedbackItems     FeedbackItem[]      // Relation to new FeedbackItem model
+  communicationLogs CommunicationLog[]  // Relation to new CommunicationLog model
+  teamInsights      TeamInsight[]       // Relation to new TeamInsight model
+  replies           Reply[]             // Added missing relation to Reply model
   
   @@unique([email, role])
   @@index([email])
@@ -203,4 +208,128 @@ model LoginAttempt {
   @@index([email])
   @@index([ipAddress])
   @@index([createdAt])
+}
+
+// New models for ProjectReview feature
+model ProjectReview {
+  id           String         @id @default(uuid())
+  name         String
+  description  String?
+  startDate    String?
+  endDate      String?
+  status       String?
+  completion   Int            @default(0)
+  budget       String?
+  spent        String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime?      @updatedAt
+  creatorId    String
+  creator      User           @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  objectives   Objective[]
+  risks        Risk[]
+  highlights   Highlight[]
+  feedbackItems FeedbackItem[]
+  communicationLogs CommunicationLog[]
+  teamInsights TeamInsight[]
+
+  @@index([creatorId])
+}
+
+model Objective {
+  id           String        @id @default(uuid())
+  content      String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime?     @updatedAt
+  projectReviewId String
+  projectReview ProjectReview @relation(fields: [projectReviewId], references: [id], onDelete: Cascade)
+
+  @@index([projectReviewId])
+}
+
+model Risk {
+  id           String        @id @default(uuid())
+  severity     String
+  description  String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime?     @updatedAt
+  projectReviewId String
+  projectReview ProjectReview @relation(fields: [projectReviewId], references: [id], onDelete: Cascade)
+
+  @@index([projectReviewId])
+}
+
+model Highlight {
+  id           String        @id @default(uuid())
+  content      String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime?     @updatedAt
+  projectReviewId String
+  projectReview ProjectReview @relation(fields: [projectReviewId], references: [id], onDelete: Cascade)
+
+  @@index([projectReviewId])
+}
+
+model FeedbackItem {
+  id           String        @id @default(uuid())
+  content      String
+  sentiment    String
+  date         String
+  projectReviewId String
+  projectReview ProjectReview @relation(fields: [projectReviewId], references: [id], onDelete: Cascade)
+  authorId     String
+  author       User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  replies      Reply[]
+
+  @@index([projectReviewId])
+  @@index([authorId])
+}
+
+model Reply {
+  id           String        @id @default(uuid())
+  content      String
+  date         String
+  feedbackItemId String
+  feedbackItem FeedbackItem @relation(fields: [feedbackItemId], references: [id], onDelete: Cascade)
+  authorId     String
+  author       User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([feedbackItemId])
+  @@index([authorId])
+}
+
+model CommunicationLog {
+  id           String        @id @default(uuid())
+  stakeholderName String
+  stakeholderType String
+  contactPerson String
+  position     String
+  date         String
+  channel      String
+  sentiment    String
+  summary      String
+  actionItems  String[]      // Array of action items
+  projectReviewId String
+  projectReview ProjectReview @relation(fields: [projectReviewId], references: [id], onDelete: Cascade)
+  creatorId    String
+  creator      User          @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+  @@index([projectReviewId])
+  @@index([creatorId])
+}
+
+model TeamInsight {
+  id           String        @id @default(uuid())
+  memberName   String
+  memberRole   String
+  date         String
+  rating       Float
+  content      String
+  focusAreas   String[]      // Array of focus areas
+  projectReviewId String
+  projectReview ProjectReview @relation(fields: [projectReviewId], references: [id], onDelete: Cascade)
+  creatorId    String
+  creator      User          @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+  @@index([projectReviewId])
+  @@index([creatorId])
 }
