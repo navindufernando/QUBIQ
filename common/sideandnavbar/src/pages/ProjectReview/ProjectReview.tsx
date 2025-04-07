@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   Container, Paper, Typography, Box, Divider, Tabs, Tab, IconButton, Button, Menu, MenuItem
 } from "@mui/material";
@@ -12,6 +12,7 @@ import InfoIcon from "@mui/icons-material/Info";
 import ForumIcon from "@mui/icons-material/Forum";
 import GroupIcon from "@mui/icons-material/Group";
 import BusinessIcon from "@mui/icons-material/Business";
+import DeleteIcon from "@mui/icons-material/Delete"; // Added for reset button
 import TabPanel from "./reusablecomponents/TabPanel";
 import EditDialog from "./reusablecomponents/EditDialog";
 import ProjectSummary from "./ProjectSummary";
@@ -41,8 +42,53 @@ export default function ProjectReviewComponent() {
   const [editFeedbackId, setEditFeedbackId] = useState<string | null>(null);
   const [editFeedbackContent, setEditFeedbackContent] = useState("");
   const [editFeedbackSentiment, setEditFeedbackSentiment] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
+
+  useEffect(() => {
+    const fetchProjectData = async () => {
+      if (!isAuthenticated) {
+        return;
+      }
+      
+      try {
+        setIsLoading(true);
+        
+        if (id) {
+          const projectData = await apiService.getProjectReview(id);
+          setProject(projectData);
+          setProjectId(id);
+          setFeedback(projectData.feedbackItems || []);
+          setCommunicationLogs(projectData.communicationLogs || []);
+          setTeamInsights(projectData.teamInsights || []);
+        } else {
+          const storedProjectId = localStorage.getItem('currentProjectId');
+          if (storedProjectId) {
+            const projectData = await apiService.getProjectReview(storedProjectId);
+            setProject(projectData);
+            setProjectId(storedProjectId);
+            setFeedback(projectData.feedbackItems || []);
+            setCommunicationLogs(projectData.communicationLogs || []);
+            setTeamInsights(projectData.teamInsights || []);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch project data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProjectData();
+  }, [isAuthenticated, id]);
+
+  useEffect(() => {
+    if (projectId) {
+      localStorage.setItem('currentProjectId', projectId);
+    }
+  }, [projectId]);
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -94,7 +140,7 @@ export default function ProjectReviewComponent() {
           communicationLogs: [],
           teamInsights: [],
         };
-        setProjectId(response.id); // Set projectId after creation
+        setProjectId(response.id);
       }
       setProject(newProjectData);
       setFeedback(newProjectData.feedbackItems || []);
@@ -192,6 +238,37 @@ export default function ProjectReviewComponent() {
     }
   };
 
+  // New reset function
+  const handleResetProject = async () => {
+    if (!projectId || user?.role !== 'PM') return;
+    try {
+      // Optionally delete the project from the backend
+      await apiService.deleteProjectReview(projectId);
+      // Clear local state
+      setProject(null);
+      setProjectId(null);
+      setFeedback([]);
+      setCommunicationLogs([]);
+      setTeamInsights([]);
+      localStorage.removeItem('currentProjectId');
+    } catch (error) {
+      console.error("Failed to reset project:", error);
+    }
+  };
+
+  if (!isAuthenticated) {
+    navigate('/login');
+    return null;
+  }
+
+  if (isLoading) {
+    return (
+      <Container maxWidth="xl" sx={{ py: 4, minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <Typography variant="h5">Loading project data...</Typography>
+      </Container>
+    );
+  }
+
   const hasContent = project && (
     project.name ||
     project.description ||
@@ -202,11 +279,6 @@ export default function ProjectReviewComponent() {
     communicationLogs.length > 0 ||
     teamInsights.length > 0
   );
-
-  if (!isAuthenticated) {
-    navigate('/login');
-    return null;
-  }
 
   if (!hasContent) {
     return (
@@ -264,6 +336,9 @@ export default function ProjectReviewComponent() {
           <Box sx={{ display: "flex", gap: 2 }}>
             <Button variant="outlined" startIcon={<CalendarTodayIcon />} sx={{ borderRadius: 2, textTransform: "none", fontWeight: 500, borderColor: "#64748b", color: "#64748b" }}>Export Report</Button>
             <Button variant="contained" startIcon={<AssessmentIcon />} sx={{ borderRadius: 2, textTransform: "none", fontWeight: 500, boxShadow: 2, bgcolor: "#3b82f6", "&:hover": { bgcolor: "#2563eb" } }}>Generate Insights</Button>
+            {user?.role === 'PM' && ( // Only PMs can reset
+              <Button variant="outlined" startIcon={<DeleteIcon />} color="error" onClick={handleResetProject} sx={{ borderRadius: 2, textTransform: "none", fontWeight: 500 }}>Reset Project</Button>
+            )}
             <IconButton aria-label="more options" onClick={handleMenuClick} sx={{ ml: 1 }}><MoreVertIcon /></IconButton>
             <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
               <MenuItem onClick={handleMenuClose}>Print Report</MenuItem>
