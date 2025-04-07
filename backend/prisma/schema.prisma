@@ -20,6 +20,13 @@ model User {
   email             String
   password          String?
   role              UserRole
+  phone             String?
+  bio               String?
+  picture           String?
+  city              String?
+  country           String?
+  team              String?
+  project           String?
   emailVerified     Boolean             @default(false)
   verificationToken String?
   resetToken        String?
