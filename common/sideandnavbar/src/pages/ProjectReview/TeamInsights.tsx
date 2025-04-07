@@ -6,17 +6,17 @@ import {
 } from "@mui/material";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import DeleteIcon from "@mui/icons-material/Delete";
+import apiService from "./../../../../../backend/src/services/apiService";
+import { useParams } from "react-router-dom";
 
 interface TeamInsight {
   id: string;
-  member: {
-    name: string;
-    role: string;
-  };
+  memberName: string;
+  memberRole: string;
   date: string;
   rating: number;
   content: string;
-  focus_areas: string[];
+  focusAreas: string[];
 }
 
 interface TeamInsightsProps {
@@ -29,80 +29,74 @@ export default function TeamInsights({ teamInsights: initialInsights }: TeamInsi
   const [openDialog, setOpenDialog] = useState(false);
   const [filterName, setFilterName] = useState<string>("");
   const [newInsight, setNewInsight] = useState({
-    member: {
-      name: "",
-      role: ""
-    },
+    memberName: "",
+    memberRole: "",
     date: new Date().toISOString().split("T")[0],
     rating: 0,
     content: "",
-    focus_areas: [""]
+    focusAreas: [""]
   });
+
+  const { projectId } = useParams<{ projectId: string }>();
+  const token = localStorage.getItem("token") || ""; // Assume token is stored in localStorage
 
   const handleOpenDialog = () => setOpenDialog(true);
   const handleCloseDialog = () => setOpenDialog(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    if (name.includes("member.")) {
-      const field = name.split(".")[1];
-      setNewInsight({
-        ...newInsight,
-        member: {
-          ...newInsight.member,
-          [field]: value
-        }
-      });
-    } else {
-      setNewInsight({
-        ...newInsight,
-        [name]: value
-      });
-    }
+    setNewInsight({ ...newInsight, [name]: value });
   };
 
   const handleFocusAreaChange = (index: number, value: string) => {
-    const newFocusAreas = [...newInsight.focus_areas];
+    const newFocusAreas = [...newInsight.focusAreas];
     newFocusAreas[index] = value;
-    setNewInsight({
-      ...newInsight,
-      focus_areas: newFocusAreas
-    });
+    setNewInsight({ ...newInsight, focusAreas: newFocusAreas });
   };
 
   const addFocusArea = () => {
-    setNewInsight({
-      ...newInsight,
-      focus_areas: [...newInsight.focus_areas, ""]
-    });
+    setNewInsight({ ...newInsight, focusAreas: [...newInsight.focusAreas, ""] });
   };
 
-  const handleSubmit = () => {
-    const newInsightData: TeamInsight = {
-      id: Date.now().toString(),
-      ...newInsight,
-      focus_areas: newInsight.focus_areas.filter(area => area.trim() !== "")
-    };
-    const updatedAllInsights = [newInsightData, ...allInsights];
-    setAllInsights(updatedAllInsights);
-    filterInsights(filterName, updatedAllInsights);
-    setNewInsight({
-      member: {
-        name: "",
-        role: ""
-      },
-      date: new Date().toISOString().split("T")[0],
-      rating: 0,
-      content: "",
-      focus_areas: [""]
-    });
-    handleCloseDialog();
+  const handleSubmit = async () => {
+    if (!projectId) return;
+    try {
+      const newInsightData = await apiService.createTeamInsight(
+        projectId,
+        newInsight.memberName,
+        newInsight.memberRole,
+        newInsight.date,
+        newInsight.rating,
+        newInsight.content,
+        newInsight.focusAreas.filter(area => area.trim() !== ""),
+        token
+      );
+      const updatedAllInsights = [newInsightData, ...allInsights];
+      setAllInsights(updatedAllInsights);
+      filterInsights(filterName, updatedAllInsights);
+      setNewInsight({
+        memberName: "",
+        memberRole: "",
+        date: new Date().toISOString().split("T")[0],
+        rating: 0,
+        content: "",
+        focusAreas: [""]
+      });
+      handleCloseDialog();
+    } catch (error) {
+      console.error("Failed to create team insight:", error);
+    }
   };
 
-  const handleDelete = (id: string) => {
-    const updatedInsights = allInsights.filter(insight => insight.id !== id);
-    setAllInsights(updatedInsights);
-    filterInsights(filterName, updatedInsights);
+  const handleDelete = async (id: string) => {
+    try {
+      await apiService.deleteTeamInsight(id, token);
+      const updatedInsights = allInsights.filter(insight => insight.id !== id);
+      setAllInsights(updatedInsights);
+      filterInsights(filterName, updatedInsights);
+    } catch (error) {
+      console.error("Failed to delete team insight:", error);
+    }
   };
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -115,7 +109,7 @@ export default function TeamInsights({ teamInsights: initialInsights }: TeamInsi
     let filtered = [...insights];
     if (name) {
       filtered = filtered.filter(insight => 
-        insight.member.name.toLowerCase().includes(name.toLowerCase())
+        insight.memberName.toLowerCase().includes(name.toLowerCase())
       );
     }
     setDisplayedInsights(filtered);
@@ -170,16 +164,16 @@ export default function TeamInsights({ teamInsights: initialInsights }: TeamInsi
             <TextField
               fullWidth
               label="Team Member Name"
-              name="member.name"
-              value={newInsight.member.name}
+              name="memberName"
+              value={newInsight.memberName}
               onChange={handleInputChange}
               margin="normal"
             />
             <TextField
               fullWidth
               label="Role"
-              name="member.role"
-              value={newInsight.member.role}
+              name="memberRole"
+              value={newInsight.memberRole}
               onChange={handleInputChange}
               margin="normal"
             />
@@ -213,7 +207,7 @@ export default function TeamInsights({ teamInsights: initialInsights }: TeamInsi
               margin="normal"
             />
             <Typography variant="subtitle2" sx={{ mt: 2, mb: 1 }}>Focus Areas</Typography>
-            {newInsight.focus_areas.map((area, index) => (
+            {newInsight.focusAreas.map((area, index) => (
               <TextField
                 key={index}
                 fullWidth
@@ -237,10 +231,10 @@ export default function TeamInsights({ teamInsights: initialInsights }: TeamInsi
               <CardContent sx={{ p: 3 }}>
                 <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 2 }}>
                   <Box sx={{ display: "flex", alignItems: "center" }}>
-                    <Avatar sx={{ bgcolor: "#6366f1", width: 40, height: 40, mr: 2 }}>{insight.member.name.charAt(0)}</Avatar>
+                    <Avatar sx={{ bgcolor: "#6366f1", width: 40, height: 40, mr: 2 }}>{insight.memberName.charAt(0)}</Avatar>
                     <Box>
-                      <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>{insight.member.name}</Typography>
-                      <Typography variant="body2" color="textSecondary">{insight.member.role} • {insight.date}</Typography>
+                      <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>{insight.memberName}</Typography>
+                      <Typography variant="body2" color="textSecondary">{insight.memberRole} • {insight.date}</Typography>
                     </Box>
                   </Box>
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -260,7 +254,7 @@ export default function TeamInsights({ teamInsights: initialInsights }: TeamInsi
                 <Box sx={{ mt: 3 }}>
                   <Typography variant="subtitle2" sx={{ mb: 1 }}>Focus Areas:</Typography>
                   <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-                    {insight.focus_areas.map((area: string, index: number) => (
+                    {insight.focusAreas.map((area: string, index: number) => (
                       <Chip key={index} label={area} size="small" sx={{ borderRadius: 2, bgcolor: "rgba(99, 102, 241, 0.1)", color: "#6366f1", fontWeight: 500 }} />
                     ))}
                   </Box>
