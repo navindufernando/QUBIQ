@@ -8,23 +8,25 @@ import {
   SelectChangeEvent,
   Typography,
 } from "@mui/material";
-import { Legend } from "recharts";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useAuth } from "../../../Signup&Login/AuthContext";
+
+interface codeTimeStat {
+  id: string;
+  value: number;
+  color: string;
+}
 
 const CodeTimePercentageChart = () => {
   const [timePeriod, setTimePeriod] = useState<string>("today");
+  const [codeTimeStat, setCodeTimeStat] = useState<codeTimeStat[]>([]);
+  const { user } = useAuth();
+  const userId = user?.id;
 
   const handleTimePeriodChange = (event: SelectChangeEvent) => {
     setTimePeriod(event.target.value);
   };
-
-  const codingTimeStats = [
-    { id: "Quality Coding Time", value: 20, color: "#02B2AF" },
-    { id: "Other Coding Time", value: 50, color: "#2E96FF" },
-  ];
-
-  const [codeTimeStat, setCodeTimeStat] = useState([]);
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -32,7 +34,7 @@ const CodeTimePercentageChart = () => {
         const response = await axios.get(
           "http://localhost:3000/dev/codetime-total",
           {
-            params: { timePeriod },
+            params: { userId, timePeriod },
           }
         );
         setCodeTimeStat(response.data);
@@ -46,7 +48,17 @@ const CodeTimePercentageChart = () => {
 
   return (
     <>
-      <Paper elevation={2} sx={{ width: "100%", p: 2, mt: 4, mb: 2 }}>
+      <Paper
+        elevation={3}
+        sx={{
+          width: "100%",
+          p: 2,
+          mt: 4,
+          mb: 2,
+          borderRadius: 4,
+          background: "linear-gradient(to right,#F5F7FA, #ffffff)",
+        }}
+      >
         <Box
           sx={{
             display: "flex",
@@ -75,7 +87,7 @@ const CodeTimePercentageChart = () => {
           <PieChart
             series={[
               {
-                data: codingTimeStats,
+                data: codeTimeStat,
                 highlightScope: { fade: "global", highlight: "item" },
                 faded: {
                   innerRadius: 30,
@@ -102,7 +114,7 @@ const CodeTimePercentageChart = () => {
               marginTop: 1,
             }}
           >
-            {codingTimeStats.map((entry, index) => (
+            {codeTimeStat.map((entry, index) => (
               <div
                 key={`legend-item-${index}`}
                 style={{

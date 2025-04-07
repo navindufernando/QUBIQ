@@ -11,11 +11,12 @@ DeveloperRouter.get('/activities', DeveloperController.getActivities);
 DeveloperRouter.get('/skillimp', DeveloperController.getSkillImprovements);
 DeveloperRouter.get('/codetime', DeveloperController.getCodeTime);
 DeveloperRouter.get('/codetime-total', DeveloperController.getTotalCodeTime);
+DeveloperRouter.get('/codetimeinsight', DeveloperController.getCodeTimeInsight);
+DeveloperRouter.get('/sprints', DeveloperController.getSprintsForDeveloper);
 
 DeveloperRouter.post('/devcode', DeveloperController.getCodeAnalysis);
 
 DeveloperRouter.patch('/tasks/:id', DeveloperController.updateTaskStatus);
-// DeveloperRouter.get('/sprints', DeveloperController.getSprints);
 
 DeveloperRouter.use('/improvement', RecommendationRouter);
   

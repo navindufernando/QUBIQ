@@ -10,31 +10,23 @@ import {
 import { BarChart } from "@mui/x-charts/BarChart";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { useAuth } from "../../../Signup&Login/AuthContext";
 
 const DailyCodeChart = () => {
   const [timePeriod, setTimePeriod] = useState<string>("this_week");
+  const [codeTime, setCodeTime] = useState([]);
+  const { user } = useAuth();
+  const userId = user?.id;
 
   const handleTimePeriodChange = (event: SelectChangeEvent) => {
     setTimePeriod(event.target.value);
   };
 
-  const dataset = [
-    { weekDayIndex: 0, totalTime: 6, qualityTime: 4 }, // Monday
-    { weekDayIndex: 1, totalTime: 7, qualityTime: 5 }, // Tuesday
-    { weekDayIndex: 2, totalTime: 5, qualityTime: 3.5 }, // Wednesday
-    { weekDayIndex: 3, totalTime: 8, qualityTime: 6 }, // Thursday
-    { weekDayIndex: 4, totalTime: 6.5, qualityTime: 4.5 }, // Friday
-    { weekDayIndex: 5, totalTime: 4, qualityTime: 2.5 }, // Saturday
-    { weekDayIndex: 6, totalTime: 3, qualityTime: 2 }, // Sunday
-  ];
-
-  const [codeTime, setCodeTime] = useState([]);
-
   useEffect(() => {
     const fetchTasks = async () => {
       try {
         const response = await axios.get("http://localhost:3000/dev/codetime", {
-          params: { timePeriod },
+          params: { userId, timePeriod },
         });
         setCodeTime(response.data);
       } catch (error) {
@@ -49,7 +41,16 @@ const DailyCodeChart = () => {
 
   return (
     <>
-      <Paper elevation={2} sx={{ p: 2, height: "100%", mt: 2 }}>
+      <Paper
+        elevation={3}
+        sx={{
+          p: 2,
+          height: "100%",
+          mt: 2,
+          borderRadius: 4,
+          background: "linear-gradient(to right,#F5F7FA, #ffffff)",
+        }}
+      >
         <Box
           sx={{
             display: "flex",
@@ -73,7 +74,7 @@ const DailyCodeChart = () => {
           </FormControl>
         </Box>
         <BarChart
-          dataset={dataset}
+          dataset={codeTime}
           xAxis={[
             {
               scaleType: "band",

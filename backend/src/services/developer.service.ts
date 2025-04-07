@@ -3,6 +3,7 @@
 import { PrismaClient } from "@prisma/client";
 import axios from "axios";
 import { subDays, startOfWeek, endOfWeek, startOfDay, endOfDay, getDay } from 'date-fns';
+import { time } from "node:console";
 import { OpenAI } from "openai";
 
 // Initialize OpenAI with your API key
@@ -15,9 +16,6 @@ const prisma = new PrismaClient();
 export class DeveloperService {
 
     async getAllTasks(id: number) {
-        // return await prisma.task.findMany({
-        //     where: { assigneeId: id }
-        // });
 
         const tasks = await prisma.task.findMany({
             where: { assigneeId: id },
@@ -72,67 +70,102 @@ export class DeveloperService {
         // });
     }
 
-    async getCodeTime(devId: number, timePeriod: string) {
+    async getCodeTime(userId: string, timePeriod: string) {
         const dateFilter = this.getDateFilter(timePeriod);
 
-        // make skill codetime db
-        // const codeTimeRecords = await prisma.codetime.findMany({
-        //     where: {
-        //         assigneeId: devId,
-        //         createAt: dateFilter
-        //     },
-        //     take: 7,
-        //     orderBy: {
-        //         createAt: 'desc'
-        //     }
-        // });
+        const codeTimeRecords = await prisma.codingTime.findMany({
+            where: {
+                userId: userId,
+                date: dateFilter
+            },
+            take: 7,
+            orderBy: {
+                date: 'asc'
+            }
+        });
 
-        // // Process data to group by weekdays
-        // const weeklyData = Array(7).fill(null).map((_, i) => ({
-        //     weekDayIndex: i,  // Mon = 0, ..., Sun = 6
-        //     totalTime: 0,
-        //     qualityTime: 0,
-        // }));
-
-        // codeTimeRecords.forEach((record: any) => {
-        //     const weekDayIndex = (getDay(record.createdAt) + 6) % 7; // Convert Sun=0 to Mon=0
-        //     weeklyData[weekDayIndex].totalTime += record.totalTime;
-        //     weeklyData[weekDayIndex].qualityTime += record.qualityTime;
-        // });
-
-        // return weeklyData;
+        return codeTimeRecords.map((record, i) => ({
+            weekDayIndex: i,
+            totalTime: parseFloat((record.totalCodingTimeMinutes / 60).toFixed(1)),
+            qualityTime: parseFloat((record.qualityCodingTimeMinutes / 60).toFixed(1))
+        }));
     }
 
-    async getTotalCodeTime(devId: number, timePeriod: string) {
+    async getTotalCodeTime(userId: string, timePeriod: string) {
         const dateFilter = this.getDateFilter(timePeriod);
 
-        // make skill codetime db
-        // const codeTimeRecords = await prisma.codetime.findMany({
-        //     where: {
-        //         assigneeId: devId,
-        //         createAt: dateFilter
-        //     },
-        //     take: 7,
-        //     orderBy: {
-        //         createAt: 'desc'
-        //     }
-        // });
+        const codeTimeRecords = await prisma.codingTime.findMany({
+            where: {
+                userId: userId,
+                date: dateFilter
+            },
+            take: 7,
+            orderBy: {
+                date: 'asc'
+            }
+        });
 
-        // // Initialize total coding times
-        // let totalQualityTime = 0;
-        // let totalOtherTime = 0;
+        // Initialize total coding times
+        let totalQualityTime = 0;
+        let totalOtherTime = 0;
 
-        // // Sum up all the times
-        // codeTimeRecords.forEach((record: any) => {
-        //     totalQualityTime += record.qualityTime;
-        //     totalOtherTime += record.totalTime - record.qualityTime; // Other coding time
-        // });
+        // Sum up all the times
+        codeTimeRecords.forEach((record: any) => {
+            totalQualityTime += parseFloat((record.qualityCodingTimeMinutes / 60).toFixed(1));
+            totalOtherTime += parseFloat(((record.totalCodingTimeMinutes - record.qualityCodingTimeMinutes) / 60).toFixed(1)); // Other coding time
+        });
 
-        // // Return formatted data
-        // return [
-        //     { id: "Quality Coding Time", value: totalQualityTime, color: "#02B2AF" },
-        //     { id: "Other Coding Time", value: totalOtherTime, color: "#2E96FF" },
-        // ];
+        // Return formatted data
+        return [
+            { id: "Quality Coding Time", value: totalQualityTime.toFixed(1), color: "#02B2AF" },
+            { id: "Other Coding Time", value: totalOtherTime.toFixed(1), color: "#2E96FF" },
+        ];
+    }
+
+    async getCodeTimeInsight(userId: string, timePeriod: string) {
+        const dateFilter = this.getDateFilter(timePeriod);
+        
+        const codeTimeRecords = await prisma.codingTime.findMany({
+            where: {
+                userId: userId,
+                date: dateFilter
+            },
+            take: 7,
+            orderBy: {
+                date: 'asc'
+            }
+        });
+
+        console.log(codeTimeRecords)
+
+        return codeTimeRecords.map((record, i) => ({
+            weekDayIndex: i,
+            time: parseFloat((record.totalCodingTimeMinutes / 60).toFixed(1)),
+        }));
+    }
+
+    async getSprintsForDeveloper(userId: string, timePeriod: string) {
+        
+        const sprints = await prisma.sprint.findMany({
+            where: {
+                tasks: {
+                    some: {
+                        assigneeId: userId,
+                    }, 
+                },
+            },
+            include: {
+                tasks: true
+            }
+        });
+
+        // Filter tasks for the developer
+        const developerSprints = sprints.map(sprint => ({
+            ...sprint,
+            tasks: sprint.tasks.filter(task => task.developer === developerName),
+        }));
+
+        return developerSprints;
     }
 
     async updateTaskStatus(id: number, data: any) {
@@ -220,16 +253,17 @@ export class DeveloperService {
                 break;
 
             case 'last_week':
+                const lastWeekDate = subDays(today, 7);
                 dateFilter = {
-                    gte: startOfWeek(subDays(today, 7)),
-                    lte: endOfWeek(subDays(today, 7))
+                    gte: startOfWeek(lastWeekDate, { weekStartsOn: 1 }),
+                    lte: endOfWeek(lastWeekDate, { weekStartsOn: 1 })
                 };
                 break;
             
             case 'this_week':
                 dateFilter = {
-                    gte: startOfWeek(today),
-                    lte: endOfWeek(today)
+                    gte: startOfWeek(today, { weekStartsOn: 1 }),
+                    lte: endOfWeek(today, { weekStartsOn: 1 })
                 };
                 break;
 

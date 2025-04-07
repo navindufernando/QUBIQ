@@ -8,29 +8,51 @@ import {
   Typography,
 } from "@mui/material";
 import { LineChart } from "@mui/x-charts/LineChart";
-import { useState } from "react";
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { useAuth } from "../../../Signup&Login/AuthContext";
 
 const WorkTimeChart = () => {
-  const [timePeriod, setTimePeriod] = useState<string>("This week");
+  const [timePeriod, setTimePeriod] = useState<string>("this_week");
+  const [codeTime, setCodeTime] = useState([]);
+  const { user } = useAuth();
+  const userId = user?.id;
 
   const handleTimePeriodChange = (event: SelectChangeEvent) => {
     setTimePeriod(event.target.value);
   };
 
-  const dataset = [
-    { weekDayIndex: 0, time: 6 }, // Monday
-    { weekDayIndex: 1, time: 7 }, // Tuesday
-    { weekDayIndex: 2, time: 5 }, // Wednesday
-    { weekDayIndex: 3, time: 8 }, // Thursday
-    { weekDayIndex: 4, time: 6.5 }, // Friday
-    { weekDayIndex: 5, time: 4 }, // Saturday
-    { weekDayIndex: 6, time: 3 }, // Sunday
-  ];
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:3000/dev/codetimeinsight",
+          {
+            params: { userId, timePeriod },
+          }
+        );
+        setCodeTime(response.data);
+      } catch (error) {
+        console.error("Error fetching code time:", error);
+      }
+    };
+
+    fetchTasks();
+  }, [timePeriod]);
 
   const valueFormatter = (value: number | null) => `${value} hrs`;
 
   return (
-    <Paper elevation={2} sx={{ p: 2, width: "100%", mt: 2 }}>
+    <Paper
+      elevation={3}
+      sx={{
+        p: 2,
+        width: "100%",
+        mt: 2,
+        borderRadius: 4,
+        background: "linear-gradient(to right,#F5F7FA, #ffffff)",
+      }}
+    >
       <Box
         sx={{
           display: "flex",
@@ -48,13 +70,13 @@ const WorkTimeChart = () => {
             displayEmpty
             size="small"
           >
-            <MenuItem value="This week">This Week</MenuItem>
-            <MenuItem value="Last week">Last Week</MenuItem>
+            <MenuItem value="this_week">This Week</MenuItem>
+            <MenuItem value="last_week">Last Week</MenuItem>
           </Select>
         </FormControl>
       </Box>
       <LineChart
-        dataset={dataset}
+        dataset={codeTime}
         xAxis={[
           {
             scaleType: "band",

@@ -1,4 +1,4 @@
-import { Box, Tab, Tabs } from "@mui/material";
+import { Box, Paper, Tab, Tabs } from "@mui/material";
 import { SyntheticEvent, useState } from "react";
 import Tasks from "./Tasks/Tasks";
 import CodeImprovements from "./Improvements/CodeImprovements";
@@ -48,22 +48,37 @@ const DashboardTabs = () => {
 
   return (
     <>
-      <Box
-        sx={{
-          width: "100%",
-          bgcolor: "background.paper",
-          borderColor: "divider",
-          borderBottom: 1,
-        }}
-      >
-        <Tabs value={displayTab} onChange={handleChange} centered>
-          <Tab label="Tasks" />
-          <Tab label="Improvements" />
-          <Tab label="Coding Quality" />
-          <Tab label="Developer Insights" />
-        </Tabs>
-      </Box>
-      <Box sx={{ p: 2 }}>{renderTabContent()}</Box>
+      <Paper elevation={3} sx={{ p: 2, pt: 3, borderRadius: 4}}>
+        <Box
+          sx={{
+            width: "100%",
+            bgcolor: "background.paper",
+            borderColor: "divider",
+            pl: 4,
+          }}
+        >
+          <Tabs value={displayTab} onChange={handleChange} 
+            sx={{
+              "& .MuiTab-root": {
+                color: "#938E99",
+              },
+              "& .MuiTab-root.Mui-selected": {
+                color: "#575BF0"
+              }
+            }}
+            slotProps={{
+              indicator: {
+                sx: { backgroundColor: "#575BF0"}
+              }
+          }}>
+            <Tab label="Tasks" />
+            <Tab label="Improvements" />
+            <Tab label="Coding Quality" />
+            <Tab label="Developer Insights" />
+          </Tabs>
+        </Box>
+        <Box sx={{ p: 2 }}>{renderTabContent()}</Box>
+      </Paper>
     </>
   );
 };
