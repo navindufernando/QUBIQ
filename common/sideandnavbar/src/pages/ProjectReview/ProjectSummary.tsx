@@ -10,6 +10,7 @@ import ErrorIcon from "@mui/icons-material/Error";
 import WarningIcon from "@mui/icons-material/Warning";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import apiService from "./../../../../../backend/src/services/apiService";
 
 interface ProjectSummaryProps {
   project: ProjectData;
@@ -30,22 +31,34 @@ export default function ProjectSummary({
   handleDeselectSection,
   handleOpenEditSection,
 }: ProjectSummaryProps) {
-  const handleDeleteItem = (section: string, index?: number) => {
-    if (section === "objectives" && index !== undefined) {
-      setProject({
-        ...project,
-        objectives: project.objectives.filter((_: any, i: number) => i !== index),
-      });
-    } else if (section === "highlights" && index !== undefined) {
-      setProject({
-        ...project,
-        highlights: project.highlights.filter((_: any, i: number) => i !== index),
-      });
-    } else if (section === "risks" && index !== undefined) {
-      setProject({
-        ...project,
-        risks: project.risks.filter((_: any, i: number) => i !== index),
-      });
+  const token = localStorage.getItem("token") || ""; // Assume token is stored in localStorage
+
+  const handleDeleteItem = async (section: string, index?: number) => {
+    try {
+      if (section === "objectives" && index !== undefined) {
+        const objectiveId = project.objectives[index].id;
+        await apiService.deleteObjective(objectiveId, token);
+        setProject({
+          ...project,
+          objectives: project.objectives.filter((_: any, i: number) => i !== index),
+        });
+      } else if (section === "highlights" && index !== undefined) {
+        const highlightId = project.highlights[index].id;
+        await apiService.deleteHighlight(highlightId, token);
+        setProject({
+          ...project,
+          highlights: project.highlights.filter((_: any, i: number) => i !== index),
+        });
+      } else if (section === "risks" && index !== undefined) {
+        const riskId = project.risks[index].id;
+        await apiService.deleteRisk(riskId, token);
+        setProject({
+          ...project,
+          risks: project.risks.filter((_: any, i: number) => i !== index),
+        });
+      }
+    } catch (error) {
+      console.error("Failed to delete item:", error);
     }
   };
 
@@ -70,11 +83,11 @@ export default function ProjectSummary({
             onMouseEnter={() => handleSelectSection("description")}
             onMouseLeave={handleDeselectSection}
           >
-            {project.description.content ? (
+            {project.description ? (
               <>
-                <Typography variant="body1" paragraph>{project.description.content}</Typography>
+                <Typography variant="body1" paragraph>{project.description}</Typography>
                 <Typography variant="caption" color="textSecondary">
-                  Created: {project.description.createdAt || "N/A"} | Updated: {project.description.updatedAt || "N/A"}
+                  Created: {project.createdAt.toLocaleDateString()} | Updated: {project.updatedAt ? project.updatedAt.toLocaleDateString() : "N/A"}
                 </Typography>
               </>
             ) : (
@@ -109,7 +122,7 @@ export default function ProjectSummary({
                       <CheckCircleIcon fontSize="small" color="primary" sx={{ mr: 1 }} />
                       <ListItemText
                         primary={objective.content}
-                        secondary={`Created: ${objective.createdAt || "N/A"} | Updated: ${objective.updatedAt || "N/A"}`}
+                        secondary={`Created: ${new Date(objective.createdAt).toLocaleDateString()} | Updated: ${objective.updatedAt ? new Date(objective.updatedAt).toLocaleDateString() : "N/A"}`}
                       />
                     </ListItem>
                     {selectedSection === "objectives" && selectedIndex === index && (
@@ -150,7 +163,7 @@ export default function ProjectSummary({
                       <InfoIcon fontSize="small" color="primary" sx={{ mr: 1 }} />
                       <ListItemText
                         primary={highlight.content}
-                        secondary={`Created: ${highlight.createdAt || "N/A"} | Updated: ${highlight.updatedAt || "N/A"}`}
+                        secondary={`Created: ${new Date(highlight.createdAt).toLocaleDateString()} | Updated: ${highlight.updatedAt ? new Date(highlight.updatedAt).toLocaleDateString() : "N/A"}`}
                       />
                     </ListItem>
                     {selectedSection === "highlights" && selectedIndex === index && (
@@ -206,7 +219,7 @@ export default function ProjectSummary({
                           <TableCell>{risk.description}</TableCell>
                           <TableCell>
                             <Typography variant="caption" color="textSecondary">
-                              Created: {risk.createdAt || "N/A"}<br />Updated: {risk.updatedAt || "N/A"}
+                              Created: {new Date(risk.createdAt).toLocaleDateString()}<br />Updated: {risk.updatedAt ? new Date(risk.updatedAt).toLocaleDateString() : "N/A"}
                             </Typography>
                           </TableCell>
                         </TableRow>
