@@ -10,42 +10,65 @@ import ErrorIcon from "@mui/icons-material/Error";
 import WarningIcon from "@mui/icons-material/Warning";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import apiService from "../../services/apiService";
 
 interface ProjectSummaryProps {
   project: ProjectData;
   setProject: (project: ProjectData) => void;
-  selectedSection: string | null;
-  selectedIndex: number | null;
-  handleSelectSection: (section: string, index?: number) => void;
-  handleDeselectSection: () => void;
   handleOpenEditSection: (section: string, index?: number) => void;
 }
+
+// Utility function to safely format dates
+const formatDate = (date: any): string => {
+  if (!date) return "N/A";
+  const parsedDate = new Date(date);
+  return isNaN(parsedDate.getTime()) ? "Invalid Date" : parsedDate.toLocaleDateString();
+};
 
 export default function ProjectSummary({
   project,
   setProject,
-  selectedSection,
-  selectedIndex,
-  handleSelectSection,
-  handleDeselectSection,
   handleOpenEditSection,
 }: ProjectSummaryProps) {
-  const handleDeleteItem = (section: string, index?: number) => {
-    if (section === "objectives" && index !== undefined) {
-      setProject({
-        ...project,
-        objectives: project.objectives.filter((_: any, i: number) => i !== index),
-      });
-    } else if (section === "highlights" && index !== undefined) {
-      setProject({
-        ...project,
-        highlights: project.highlights.filter((_: any, i: number) => i !== index),
-      });
-    } else if (section === "risks" && index !== undefined) {
-      setProject({
-        ...project,
-        risks: project.risks.filter((_: any, i: number) => i !== index),
-      });
+  const [selectedSection, setSelectedSection] = useState<string | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+
+  const handleSelectSection = (section: string, index?: number) => {
+    setSelectedSection(section);
+    setSelectedIndex(index !== undefined ? index : null);
+  };
+
+  const handleDeselectSection = () => {
+    setSelectedSection(null);
+    setSelectedIndex(null);
+  };
+
+  const handleDeleteItem = async (section: string, index?: number) => {
+    try {
+      if (section === "objectives" && index !== undefined) {
+        const objectiveId = project.objectives[index].id;
+        await apiService.deleteObjective(objectiveId);
+        setProject({
+          ...project,
+          objectives: project.objectives.filter((_, i) => i !== index),
+        });
+      } else if (section === "highlights" && index !== undefined) {
+        const highlightId = project.highlights[index].id;
+        await apiService.deleteHighlight(highlightId);
+        setProject({
+          ...project,
+          highlights: project.highlights.filter((_, i) => i !== index),
+        });
+      } else if (section === "risks" && index !== undefined) {
+        const riskId = project.risks[index].id;
+        await apiService.deleteRisk(riskId);
+        setProject({
+          ...project,
+          risks: project.risks.filter((_, i) => i !== index),
+        });
+      }
+    } catch (error) {
+      console.error("Failed to delete item:", error);
     }
   };
 
@@ -70,11 +93,11 @@ export default function ProjectSummary({
             onMouseEnter={() => handleSelectSection("description")}
             onMouseLeave={handleDeselectSection}
           >
-            {project.description.content ? (
+            {project.description ? (
               <>
-                <Typography variant="body1" paragraph>{project.description.content}</Typography>
+                <Typography variant="body1" paragraph>{project.description}</Typography>
                 <Typography variant="caption" color="textSecondary">
-                  Created: {project.description.createdAt || "N/A"} | Updated: {project.description.updatedAt || "N/A"}
+                  Created: {formatDate(project.createdAt)} | Updated: {formatDate(project.updatedAt)}
                 </Typography>
               </>
             ) : (
@@ -98,7 +121,7 @@ export default function ProjectSummary({
             </Box>
             <List disablePadding>
               {project.objectives.length > 0 ? (
-                project.objectives.map((objective: any, index: number) => (
+                project.objectives.map((objective, index) => (
                   <Box
                     key={index}
                     sx={{ py: 0.5, px: 1, cursor: "pointer", bgcolor: selectedSection === "objectives" && selectedIndex === index ? "rgba(0, 0, 0, 0.04)" : "transparent", borderRadius: 1 }}
@@ -109,7 +132,7 @@ export default function ProjectSummary({
                       <CheckCircleIcon fontSize="small" color="primary" sx={{ mr: 1 }} />
                       <ListItemText
                         primary={objective.content}
-                        secondary={`Created: ${objective.createdAt || "N/A"} | Updated: ${objective.updatedAt || "N/A"}`}
+                        secondary={`Created: ${formatDate(objective.createdAt)} | Updated: ${formatDate(objective.updatedAt)}`}
                       />
                     </ListItem>
                     {selectedSection === "objectives" && selectedIndex === index && (
@@ -139,7 +162,7 @@ export default function ProjectSummary({
             </Box>
             <List disablePadding>
               {project.highlights.length > 0 ? (
-                project.highlights.map((highlight: any, index: number) => (
+                project.highlights.map((highlight, index) => (
                   <Box
                     key={index}
                     sx={{ py: 0.5, px: 1, cursor: "pointer", bgcolor: selectedSection === "highlights" && selectedIndex === index ? "rgba(0, 0, 0, 0.04)" : "transparent", borderRadius: 1 }}
@@ -150,7 +173,7 @@ export default function ProjectSummary({
                       <InfoIcon fontSize="small" color="primary" sx={{ mr: 1 }} />
                       <ListItemText
                         primary={highlight.content}
-                        secondary={`Created: ${highlight.createdAt || "N/A"} | Updated: ${highlight.updatedAt || "N/A"}`}
+                        secondary={`Created: ${formatDate(highlight.createdAt)} | Updated: ${formatDate(highlight.updatedAt)}`}
                       />
                     </ListItem>
                     {selectedSection === "highlights" && selectedIndex === index && (
@@ -189,7 +212,7 @@ export default function ProjectSummary({
                 </TableHead>
                 <TableBody>
                   {project.risks.length > 0 ? (
-                    project.risks.map((risk: any, index: number) => (
+                    project.risks.map((risk, index) => (
                       <Box
                         key={index}
                         sx={{ cursor: "pointer", bgcolor: selectedSection === "risks" && selectedIndex === index ? "rgba(0, 0, 0, 0.04)" : "transparent" }}
@@ -206,7 +229,7 @@ export default function ProjectSummary({
                           <TableCell>{risk.description}</TableCell>
                           <TableCell>
                             <Typography variant="caption" color="textSecondary">
-                              Created: {risk.createdAt || "N/A"}<br />Updated: {risk.updatedAt || "N/A"}
+                              Created: {formatDate(risk.createdAt)}<br />Updated: {formatDate(risk.updatedAt)}
                             </Typography>
                           </TableCell>
                         </TableRow>

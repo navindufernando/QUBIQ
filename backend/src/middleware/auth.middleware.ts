@@ -27,21 +27,21 @@ class AuthMiddleware {
         res.status(401).json({ message: 'No token provided' });
         return;
       }
-      
+
       const decoded = service.verifyToken(token);
       const user = await service.findUserById(decoded.id);
-      
+
       if (!user) {
         res.status(404).json({ message: 'User not found' });
         return;
       }
-      
+
       req.user = {
         id: user.id,
         email: user.email,
         role: user.role as UserRole,
       };
-      
+
       next();
     } catch (error) {
       console.error('Auth middleware error:', error);
@@ -55,12 +55,12 @@ class AuthMiddleware {
         res.status(401).json({ message: 'Not authenticated' });
         return;
       }
-      
+
       if (!roles.includes(req.user.role)) {
         res.status(403).json({ message: 'Not authorized' });
         return;
       }
-      
+
       next();
     };
   }
@@ -70,18 +70,18 @@ class AuthMiddleware {
       res.status(401).json({ message: 'Not authenticated' });
       return;
     }
-    
+
     try {
       const user = await prisma.user.findUnique({
         where: { id: req.user.id },
         select: { emailVerified: true },
       });
-      
+
       if (!user || !user.emailVerified) {
         res.status(403).json({ message: 'Email verification required' });
         return;
       }
-      
+
       next();
     } catch (error) {
       console.error('Email verification check error:', error);
@@ -90,10 +90,9 @@ class AuthMiddleware {
   }
 }
 
-// Rate limiting middleware
 export const authRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // 5 requests per window
+  windowMs: 15 * 60 * 1000,
+  max: 5,
   message: { message: 'Too many login attempts, please try again later' },
   standardHeaders: true,
   legacyHeaders: false,
