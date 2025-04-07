@@ -108,22 +108,18 @@ const ProjectDetail: React.FC = () => {
   const [filterPriority, setFilterPriority] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Team members (mock data)
   const teamMembers = [
     { id: "1", name: "Inuthi", avatar: "IS" },
     { id: "2", name: "Navindu", avatar: "NJ" },
     { id: "3", name: "Manula", avatar: "MJ" },
     { id: "4", name: "Jaith", avatar: "JR" },
-    { id: "4", name: "Ashini", avatar: "AT" },
+    { id: "5", name: "Ashini", avatar: "AT" },
   ];
 
   useEffect(() => {
-    // Extract project ID from location or query params
-    // For this example, assuming it's passed as state
     const projectId = location.state?.projectId;
 
     if (projectId) {
-      // Load project data from localStorage
       const projectsData = JSON.parse(localStorage.getItem("projects") || "[]");
       const projectData = projectsData.find(
         (p: ProjectData) => p.id === projectId
@@ -131,18 +127,14 @@ const ProjectDetail: React.FC = () => {
 
       if (projectData) {
         setProject(projectData);
-
-        // Load tasks for this project
         const tasksData = JSON.parse(
           localStorage.getItem(`tasks_${projectId}`) || "[]"
         );
         setTasks(tasksData);
       } else {
-        // Project not found, redirect back to projects
         navigate("/project");
       }
     } else {
-      // No project ID provided, redirect back to projects
       navigate("/project");
     }
   }, [location, navigate]);
@@ -198,11 +190,8 @@ const ProjectDetail: React.FC = () => {
 
     const updatedTasks = [...tasks, task];
     setTasks(updatedTasks);
-
-    // Save to localStorage
     localStorage.setItem(`tasks_${project.id}`, JSON.stringify(updatedTasks));
 
-    // Reset form
     setNewTask({
       title: "",
       description: "",
@@ -234,7 +223,6 @@ const ProjectDetail: React.FC = () => {
     setTasks(updatedTasks);
     localStorage.setItem(`tasks_${project.id}`, JSON.stringify(updatedTasks));
 
-    // Reset form
     setNewTask({
       title: "",
       description: "",
@@ -331,7 +319,7 @@ const ProjectDetail: React.FC = () => {
 
     const comment: Comment = {
       id: Date.now().toString(),
-      author: "Current User", // In a real app, get from auth context
+      author: "Current User",
       text,
       timestamp: new Date().toISOString(),
     };
@@ -364,26 +352,18 @@ const ProjectDetail: React.FC = () => {
     localStorage.setItem(`tasks_${project.id}`, JSON.stringify(updatedTasks));
   };
 
-  // Filter tasks based on current filters and search
   const filteredTasks = tasks.filter((task) => {
-    // Status filter
     if (filterStatus !== "all" && task.status !== filterStatus) return false;
-
-    // Priority filter
     if (filterPriority !== "all" && task.priority !== filterPriority)
       return false;
-
-    // Search query
     if (
       searchQuery &&
       !task.title.toLowerCase().includes(searchQuery.toLowerCase())
     )
       return false;
-
     return true;
   });
 
-  // Group tasks by status for board view
   const tasksByStatus = {
     todo: filteredTasks.filter((task) => task.status === "todo"),
     inProgress: filteredTasks.filter((task) => task.status === "inProgress"),
@@ -433,11 +413,32 @@ const ProjectDetail: React.FC = () => {
   };
 
   const calculateProgress = (task: Task) => {
-    if (task.subtasks.length === 0) return 0;
-    const completed = task.subtasks.filter(
-      (subtask) => subtask.completed
-    ).length;
+    if (task.subtasks.length === 0) return task.status === "done" ? 100 : 0;
+    const completed = task.subtasks.filter((subtask) => subtask.completed).length;
     return (completed / task.subtasks.length) * 100;
+  };
+
+  const calculateProjectProgress = () => {
+    if (tasks.length === 0) return 0;
+
+    const completedTasks = tasks.filter((task) => task.status === "done").length;
+    let progress = (completedTasks / tasks.length) * 100;
+
+    let totalSubtasks = 0;
+    let completedSubtasks = 0;
+
+    tasks.forEach((task) => {
+      totalSubtasks += task.subtasks.length;
+      completedSubtasks += task.subtasks.filter((st) => st.completed).length;
+    });
+
+    if (totalSubtasks > 0) {
+      const taskProgress = (completedTasks / tasks.length) * 50;
+      const subtaskProgress = (completedSubtasks / totalSubtasks) * 50;
+      progress = taskProgress + subtaskProgress;
+    }
+
+    return Math.round(progress);
   };
 
   const formatDate = (dateString: string) => {
@@ -458,7 +459,6 @@ const ProjectDetail: React.FC = () => {
 
   return (
     <Box sx={{ maxWidth: "1200px", mx: "auto" }}>
-      {/* Project Header */}
       <Box sx={{ mb: 4 }}>
         <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
           <IconButton onClick={() => navigate("/project")} sx={{ mr: 1 }}>
@@ -559,21 +559,12 @@ const ProjectDetail: React.FC = () => {
                 <Box sx={{ flexGrow: 1 }}>
                   <LinearProgress
                     variant="determinate"
-                    value={
-                      tasks.length > 0
-                        ? (tasksByStatus.done.length / tasks.length) * 100
-                        : 0
-                    }
+                    value={calculateProjectProgress()}
                     sx={{ height: 8, borderRadius: 1 }}
                   />
                 </Box>
                 <Typography variant="body2" fontWeight="bold">
-                  {tasks.length > 0
-                    ? Math.round(
-                        (tasksByStatus.done.length / tasks.length) * 100
-                      )
-                    : 0}
-                  %
+                  {calculateProjectProgress()}%
                 </Typography>
               </Box>
             </CardContent>
@@ -581,7 +572,6 @@ const ProjectDetail: React.FC = () => {
         </Box>
       </Box>
 
-      {/* Task Management */}
       <Box sx={{ mb: 4 }}>
         <Box
           sx={{
@@ -662,10 +652,8 @@ const ProjectDetail: React.FC = () => {
           </Box>
         </Box>
 
-        {/* Board View */}
         {currentTab === 0 && (
           <Grid container spacing={2}>
-            {/* Todo Column */}
             <Grid item xs={12} md={3}>
               <Paper sx={{ p: 2, bgcolor: "#F9FAFB", height: "100%" }}>
                 <Typography
@@ -759,12 +747,7 @@ const ProjectDetail: React.FC = () => {
                                 variant="caption"
                                 color="text.secondary"
                               >
-                                Subtasks:{" "}
-                                {
-                                  task.subtasks.filter((st) => st.completed)
-                                    .length
-                                }
-                                /{task.subtasks.length}
+                                Subtasks:{" "}{task.subtasks.filter((st) => st.completed).length}/{task.subtasks.length}
                               </Typography>
                               <Typography variant="caption" fontWeight="medium">
                                 {Math.round(calculateProgress(task))}%
@@ -826,7 +809,6 @@ const ProjectDetail: React.FC = () => {
               </Paper>
             </Grid>
 
-            {/* In Progress Column */}
             <Grid item xs={12} md={3}>
               <Paper sx={{ p: 2, bgcolor: "#F0F9FF", height: "100%" }}>
                 <Typography
@@ -920,12 +902,7 @@ const ProjectDetail: React.FC = () => {
                                 variant="caption"
                                 color="text.secondary"
                               >
-                                Subtasks:{" "}
-                                {
-                                  task.subtasks.filter((st) => st.completed)
-                                    .length
-                                }
-                                /{task.subtasks.length}
+                                Subtasks:{" "}{task.subtasks.filter((st) => st.completed).length}/{task.subtasks.length}
                               </Typography>
                               <Typography variant="caption" fontWeight="medium">
                                 {Math.round(calculateProgress(task))}%
@@ -987,7 +964,6 @@ const ProjectDetail: React.FC = () => {
               </Paper>
             </Grid>
 
-            {/* Review Column */}
             <Grid item xs={12} md={3}>
               <Paper sx={{ p: 2, bgcolor: "#FFFBEB", height: "100%" }}>
                 <Typography
@@ -1081,12 +1057,7 @@ const ProjectDetail: React.FC = () => {
                                 variant="caption"
                                 color="text.secondary"
                               >
-                                Subtasks:{" "}
-                                {
-                                  task.subtasks.filter((st) => st.completed)
-                                    .length
-                                }
-                                /{task.subtasks.length}
+                                Subtasks:{" "}{task.subtasks.filter((st) => st.completed).length}/{task.subtasks.length}
                               </Typography>
                               <Typography variant="caption" fontWeight="medium">
                                 {Math.round(calculateProgress(task))}%
@@ -1148,7 +1119,6 @@ const ProjectDetail: React.FC = () => {
               </Paper>
             </Grid>
 
-            {/* Done Column */}
             <Grid item xs={12} md={3}>
               <Paper sx={{ p: 2, bgcolor: "#ECFDF5", height: "100%" }}>
                 <Typography
@@ -1242,12 +1212,7 @@ const ProjectDetail: React.FC = () => {
                                 variant="caption"
                                 color="text.secondary"
                               >
-                                Subtasks:{" "}
-                                {
-                                  task.subtasks.filter((st) => st.completed)
-                                    .length
-                                }
-                                /{task.subtasks.length}
+                                Subtasks:{" "}{task.subtasks.filter((st) => st.completed).length}/{task.subtasks.length}
                               </Typography>
                               <Typography variant="caption" fontWeight="medium">
                                 {Math.round(calculateProgress(task))}%
@@ -1311,7 +1276,6 @@ const ProjectDetail: React.FC = () => {
           </Grid>
         )}
 
-        {/* List View */}
         {currentTab === 1 && (
           <Paper sx={{ p: 2 }}>
             <List>
@@ -1451,7 +1415,6 @@ const ProjectDetail: React.FC = () => {
           </Paper>
         )}
 
-        {/* Timeline View - Simplified for this example */}
         {currentTab === 2 && (
           <Paper sx={{ p: 3, textAlign: "center", height: 400 }}>
             <Typography variant="h6" sx={{ mb: 2 }}>
@@ -1471,7 +1434,6 @@ const ProjectDetail: React.FC = () => {
         )}
       </Box>
 
-      {/* Task Creation/Edit Dialog */}
       <Dialog
         open={isTaskFormOpen}
         onClose={() => setIsTaskFormOpen(false)}
@@ -1599,7 +1561,6 @@ const ProjectDetail: React.FC = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Task Detail Dialog */}
       <Dialog
         open={taskDetailOpen}
         onClose={closeTaskDetail}
@@ -1940,27 +1901,95 @@ const ProjectDetail: React.FC = () => {
         )}
       </Dialog>
 
-      {/* Task Menu */}
       <Menu
         anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
+        open={Boolean(anchorEl) && taskMenuId !== null}
         onClose={closeTaskMenu}
+        anchorOrigin={{
+          vertical: "top",
+          horizontal: "right",
+        }}
+        transformOrigin={{
+          vertical: "top",
+          horizontal: "right",
+        }}
       >
         <MenuItem
-          onClick={() => {
-            if (taskMenuId) handleEditTask(taskMenuId);
-          }}
+          onClick={() => taskMenuId && handleEditTask(taskMenuId)}
         >
           <EditIcon fontSize="small" sx={{ mr: 1 }} />
-          Edit
+          Edit Task
         </MenuItem>
         <MenuItem
-          onClick={() => {
-            if (taskMenuId) handleDeleteTask(taskMenuId);
-          }}
+          onClick={() => taskMenuId && handleDeleteTask(taskMenuId)}
         >
           <DeleteIcon fontSize="small" sx={{ mr: 1 }} />
-          Delete
+          Delete Task
+        </MenuItem>
+        <Divider />
+        <MenuItem
+          onClick={() => taskMenuId && updateTaskStatus(taskMenuId, "todo")}
+        >
+          <Box
+            component="span"
+            sx={{
+              width: 12,
+              height: 12,
+              borderRadius: "50%",
+              bgcolor: "#9CA3AF",
+              mr: 1,
+              display: "inline-block",
+            }}
+          />
+          Move to To Do
+        </MenuItem>
+        <MenuItem
+          onClick={() => taskMenuId && updateTaskStatus(taskMenuId, "inProgress")}
+        >
+          <Box
+            component="span"
+            sx={{
+              width: 12,
+              height: 12,
+              borderRadius: "50%",
+              bgcolor: "#3B82F6",
+              mr: 1,
+              display: "inline-block",
+            }}
+          />
+          Move to In Progress
+        </MenuItem>
+        <MenuItem
+          onClick={() => taskMenuId && updateTaskStatus(taskMenuId, "review")}
+        >
+          <Box
+            component="span"
+            sx={{
+              width: 12,
+              height: 12,
+              borderRadius: "50%",
+              bgcolor: "#F59E0B",
+              mr: 1,
+              display: "inline-block",
+            }}
+          />
+          Move to Review
+        </MenuItem>
+        <MenuItem
+          onClick={() => taskMenuId && updateTaskStatus(taskMenuId, "done")}
+        >
+          <Box
+            component="span"
+            sx={{
+              width: 12,
+              height: 12,
+              borderRadius: "50%",
+              bgcolor: "#10B981",
+              mr: 1,
+              display: "inline-block",
+            }}
+          />
+          Move to Done
         </MenuItem>
       </Menu>
     </Box>
