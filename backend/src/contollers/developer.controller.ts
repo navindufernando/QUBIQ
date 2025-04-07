@@ -131,8 +131,9 @@ export class DeveloperController {
     static async getCodeAnalysis(req: Request, res: Response): Promise<any> {
         try{
             const { code } = req.body;
-            const codeAnalysis = await developerService.getCodeAnalysis(code);
-            res.status(200).json(codeAnalysis);
+            const userId = "338687dd-a381-4236-a7c9-46fc92fbf297";
+            await developerService.getCodeAnalysis(code, userId);
+            res.status(200);
         } catch (error) {
             res.status(500).json({ error: 'Failed to analyse the code'});
         }
