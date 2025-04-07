@@ -3,7 +3,6 @@ import { ProjectReview, Objective, Risk, Highlight, FeedbackItem, Reply, Communi
 
 const API_URL = 'http://localhost:3000/project-review';
 
-// Axios instance with base URL and default headers
 const api = axios.create({
     baseURL: API_URL,
     headers: {
@@ -11,7 +10,6 @@ const api = axios.create({
     },
 });
 
-// Interceptor to add token to requests
 api.interceptors.request.use((config) => {
     const token = localStorage.getItem('authToken');
     if (token) {
@@ -20,7 +18,6 @@ api.interceptors.request.use((config) => {
     return config;
 });
 
-// Interceptor to handle token refresh on 401
 api.interceptors.response.use(
     (response) => response,
     async (error) => {
@@ -43,7 +40,7 @@ api.interceptors.response.use(
                 console.error('Token refresh failed:', refreshError);
                 localStorage.removeItem('authToken');
                 localStorage.removeItem('refreshToken');
-                window.location.href = '/login'; // Redirect to login
+                window.location.href = '/login';
                 return Promise.reject(refreshError);
             }
         }
@@ -52,14 +49,18 @@ api.interceptors.response.use(
 );
 
 const apiService = {
-    // Project Review
     async createProjectReview(data: Partial<ProjectReview>): Promise<ProjectReview> {
         const response = await api.post('/', data);
-        return response.data; // Axios wraps response in { data: ... }
+        return response.data;
     },
 
     async getProjectReview(projectId: string): Promise<ProjectReview> {
         const response = await api.get(`/${projectId}`);
+        return response.data;
+    },
+
+    async getAllProjectReviews(): Promise<ProjectReview[]> {
+        const response = await api.get('/');
         return response.data;
     },
 
@@ -72,7 +73,6 @@ const apiService = {
         await api.delete(`/${projectId}`);
     },
 
-    // Objectives
     async createObjective(projectId: string, content: string): Promise<Objective> {
         const response = await api.post(`/${projectId}/objectives`, { content });
         return response.data;
@@ -87,7 +87,6 @@ const apiService = {
         await api.delete(`/objectives/${objectiveId}`);
     },
 
-    // Risks
     async createRisk(projectId: string, severity: string, description: string): Promise<Risk> {
         const response = await api.post(`/${projectId}/risks`, { severity, description });
         return response.data;
@@ -102,7 +101,6 @@ const apiService = {
         await api.delete(`/risks/${riskId}`);
     },
 
-    // Highlights
     async createHighlight(projectId: string, content: string): Promise<Highlight> {
         const response = await api.post(`/${projectId}/highlights`, { content });
         return response.data;
@@ -117,7 +115,6 @@ const apiService = {
         await api.delete(`/highlights/${highlightId}`);
     },
 
-    // Feedback
     async createFeedback(projectId: string, content: string, sentiment: string, date: string): Promise<FeedbackItem> {
         const response = await api.post(`/${projectId}/feedback`, { content, sentiment, date });
         return response.data;
@@ -141,7 +138,6 @@ const apiService = {
         await api.delete(`/replies/${replyId}`);
     },
 
-    // Communication Logs
     async createCommunicationLog(
         projectId: string,
         stakeholderName: string,
@@ -164,7 +160,6 @@ const apiService = {
         await api.delete(`/communication-logs/${logId}`);
     },
 
-    // Team Insights
     async createTeamInsight(
         projectId: string,
         memberName: string,
