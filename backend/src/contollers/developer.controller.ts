@@ -13,9 +13,8 @@ export class DeveloperController {
     static async getAllTasks(req: Request, res: Response): Promise<any> {
         try {
             const userId = req.query.userId as string;
-            const devId = Number(userId)
 
-            const tasks = await developerService.getAllTasks(devId);
+            const tasks = await developerService.getAllTasks(userId);
             res.status(200).json(tasks);
         }
         catch (error) {
@@ -43,6 +42,7 @@ export class DeveloperController {
             const userId = req.query.userId as string;
             const codeImprovements = await developerService.getCodeImprovements(userId);
             console.log(codeImprovements);
+            console.log(userId);
             res.status(200).json(codeImprovements);
         } catch (error) {
             res.status(500).json({ error: 'Failed to fetch the code improvements'});

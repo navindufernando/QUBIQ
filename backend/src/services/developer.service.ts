@@ -15,10 +15,10 @@ const prisma = new PrismaClient();
 
 export class DeveloperService {
 
-    async getAllTasks(id: number) {
+    async getAllTasks(userId: string) {
 
         const tasks = await prisma.task.findMany({
-            where: { assigneeId: id },
+            where: { assigneeId: 1 },
             include: {
                 assignee: {
                     select: {
@@ -27,6 +27,8 @@ export class DeveloperService {
                 }
             }
         });
+
+        console.log(tasks)
 
         // Format the dates in the `tasks` array
         const dateFormattedTasks = tasks.map(task => ({

@@ -23,73 +23,6 @@ interface CodeSuggestion {
 }
 
 const CodeImprovements = () => {
-  const codeImprovementsInfo = [
-    {
-      id: 1,
-      improvementType: "Code Structure",
-      improvementDescription:
-        "Refactor the nested loops to improve readability and reduce complexity.",
-      priority: "High",
-      dateSuggested: "14th March 2025",
-    },
-    {
-      id: 2,
-      improvementType: "Code Efficiency",
-      improvementDescription:
-        "Use a more efficient algorithm for sorting the large dataset.",
-      priority: "Medium",
-      dateSuggested: "10th March 2025",
-    },
-    {
-      id: 3,
-      improvementType: "Code Quality",
-      improvementDescription:
-        "Add comments and documentation to clarify the function of the code.",
-      priority: "Low",
-      dateSuggested: "12th March 2025",
-    },
-    {
-      id: 4,
-      improvementType: "Performance",
-      improvementDescription:
-        "Optimize database queries to reduce response time in API calls.",
-      priority: "High",
-      dateSuggested: "15th March 2025",
-    },
-    {
-      id: 5,
-      improvementType: "Security",
-      improvementDescription:
-        "Implement input validation to prevent SQL injection vulnerabilities.",
-      priority: "High",
-      dateSuggested: "8th March 2025",
-    },
-    {
-      id: 6,
-      improvementType: "Code Readability",
-      improvementDescription:
-        "Break down long functions into smaller, more manageable pieces.",
-      priority: "Medium",
-      dateSuggested: "7th March 2025",
-    },
-    {
-      id: 7,
-      improvementType: "Code Style",
-      improvementDescription:
-        "Follow consistent naming conventions across the entire codebase.",
-      priority: "Low",
-      dateSuggested: "9th March 2025",
-    },
-    {
-      id: 8,
-      improvementType: "Code Efficiency",
-      improvementDescription:
-        "Refactor function to eliminate redundant code and improve performance.",
-      priority: "High",
-      dateSuggested: "11th March 2025",
-    },
-  ];
-
   const [improvements, setImprovements] = useState<CodeSuggestion[]>([]);
   const { user } = useAuth();
   const userId = user?.id;
@@ -97,10 +30,16 @@ const CodeImprovements = () => {
   useEffect(() => {
     const fetchTasks = async () => {
       try {
+        console.log("userId being sent:", userId);
         const response = await axios.get("http://localhost:3000/dev/codeimp", {
           params: { userId },
         });
-        setImprovements(response.data);
+        if (response.data && Array.isArray(response.data)) {
+          console.log("Response:", response.data);
+          setImprovements(response.data);
+        } else {
+          console.error("Received invalid response structure");
+        }
       } catch (error) {
         console.error("Error fetching code improvements:", error);
       }
