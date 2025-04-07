@@ -50,14 +50,17 @@ export class DeveloperService {
         // });
     }
 
-    async getCodeImprovements() {
-        // make code imp db
-        // return await prisma.codeimprovement.findMany({
-        //     take: 10,
-        //     orderBy: {
-        //         createAt: 'desc'
-        //     }
-        // });
+    async getCodeImprovements(userId: string) {
+        return await prisma.codeSuggestion.findMany({
+            where: {
+                userId: userId,
+            },
+            distinct: ['issueType'],
+            take: 8,
+            orderBy: {
+                createdAt: 'asc'
+            }
+        });
     }
 
     async getSkillImprovements() {
@@ -146,26 +149,26 @@ export class DeveloperService {
 
     async getSprintsForDeveloper(userId: string, timePeriod: string) {
         
-        const sprints = await prisma.sprint.findMany({
-            where: {
-                tasks: {
-                    some: {
-                        assigneeId: userId,
-                    }, 
-                },
-            },
-            include: {
-                tasks: true
-            }
-        });
+        // const sprints = await prisma.sprint.findMany({
+        //     where: {
+        //         tasks: {
+        //             some: {
+        //                 assigneeId: userId,
+        //             }, 
+        //         },
+        //     },
+        //     include: {
+        //         tasks: true
+        //     }
+        // });
 
-        // Filter tasks for the developer
-        const developerSprints = sprints.map(sprint => ({
-            ...sprint,
-            tasks: sprint.tasks.filter(task => task.developer === developerName),
-        }));
+        // // Filter tasks for the developer
+        // const developerSprints = sprints.map(sprint => ({
+        //     ...sprint,
+        //     tasks: sprint.tasks.filter(task => task.developer === developerName),
+        // }));
 
-        return developerSprints;
+        // return developerSprints;
     }
 
     async updateTaskStatus(id: number, data: any) {

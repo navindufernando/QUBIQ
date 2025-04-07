@@ -12,6 +12,15 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import { useAuth } from "../../../Signup&Login/AuthContext";
+
+interface CodeSuggestion {
+  id: string;
+  userId: string;
+  issueType: string;
+  description: string;
+  createdAt: string;
+}
 
 const CodeImprovements = () => {
   const codeImprovementsInfo = [
@@ -81,30 +90,47 @@ const CodeImprovements = () => {
     },
   ];
 
-  const [improvements, setImprovements] = useState([]);
+  const [improvements, setImprovements] = useState<CodeSuggestion[]>([]);
+  const { user } = useAuth();
+  const userId = user?.id;
 
-  // useEffect(() => {
-  //   const fetchTasks = async () => {
-  //     try {
-  //       const response = await axios.get("http://localhost:3000/dev/codeimp");
-  //       setImprovements(response.data);
-  //     } catch (error) {
-  //       console.error("Error fetching code improvements:", error);
-  //     }
-  //   };
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const response = await axios.get("http://localhost:3000/dev/codeimp", {
+          params: { userId },
+        });
+        setImprovements(response.data);
+      } catch (error) {
+        console.error("Error fetching code improvements:", error);
+      }
+    };
 
-  //   fetchTasks();
-  // }, []);
+    fetchTasks();
+  }, []);
+
+  useEffect(() => {
+    console.log(improvements);
+  }, [improvements]);
 
   return (
     <>
-      <Paper elevation={3} sx={{ p: 2, height: "100%", mt: 2, borderRadius: 4 , background: "linear-gradient(to right,#F5F7FA, #ffffff)" }}>
+      <Paper
+        elevation={3}
+        sx={{
+          p: 2,
+          height: "100%",
+          mt: 2,
+          borderRadius: 4,
+          background: "linear-gradient(to right,#F5F7FA, #ffffff)",
+        }}
+      >
         <Typography variant="h6" gutterBottom>
           Code Improvements
         </Typography>
         <Divider />
         <List sx={{ width: "100%" }}>
-          {codeImprovementsInfo.map((improvement) => (
+          {improvements.map((improvement) => (
             <ListItem
               key={improvement.id}
               alignItems="flex-start"
@@ -118,25 +144,7 @@ const CodeImprovements = () => {
                     alignItems="center"
                     sx={{ mb: 0.25 }}
                   >
-                    {" "}
-                    <Chip
-                      label={improvement.priority}
-                      size="small"
-                      sx={{
-                        mr: 2,
-                        fontSize: "0.75rem",
-                        fontWeight: "bold",
-                        color: "#fff",
-                        minWidth: "60px",
-                        backgroundColor:
-                          improvement.priority === "High"
-                            ? "#d32f2f" // Red for High
-                            : improvement.priority === "Medium"
-                            ? "#ffa000" // Orange for Medium
-                            : "#388e3c", // Green for Low
-                      }}
-                    />
-                    {improvement.improvementType}
+                    {improvement.issueType}
                   </Box>
                 }
                 secondary={
@@ -146,7 +154,7 @@ const CodeImprovements = () => {
                       variant="body2"
                       color="text.secondary"
                     >
-                      {improvement.improvementDescription}
+                      {improvement.description}
                     </Typography>
                   </React.Fragment>
                 }
@@ -158,7 +166,7 @@ const CodeImprovements = () => {
                     variant="body2"
                     color="text.secondary"
                   >
-                    {improvement.dateSuggested}
+                    {improvement.createdAt.split("T")[0]}
                   </Typography>
                 }
                 sx={{ textAlign: "right" }}

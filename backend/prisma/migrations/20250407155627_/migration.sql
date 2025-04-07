@@ -183,6 +183,29 @@ CREATE TABLE "LoginAttempt" (
     CONSTRAINT "LoginAttempt_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "CodingTime" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "date" TIMESTAMP(3) NOT NULL,
+    "totalCodingTimeMinutes" INTEGER NOT NULL,
+    "qualityCodingTimeMinutes" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "CodingTime_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "CodeSuggestion" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "issueType" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "CodeSuggestion_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "User_teamMemberId_key" ON "User"("teamMemberId");
 
@@ -275,3 +298,9 @@ ALTER TABLE "Sprint" ADD CONSTRAINT "Sprint_userId_fkey" FOREIGN KEY ("userId") 
 
 -- AddForeignKey
 ALTER TABLE "Sprint" ADD CONSTRAINT "Sprint_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CodingTime" ADD CONSTRAINT "CodingTime_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CodeSuggestion" ADD CONSTRAINT "CodeSuggestion_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

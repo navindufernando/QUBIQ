@@ -40,7 +40,9 @@ export class DeveloperController {
     //@access   public
     static async getCodeImprovements(req: Request, res: Response): Promise<any> {
         try{
-            const codeImprovements = await developerService.getCodeImprovements();
+            const userId = req.query.userId as string;
+            const codeImprovements = await developerService.getCodeImprovements(userId);
+            console.log(codeImprovements);
             res.status(200).json(codeImprovements);
         } catch (error) {
             res.status(500).json({ error: 'Failed to fetch the code improvements'});
@@ -145,7 +147,7 @@ export class DeveloperController {
     static async getCodeAnalysis(req: Request, res: Response): Promise<any> {
         try{
             const { code } = req.body;
-            const userId = "338687dd-a381-4236-a7c9-46fc92fbf297";
+            const userId = "4ab789e9-63ff-4f10-b6c7-8003930cceed";
             await developerService.getCodeAnalysis(code, userId);
             res.status(200);
         } catch (error) {

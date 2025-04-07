@@ -28,7 +28,7 @@ export class RecommendationService  {
             const recommendedSkillsWithDetails = response.data.recommended_skills.map((skill: string, id: number) => {
                 return {
                     id: id.toString(),
-                    skill: skill,
+                    skill: skill.charAt(0).toUpperCase() + skill.slice(1),
                     description: skillDescriptions[skill], // Get description
                     dateSuggested: new Date().toLocaleDateString(), // Current date as suggested date
                 };
