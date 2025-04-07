@@ -13,10 +13,8 @@ import {
   Tooltip,
   Avatar,
   Grid,
-  LinearProgress,
   Paper,
   Container,
-  AvatarGroup,
   InputAdornment,
   CardActionArea,
 } from "@mui/material";
@@ -30,22 +28,20 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import TimerIcon from "@mui/icons-material/Timer";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
 import DashboardIcon from "@mui/icons-material/Dashboard";
-import DateRangeIcon from "@mui/icons-material/DateRange";
-import EqualizerIcon from "@mui/icons-material/Equalizer";
 import SearchIcon from "@mui/icons-material/Search";
 import ColorLensIcon from "@mui/icons-material/ColorLens";
 import SortIcon from "@mui/icons-material/Sort";
-import FilterListIcon from "@mui/icons-material/FilterList";
 import LabelIcon from "@mui/icons-material/Label";
 
 const Project = () => {
   const [projectName, setProjectName] = useState("");
   const [projectColor, setProjectColor] = useState("#3b82f6"); // Default blue color
   const [projects, setProjects] = useState<
-    { id: string; name: string; color: string }[]
+    { id: string; name: string; color: string; createdAt: number }[]
   >([]);
   const [isFormVisible, setIsFormVisible] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc"); // Default to newest first
   const navigate = useNavigate();
 
   // Load existing projects on component mount
@@ -53,10 +49,15 @@ const Project = () => {
     const existingProjects = JSON.parse(
       localStorage.getItem("projects") || "[]"
     );
-    setProjects(existingProjects);
 
-    // If no projects exist, show the form by default
-    if (existingProjects.length === 0) {
+    const updatedProjects = existingProjects.map((project) => ({
+      ...project,
+      createdAt: project.createdAt || parseInt(project.id), // Use ID as fallback timestamp
+    }));
+
+    setProjects(updatedProjects);
+
+    if (updatedProjects.length === 0) {
       setIsFormVisible(true);
     }
   }, []);
@@ -69,41 +70,40 @@ const Project = () => {
       return;
     }
 
-    // Get existing projects from localStorage or initialize empty array
     const existingProjects = JSON.parse(
       localStorage.getItem("projects") || "[]"
     );
 
-    // Create new project object
+    const timestamp = Date.now();
+
     const newProject = {
-      id: Date.now().toString(),
+      id: timestamp.toString(),
       name: projectName,
       color: projectColor,
+      createdAt: timestamp,
     };
 
-    // Add new project to array and save to localStorage
     const updatedProjects = [...existingProjects, newProject];
     localStorage.setItem("projects", JSON.stringify(updatedProjects));
 
-    // Update local state
     setProjects(updatedProjects);
-
-    // Reset form
     setProjectName("");
     setIsFormVisible(false);
   };
 
   const handleDeleteProject = (id, e) => {
-    e.stopPropagation(); // Prevent navigating to project when deleting
+    e.stopPropagation();
 
-    // Filter out the project with the matching id
     const updatedProjects = projects.filter((project) => project.id !== id);
-
-    // Update localStorage
     localStorage.setItem("projects", JSON.stringify(updatedProjects));
-
-    // Update state
     setProjects(updatedProjects);
+
+    // Also remove associated tasks
+    localStorage.removeItem(`tasks_${id}`);
+  };
+
+  const toggleSortOrder = () => {
+    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
   };
 
   const colorOptions = [
@@ -117,18 +117,55 @@ const Project = () => {
     { value: "#6366f1", label: "Indigo" },
   ];
 
-  // Generate mock stats for visual enhancement
-  const getProgressValue = () => Math.floor(Math.random() * 100);
-  const getTaskCount = () => Math.floor(Math.random() * 10);
+  const filteredAndSortedProjects = projects
+    .filter((project) =>
+      project.name.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => {
+      if (sortOrder === "asc") {
+        return a.createdAt - b.createdAt;
+      } else {
+        return b.createdAt - a.createdAt;
+      }
+    });
 
-  // Filter projects based on search term
-  const filteredProjects = projects.filter((project) =>
-    project.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const formatDate = (timestamp) => {
+    const date = new Date(timestamp);
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
+
+  // Calculate completed and in-progress projects
+  const calculateProjectStats = () => {
+    let completedProjects = 0;
+    let inProgressProjects = 0;
+
+    projects.forEach((project) => {
+      const tasks = JSON.parse(
+        localStorage.getItem(`tasks_${project.id}`) || "[]"
+      );
+      if (tasks.length === 0) {
+        inProgressProjects++; // No tasks means in progress by default
+      } else {
+        const allDone = tasks.every((task) => task.status === "done");
+        if (allDone) {
+          completedProjects++;
+        } else {
+          inProgressProjects++;
+        }
+      }
+    });
+
+    return { completedProjects, inProgressProjects };
+  };
+
+  const { completedProjects, inProgressProjects } = calculateProjectStats();
 
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
-      {/* Header with title and action buttons */}
       <Box sx={{ mb: 5 }}>
         <Box
           sx={{
@@ -141,38 +178,9 @@ const Project = () => {
           <Typography variant="h4" component="h1" sx={{ fontWeight: 700 }}>
             Workspace
           </Typography>
-          <Box sx={{ display: "flex", gap: 2 }}>
-            <Button
-              variant="outlined"
-              startIcon={<DateRangeIcon />}
-              sx={{
-                borderRadius: 2,
-                textTransform: "none",
-                py: 1,
-                px: 2,
-                fontWeight: 500,
-              }}
-            >
-              Calendar
-            </Button>
-            <Button
-              variant="contained"
-              startIcon={<EqualizerIcon />}
-              sx={{
-                borderRadius: 2,
-                textTransform: "none",
-                py: 1,
-                px: 2,
-                fontWeight: 500,
-                boxShadow: 2,
-              }}
-            >
-              Reports
-            </Button>
-          </Box>
+          {/* Removed Calendar and Reports buttons */}
         </Box>
 
-        {/* Stats Cards */}
         <Grid container spacing={3}>
           <Grid item xs={12} md={4}>
             <Paper
@@ -236,10 +244,10 @@ const Project = () => {
                 >
                   <Box>
                     <Typography color="textSecondary" gutterBottom>
-                      Completed Tasks
+                      Completed Projects
                     </Typography>
                     <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                      {projects.length > 0 ? 12 : 0}
+                      {completedProjects}
                     </Typography>
                   </Box>
                   <Avatar
@@ -277,10 +285,10 @@ const Project = () => {
                 >
                   <Box>
                     <Typography color="textSecondary" gutterBottom>
-                      In Progress
+                      In Progress Projects
                     </Typography>
                     <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                      {projects.length > 0 ? 8 : 0}
+                      {inProgressProjects}
                     </Typography>
                   </Box>
                   <Avatar
@@ -300,7 +308,6 @@ const Project = () => {
         </Grid>
       </Box>
 
-      {/* Project Management Section */}
       <Box sx={{ mb: 5 }}>
         <Box
           sx={{
@@ -346,26 +353,15 @@ const Project = () => {
 
             <Button
               variant="outlined"
-              startIcon={<FilterListIcon />}
-              sx={{
-                borderRadius: 2,
-                textTransform: "none",
-                fontWeight: 500,
-              }}
-            >
-              Filter
-            </Button>
-
-            <Button
-              variant="outlined"
               startIcon={<SortIcon />}
+              onClick={toggleSortOrder}
               sx={{
                 borderRadius: 2,
                 textTransform: "none",
                 fontWeight: 500,
               }}
             >
-              Sort
+              {sortOrder === "desc" ? "Newest First" : "Oldest First"}
             </Button>
           </Box>
         </Box>
@@ -536,18 +532,19 @@ const Project = () => {
           }}
         >
           <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-            Your Projects ({filteredProjects.length})
+            Your Projects ({filteredAndSortedProjects.length})
           </Typography>
-          {filteredProjects.length > 0 && searchTerm && (
+          {filteredAndSortedProjects.length > 0 && searchTerm && (
             <Typography variant="body2" color="textSecondary">
-              Showing {filteredProjects.length} of {projects.length} projects
+              Showing {filteredAndSortedProjects.length} of {projects.length}{" "}
+              projects
             </Typography>
           )}
         </Box>
 
-        {filteredProjects.length > 0 ? (
+        {filteredAndSortedProjects.length > 0 ? (
           <Grid container spacing={3}>
-            {filteredProjects.map((project) => (
+            {filteredAndSortedProjects.map((project) => (
               <Grid item xs={12} md={6} lg={4} key={project.id}>
                 <Card
                   sx={{
@@ -625,37 +622,6 @@ const Project = () => {
                         </Box>
                       </Box>
 
-                      <Box sx={{ mt: 3, mb: 2 }}>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                            mb: 1,
-                          }}
-                        >
-                          <Typography variant="body2" color="textSecondary">
-                            Progress
-                          </Typography>
-                          <Typography variant="body2" fontWeight="600">
-                            {getProgressValue()}%
-                          </Typography>
-                        </Box>
-                        <LinearProgress
-                          variant="determinate"
-                          value={getProgressValue()}
-                          sx={{
-                            height: 8,
-                            borderRadius: 4,
-                            bgcolor: "rgba(0,0,0,0.04)",
-                            "& .MuiLinearProgress-bar": {
-                              bgcolor: project.color,
-                              borderRadius: 4,
-                            },
-                          }}
-                        />
-                      </Box>
-
                       <Divider sx={{ my: 2 }} />
 
                       <Box
@@ -667,58 +633,16 @@ const Project = () => {
                       >
                         <Box sx={{ display: "flex", gap: 1 }}>
                           <Chip
-                            icon={<CheckCircleIcon fontSize="small" />}
-                            label={`${getTaskCount()} Done`}
+                            label={formatDate(project.createdAt)}
                             size="small"
                             sx={{
                               fontSize: "0.75rem",
                               borderRadius: 2,
-                              bgcolor: "rgba(16, 185, 129, 0.1)",
-                              color: "#10b981",
+                              bgcolor: "rgba(59, 130, 246, 0.1)",
+                              color: "#3b82f6",
                               fontWeight: 500,
                             }}
                           />
-                          <Chip
-                            icon={<TimerIcon fontSize="small" />}
-                            label={`${getTaskCount()} In Progress`}
-                            size="small"
-                            sx={{
-                              fontSize: "0.75rem",
-                              borderRadius: 2,
-                              bgcolor: "rgba(245, 158, 11, 0.1)",
-                              color: "#f59e0b",
-                              fontWeight: 500,
-                            }}
-                          />
-                        </Box>
-                        <Box>
-                          <AvatarGroup
-                            max={3}
-                            sx={{
-                              "& .MuiAvatar-root": { width: 28, height: 28 },
-                            }}
-                          >
-                            {[...Array(Math.min(4, getTaskCount()))].map(
-                              (_, i) => (
-                                <Avatar
-                                  key={i}
-                                  sx={{
-                                    fontSize: "0.75rem",
-                                    bgcolor: [
-                                      "#3b82f6",
-                                      "#10b981",
-                                      "#f59e0b",
-                                      "#8b5cf6",
-                                      "#ef4444",
-                                    ][i % 5],
-                                    boxShadow: 1,
-                                  }}
-                                >
-                                  {String.fromCharCode(65 + i)}
-                                </Avatar>
-                              )
-                            )}
-                          </AvatarGroup>
                         </Box>
                       </Box>
                     </CardContent>
@@ -746,8 +670,7 @@ const Project = () => {
                 <Typography color="textSecondary" sx={{ mb: 3 }}>
                   {searchTerm
                     ? `Try adjusting your search term or create a new project.`
-                    : `Create your first project to get started with tracking your
-                    work and organizing your tasks.`}
+                    : `Create your first project to get started with tracking your work and organizing your tasks.`}
                 </Typography>
                 <Button
                   variant="contained"

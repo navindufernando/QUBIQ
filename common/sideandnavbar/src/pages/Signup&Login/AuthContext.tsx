@@ -35,9 +35,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
+
+    console.log("AuthProvider Mounted");
+
     // Try to get authentication data from localStorage on initial load
     const token = localStorage.getItem('authToken');
     const storedUserData = localStorage.getItem('user');
+
+    console.log("TOKEN: ", token);
+    console.log("USER DATA: ", storedUserData);
 
     if (token && storedUserData) {
       try {

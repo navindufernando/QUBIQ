@@ -25,7 +25,7 @@ export class UserService {
     }) {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(data.password, salt);
-        const verificationToken = jwt.sign({ email: data.email }, JWT_SECRET, { expiresIn: '24h' });
+        const verificationToken = jwt.sign({ email: data.email }, JWT_SECRET, { expiresIn: '356d' });
 
         return await prisma.user.create({ data: {
             firstName: data.firstName,
@@ -46,12 +46,12 @@ export class UserService {
         const token = jwt.sign(
             { id: user.id, email: user.email, role: user.role },
             JWT_SECRET,
-            { expiresIn: '1d' }
+            { expiresIn: '356d' }
         );
         const refreshToken = jwt.sign(
             { id: user.id }, 
             REFRESH_SECRET,
-            { expiresIn: '7d' }
+            { expiresIn: '356d' }
         );
         return { token, refreshToken }
     }

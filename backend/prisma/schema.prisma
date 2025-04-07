@@ -36,6 +36,7 @@ model User {
   notifications     Notification[]
   sprints           Sprint[]
   codingTimes       CodingTime[]
+  codeSuggestions   CodeSuggestion[]
   
   @@unique([email, role])
   @@index([email])
@@ -206,6 +207,7 @@ model LoginAttempt {
   @@index([createdAt])
 }
 
+
 model CodingTime {
   id          String    @id @default(uuid())
   userId      String
@@ -213,6 +215,16 @@ model CodingTime {
   totalCodingTimeMinutes    Int
   qualityCodingTimeMinutes  Int
   createdAt   DateTime  @default(now())
+  
+  user        User      @relation(fields: [userId], references: [id])
+}
+
+model CodeSuggestion {
+  id          String    @id @default(uuid())
+  userId      String
+  issueType   String
+  description String
+  createdAt   DateTime  @default(now())   
 
   user        User      @relation(fields: [userId], references: [id])
 }

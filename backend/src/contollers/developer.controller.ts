@@ -138,4 +138,18 @@ export class DeveloperController {
             res.status(500).json({ error: 'Failed to fetch the sprints'});
         }
     }
+
+    //@desc     Post code of the developer for analysis
+    //@route    POST /dev/devcode
+    //@access   public
+    static async getCodeAnalysis(req: Request, res: Response): Promise<any> {
+        try{
+            const { code } = req.body;
+            const userId = "338687dd-a381-4236-a7c9-46fc92fbf297";
+            await developerService.getCodeAnalysis(code, userId);
+            res.status(200);
+        } catch (error) {
+            res.status(500).json({ error: 'Failed to analyse the code'});
+        }
+    }
 }

@@ -1,8 +1,15 @@
 // developer.service.ts 
 // Handles database operations related to developer dashboard using prisma
 import { PrismaClient } from "@prisma/client";
+import axios from "axios";
 import { subDays, startOfWeek, endOfWeek, startOfDay, endOfDay, getDay } from 'date-fns';
 import { time } from "node:console";
+import { OpenAI } from "openai";
+
+// Initialize OpenAI with your API key
+const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
 
 const prisma = new PrismaClient();
 
@@ -168,6 +175,61 @@ export class DeveloperService {
         });
     }
 
+    async getCodeAnalysis(code: string, userId: string) {
+        let suggestData;
+        try {
+            const response = await openai.chat.completions.create({
+                model: "gpt-4o-mini", // Or you can use gpt-4 if available
+                messages: [
+                    { 
+                        role: "system", 
+                        content: "You are a code reviewer that provides short, focused improvement tips"
+                    }, 
+                    { 
+                        role: "user", 
+                        content: `Here is a the code:\n\n${code}\n\nGive me only 2 suggestions. Each should include:
+                        - "issueType":
+                        - "description": a very short reason (max 14 words)
+
+                        Respond with a 2D array of strings in the following format:
+                        [
+                        ["Issue Type", "Short Description"],
+                        ["Issue Type", "Short Description"]
+                        ]
+
+                        Do not include anything else in the output` 
+                    }
+                ],
+                temperature: 0.7,
+                max_tokens: 150,
+            });
+            suggestData = response.choices[0].message.content
+        } catch (error) {
+            console.log(error);
+        }
+
+        if (suggestData) {
+            suggestData = JSON.parse(suggestData);
+        }
+
+        const codeSuggestions = suggestData.map((suggestion: any) => ({
+            userId: userId,
+            issueType: suggestion[0],
+            description: suggestion[1],
+        }))
+
+        console.log(codeSuggestions);
+        
+        try {
+            const result = await prisma.codeSuggestion.createMany({
+                data: codeSuggestions,
+            });
+            console.log('Suggestions inserted successfully: ', result);
+        } catch (error) {
+            console.error('Error inserting suggestions: ', error);
+        }
+    }
+
     // Helper func to get dateFilter
     private getDateFilter(timePeriod: string){
         let dateFilter: any = {};
@@ -211,4 +273,26 @@ export class DeveloperService {
 
         return dateFilter;
     }
+
+    // private parseSuggestions(suggestions: string): { issueType: string; description: string }[] {
+    //     const sug = suggestions.split('\n')
+    //         .filter(line => line.includes(':'))
+    //         .map(line => {
+    //             const [issueType, ...descParts] = line.split(':');
+    //             return {
+    //                 issueType: issueType.trim(),
+    //                 description: descParts.join(':').trim(),
+    //             };
+    //         });
+        
+    //     return sug
+    //        // ignore empty or malformed lines
+    //       .map(line => {
+    //         const [issueType, ...descParts] = line.split(':');
+    //         return {
+    //           issueType: issueType.trim(),
+    //           description: descParts.join(':').trim(),
+    //         };
+    //       });
+    //   }
 }

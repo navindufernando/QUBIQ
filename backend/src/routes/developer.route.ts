@@ -14,6 +14,8 @@ DeveloperRouter.get('/codetime-total', DeveloperController.getTotalCodeTime);
 DeveloperRouter.get('/codetimeinsight', DeveloperController.getCodeTimeInsight);
 DeveloperRouter.get('/sprints', DeveloperController.getSprintsForDeveloper);
 
+DeveloperRouter.post('/devcode', DeveloperController.getCodeAnalysis);
+
 DeveloperRouter.patch('/tasks/:id', DeveloperController.updateTaskStatus);
 
 DeveloperRouter.use('/improvement', RecommendationRouter);

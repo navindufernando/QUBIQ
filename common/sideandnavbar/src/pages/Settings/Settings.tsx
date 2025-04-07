@@ -1,30 +1,45 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PersonIcon from "@mui/icons-material/Person";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import SecurityIcon from "@mui/icons-material/Security";
 import VisibilityIcon from "@mui/icons-material/Visibility";
-import ExtensionIcon from "@mui/icons-material/Extension";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
 import WbSunnyIcon from "@mui/icons-material/WbSunny";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import PaletteIcon from "@mui/icons-material/Palette";
-import ViewComfyIcon from "@mui/icons-material/ViewComfy";
-import TrelloIcon from "@mui/icons-material/ViewKanban";
-import GitHubIcon from "@mui/icons-material/Code";
-import VideocamIcon from "@mui/icons-material/Videocam";
-import EditIcon from "@mui/icons-material/Edit";
+
+// Simple state management using a shared store
+const profileStore = {
+  profile: {
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    bio: "",
+    picture: null,
+    city: "",
+    country: "",
+    role: "",
+    team: "",
+    project: ""
+  },
+  setProfile: (newProfile) => {
+    profileStore.profile = { ...profileStore.profile, ...newProfile };
+  }
+};
 
 const Settings = () => {
   const [activeTab, setActiveTab] = useState("profile");
+  const [profilePic, setProfilePic] = useState(null);
+  const [saveStatus, setSaveStatus] = useState(null);
 
   const tabs = [
     { id: "profile", label: "Profile", icon: "user" },
     { id: "notifications", label: "Notifications", icon: "bell" },
     { id: "security", label: "Security & Privacy", icon: "shield" },
     { id: "appearance", label: "Appearance", icon: "eye" },
-    { id: "integrations", label: "Integrations", icon: "puzzle" },
     { id: "billing", label: "Billing", icon: "credit-card" },
   ];
 
@@ -38,8 +53,6 @@ const Settings = () => {
         return <SecurityIcon className="h-5 w-5" />;
       case "eye":
         return <VisibilityIcon className="h-5 w-5" />;
-      case "puzzle":
-        return <ExtensionIcon className="h-5 w-5" />;
       case "credit-card":
         return <CreditCardIcon className="h-5 w-5" />;
       default:
@@ -47,96 +60,211 @@ const Settings = () => {
     }
   };
 
+  const handleProfileSave = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const updatedProfile = {
+      firstName: formData.get("firstName"),
+      lastName: formData.get("lastName"),
+      email: formData.get("email"),
+      phone: formData.get("phone"),
+      bio: formData.get("bio"),
+      picture: profilePic || profileStore.profile.picture,
+      city: formData.get("city"),
+      country: formData.get("country"),
+      role: formData.get("role"),
+      team: formData.get("team"),
+      project: formData.get("project")
+    };
+    profileStore.setProfile(updatedProfile);
+    setSaveStatus("Profile saved successfully!");
+  };
+
+  useEffect(() => {
+    if (saveStatus) {
+      const timer = setTimeout(() => setSaveStatus(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [saveStatus]);
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfilePic(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const renderContent = () => {
     switch (activeTab) {
       case "profile":
         return (
-          <div>
-            <h2 className="text-xl font-medium text-gray-800 mb-6">
-              Personal Information
-            </h2>
+          <form onSubmit={handleProfileSave}>
+            <div>
+              <h2 className="text-xl font-medium text-gray-800 mb-6">
+                Personal Information
+              </h2>
 
-            <div className="flex mb-8">
-              <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mr-6">
-                <PersonIcon className="h-12 w-12 text-gray-400" />
-              </div>
-              <div>
-                <h3 className="font-medium text-gray-900">Profile Picture</h3>
-                <p className="text-gray-500 mb-3 text-sm">
-                  This will be displayed on your profile and in comments
-                </p>
-                <div className="flex space-x-2">
-                  <button className="px-4 py-2 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-700">
-                    Upload new picture
-                  </button>
-                  <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md text-sm hover:bg-gray-50">
-                    Remove
-                  </button>
+              {saveStatus && (
+                <div className="mb-4 p-3 bg-green-100 text-green-700 rounded-md">
+                  {saveStatus}
+                </div>
+              )}
+
+              <div className="flex mb-8 items-center">
+                <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mr-6">
+                  {profilePic || profileStore.profile.picture ? (
+                    <img src={profilePic || profileStore.profile.picture} alt="Profile" className="w-full h-full rounded-full object-cover" />
+                  ) : (
+                    <PersonIcon className="h-12 w-12 text-gray-400" />
+                  )}
+                </div>
+                <div>
+                  <h3 className="font-medium text-gray-900">Profile Picture</h3>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden" // Hide the default file input
+                    id="profile-pic-upload"
+                  />
+                  <label htmlFor="profile-pic-upload">
+                    <button
+                      type="button"
+                      className="mt-2 px-4 py-2 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-700"
+                      onClick={() => document.getElementById("profile-pic-upload").click()}
+                    >
+                      Upload Picture
+                    </button>
+                  </label>
                 </div>
               </div>
-            </div>
 
-            <div className="grid grid-cols-2 gap-6 mb-8">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  First name
-                </label>
-                <input
-                  type="text"
-                  className="w-full border border-gray-300 rounded-md px-3 py-2"
-                  defaultValue="John"
-                />
+              <div className="grid grid-cols-2 gap-6 mb-8">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    First name
+                  </label>
+                  <input
+                    name="firstName"
+                    type="text"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    defaultValue={profileStore.profile.firstName}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Last name
+                  </label>
+                  <input
+                    name="lastName"
+                    type="text"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    defaultValue={profileStore.profile.lastName}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Email address
+                  </label>
+                  <input
+                    name="email"
+                    type="email"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    defaultValue={profileStore.profile.email}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Phone number
+                  </label>
+                  <input
+                    name="phone"
+                    type="tel"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    defaultValue={profileStore.profile.phone}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    City
+                  </label>
+                  <input
+                    name="city"
+                    type="text"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    defaultValue={profileStore.profile.city}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Country
+                  </label>
+                  <input
+                    name="country"
+                    type="text"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    defaultValue={profileStore.profile.country}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Role
+                  </label>
+                  <input
+                    name="role"
+                    type="text"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    defaultValue={profileStore.profile.role}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Team
+                  </label>
+                  <input
+                    name="team"
+                    type="text"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    defaultValue={profileStore.profile.team}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Project
+                  </label>
+                  <input
+                    name="project"
+                    type="text"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    defaultValue={profileStore.profile.project}
+                  />
+                </div>
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Bio
+                  </label>
+                  <textarea
+                    name="bio"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 h-24"
+                    defaultValue={profileStore.profile.bio}
+                  ></textarea>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Brief description for your profile. URLs are hyperlinked.
+                  </p>
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Last name
-                </label>
-                <input
-                  type="text"
-                  className="w-full border border-gray-300 rounded-md px-3 py-2"
-                  defaultValue="Smith"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Email address
-                </label>
-                <input
-                  type="email"
-                  className="w-full border border-gray-300 rounded-md px-3 py-2"
-                  defaultValue="john.smith@example.com"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Phone number
-                </label>
-                <input
-                  type="tel"
-                  className="w-full border border-gray-300 rounded-md px-3 py-2"
-                  defaultValue="+94 71 831 7219"
-                />
-              </div>
-              <div className="col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Bio
-                </label>
-                <textarea
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 h-24"
-                  defaultValue="Project Manager with 5+ years of experience in agile development environments."
-                ></textarea>
-                <p className="text-xs text-gray-500 mt-1">
-                  Brief description for your profile. URLs are hyperlinked.
-                </p>
-              </div>
-            </div>
 
-            <div className="flex justify-end">
-              <button className="px-4 py-2 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-700">
-                Save changes
-              </button>
+              <div className="flex justify-end">
+                <button type="submit" className="px-4 py-2 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-700">
+                  Save changes
+                </button>
+              </div>
             </div>
-          </div>
+          </form>
         );
       case "notifications":
         return (
@@ -355,98 +483,6 @@ const Settings = () => {
                 </button>
               </div>
             </div>
-
-            <div className="mb-8">
-              <h3 className="font-medium text-gray-900 mb-4">
-                Two-Factor Authentication
-              </h3>
-              <p className="text-gray-500 text-sm mb-4">
-                Add an extra layer of security to your account
-              </p>
-
-              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-md">
-                <div>
-                  <p className="font-medium text-gray-700">
-                    Two-factor authentication is disabled
-                  </p>
-                  <p className="text-gray-500 text-sm">
-                    Protect your account by enabling 2FA
-                  </p>
-                </div>
-                <button className="px-4 py-2 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-700">
-                  Enable
-                </button>
-              </div>
-            </div>
-
-            <div className="mb-8">
-              <h3 className="font-medium text-gray-900 mb-4">Sessions</h3>
-              <p className="text-gray-500 text-sm mb-4">
-                Manage your active sessions
-              </p>
-
-              <div className="bg-white shadow overflow-hidden rounded-md">
-                <ul role="list" className="divide-y divide-gray-200">
-                  <li className="px-4 py-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium text-gray-700">
-                          Chrome on Windows
-                        </p>
-                        <div className="flex items-center text-sm text-gray-500">
-                          <p>192.168.1.123</p>
-                          <span className="mx-2">•</span>
-                          <p>Current session</p>
-                        </div>
-                      </div>
-                      <span className="px-2 py-1 text-xs text-green-800 bg-green-100 rounded-full">
-                        Active now
-                      </span>
-                    </div>
-                  </li>
-                  <li className="px-4 py-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium text-gray-700">
-                          Safari on Mac
-                        </p>
-                        <div className="flex items-center text-sm text-gray-500">
-                          <p>86.75.30.9</p>
-                          <span className="mx-2">•</span>
-                          <p>2 days ago</p>
-                        </div>
-                      </div>
-                      <button className="text-red-600 text-sm font-medium hover:text-red-700">
-                        Revoke
-                      </button>
-                    </div>
-                  </li>
-                  <li className="px-4 py-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium text-gray-700">
-                          Mobile App on iPhone
-                        </p>
-                        <div className="flex items-center text-sm text-gray-500">
-                          <p>104.214.139.88</p>
-                          <span className="mx-2">•</span>
-                          <p>5 days ago</p>
-                        </div>
-                      </div>
-                      <button className="text-red-600 text-sm font-medium hover:text-red-700">
-                        Revoke
-                      </button>
-                    </div>
-                  </li>
-                </ul>
-              </div>
-            </div>
-
-            <div className="flex justify-end">
-              <button className="px-4 py-2 bg-red-600 text-white rounded-md text-sm hover:bg-red-700">
-                Log out all other sessions
-              </button>
-            </div>
           </div>
         );
       case "appearance":
@@ -548,204 +584,67 @@ const Settings = () => {
             </div>
           </div>
         );
-      case "integrations":
-        return (
-          <div>
-            <h2 className="text-xl font-medium text-gray-800 mb-6">
-              Integrations
-            </h2>
-
-            <div className="mb-8 space-y-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <div className="w-12 h-12 flex items-center justify-center rounded-md bg-blue-100 mr-4">
-                    <TrelloIcon className="h-8 w-8 text-blue-500" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium text-gray-900">Trello</h3>
-                    <p className="text-gray-500 text-sm">
-                      Import and sync Trello boards
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center">
-                  <span className="mr-2 text-sm text-green-700 font-medium">
-                    Connected
-                  </span>
-                  <button className="text-red-600 text-sm font-medium hover:text-red-700">
-                    Disconnect
-                  </button>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <div className="w-12 h-12 flex items-center justify-center rounded-md bg-purple-100 mr-4">
-                    <GitHubIcon className="h-8 w-8 text-purple-500" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium text-gray-900">GitHub</h3>
-                    <p className="text-gray-500 text-sm">
-                      Link repositories and track issues
-                    </p>
-                  </div>
-                </div>
-                <button className="px-4 py-2 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-700">
-                  Connect
-                </button>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <div className="w-12 h-12 flex items-center justify-center rounded-md bg-red-100 mr-4">
-                    <VideocamIcon className="h-8 w-8 text-red-500" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium text-gray-900">Zoom</h3>
-                    <p className="text-gray-500 text-sm">
-                      Schedule and join meetings
-                    </p>
-                  </div>
-                </div>
-                <button className="px-4 py-2 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-700">
-                  Connect
-                </button>
-              </div>
-            </div>
-          </div>
-        );
       case "billing":
         return (
           <div>
             <h2 className="text-xl font-medium text-gray-800 mb-6">
-              Billing & Subscription
+              Billing
             </h2>
-
-            <div className="mb-8">
-              <h3 className="font-medium text-gray-900 mb-4">Current Plan</h3>
-
-              <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h4 className="text-lg font-medium text-gray-900">
-                      Pro Plan
-                    </h4>
-                    <p className="text-gray-500">$29/month</p>
-                  </div>
-                  <span className="px-3 py-1 text-sm text-green-700 bg-green-100 rounded-full">
-                    Active
-                  </span>
-                </div>
-                <div className="space-y-1 text-sm text-gray-500">
-                  <p>• Unlimited projects</p>
-                  <p>• Advanced analytics</p>
-                  <p>• Priority support</p>
-                  <p>• Custom integrations</p>
-                </div>
-                <div className="mt-4">
-                  <button className="text-indigo-600 hover:text-indigo-700 font-medium text-sm">
-                    Change plan
-                  </button>
-                </div>
-              </div>
-            </div>
 
             <div className="mb-8">
               <h3 className="font-medium text-gray-900 mb-4">Payment Method</h3>
 
-              <div className="bg-white p-4 rounded-lg border border-gray-200">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <div className="w-12 h-8 bg-gray-100 rounded flex items-center justify-center mr-3">
-                      <CreditCardIcon className="h-6 w-6 text-gray-600" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-900">
-                        Visa ending in 4242
-                      </p>
-                      <p className="text-sm text-gray-500">Expires 12/24</p>
-                    </div>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Card Number
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    placeholder="1234 5678 9012 3456"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Expiry Date
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full border border-gray-300 rounded-md px-3 py-2"
+                      placeholder="MM/YY"
+                    />
                   </div>
-                  <button className="text-gray-600 hover:text-gray-900">
-                    <EditIcon className="h-5 w-5" />
-                  </button>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      CVC
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full border border-gray-300 rounded-md px-3 py-2"
+                      placeholder="123"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Cardholder Name
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    placeholder="John Smith"
+                  />
                 </div>
               </div>
 
-              <button className="mt-4 text-indigo-600 hover:text-indigo-700 font-medium text-sm">
-                Add payment method
-              </button>
-            </div>
-
-            <div className="mb-8">
-              <h3 className="font-medium text-gray-900 mb-4">
-                Billing History
-              </h3>
-
-              <div className="bg-white shadow overflow-hidden rounded-md">
-                <ul role="list" className="divide-y divide-gray-200">
-                  <li className="px-4 py-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium text-gray-900">
-                          Pro Plan - Monthly
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          February 1, 2024
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-medium text-gray-900">$29.00</p>
-                        <a
-                          href="#"
-                          className="text-indigo-600 hover:text-indigo-700 text-sm"
-                        >
-                          Download
-                        </a>
-                      </div>
-                    </div>
-                  </li>
-                  <li className="px-4 py-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium text-gray-900">
-                          Pro Plan - Monthly
-                        </p>
-                        <p className="text-sm text-gray-500">January 1, 2024</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-medium text-gray-900">$29.00</p>
-                        <a
-                          href="#"
-                          className="text-indigo-600 hover:text-indigo-700 text-sm"
-                        >
-                          Download
-                        </a>
-                      </div>
-                    </div>
-                  </li>
-                  <li className="px-4 py-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium text-gray-900">
-                          Pro Plan - Monthly
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          December 1, 2023
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-medium text-gray-900">$29.00</p>
-                        <a
-                          href="#"
-                          className="text-indigo-600 hover:text-indigo-700 text-sm"
-                        >
-                          Download
-                        </a>
-                      </div>
-                    </div>
-                  </li>
-                </ul>
+              <div className="mt-4">
+                <button className="px-4 py-2 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-700">
+                  Save Payment Method
+                </button>
               </div>
             </div>
           </div>
@@ -786,3 +685,4 @@ const Settings = () => {
 };
 
 export default Settings;
+export { profileStore };
