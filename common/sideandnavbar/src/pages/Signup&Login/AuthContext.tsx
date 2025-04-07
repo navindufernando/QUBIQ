@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 import { UserType } from '../../enums/userType';
+import { refreshToken } from '../../services/authAPI';
 
 interface AuthUser {
   id: string;
@@ -12,95 +13,118 @@ interface AuthUser {
 interface AuthContextType {
   isAuthenticated: boolean;
   user: AuthUser | null;
-  login: (userData: AuthUser, token: string) => void;
+  login: (userData: AuthUser, token: string, refreshToken?: string) => void;
   logout: () => void;
+  isLoading: boolean;
 }
 
-// Create context with a default value
-const AuthContext = createContext<AuthContextType>({
-  isAuthenticated: false,
-  user: null,
-  login: () => {},
-  logout: () => {},
-});
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 interface AuthProviderProps {
   children: ReactNode;
 }
 
-// Inside the AuthContext
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [refreshTokenValue, setRefreshTokenValue] = useState<string | null>(null);
 
   useEffect(() => {
+    const initializeAuth = async () => {
+      console.log("AuthProvider Mounted");
 
-    console.log("AuthProvider Mounted");
+      const token = localStorage.getItem('authToken');
+      const storedUserData = localStorage.getItem('user');
+      const storedRefreshToken = localStorage.getItem('refreshToken');
 
-    // Try to get authentication data from localStorage on initial load
-    const token = localStorage.getItem('authToken');
-    const storedUserData = localStorage.getItem('user');
+      if (token && storedUserData) {
+        try {
+          const parsedUser = JSON.parse(storedUserData) as AuthUser;
+          setUser(parsedUser);
+          setIsAuthenticated(true);
+          if (storedRefreshToken) {
+            setRefreshTokenValue(storedRefreshToken);
+          }
+        } catch (error) {
+          console.error('Failed to parse stored user data:', error);
+          await handleInvalidAuth();
+        }
+      }
+      
+      setIsLoading(false);
+    };
 
-    console.log("TOKEN: ", token);
-    console.log("USER DATA: ", storedUserData);
+    initializeAuth();
+  }, []);
 
-    if (token && storedUserData) {
+  const handleInvalidAuth = async () => {
+    if (refreshTokenValue) {
       try {
-        const parsedUser = JSON.parse(storedUserData) as AuthUser;
-        setUser(parsedUser);
-        setIsAuthenticated(true);
+        const response = await refreshToken();
+        if (response.success) {
+          localStorage.setItem('authToken', response.data.token);
+          localStorage.setItem('refreshToken', response.data.refreshToken);
+          return;
+        }
       } catch (error) {
-        console.error('Failed to parse stored user data:', error);
-        // Clear invalid data
-        localStorage.removeItem('user');
-        localStorage.removeItem('authToken');
+        console.error('Token refresh failed:', error);
       }
     }
     
-    setIsLoading(false);
-  }, []);
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('user');
+    setUser(null);
+    setIsAuthenticated(false);
+    setRefreshTokenValue(null);
+  };
 
-  const login = (userData: AuthUser, token: string) => {
+  const login = (userData: AuthUser, token: string, refreshToken?: string) => {
     if (!userData || !token) {
       console.error('Invalid login data:', { userData, token });
       return;
     }
 
-    // Store in localStorage
-    localStorage.setItem('authToken', token);
-    localStorage.setItem('user', JSON.stringify(userData));
+    try {
+      localStorage.setItem('authToken', token);
+      localStorage.setItem('user', JSON.stringify(userData));
+      if (refreshToken) {
+        localStorage.setItem('refreshToken', refreshToken);
+        setRefreshTokenValue(refreshToken);
+      }
 
-    // Update state and trigger re-render
-    setUser(userData);
-    setIsAuthenticated(true);
+      setUser(userData);
+      setIsAuthenticated(true);
+    } catch (error) {
+      console.error('Failed to store login data:', error);
+    }
   };
 
   const logout = () => {
-    // Clear from localStorage
     localStorage.removeItem('authToken');
+    localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
-
-    // Update state and trigger re-render
     setUser(null);
     setIsAuthenticated(false);
+    setRefreshTokenValue(null);
   };
 
-  // Show loading state or render children
   if (isLoading) {
-    return <div>Loading authentication...</div>;
+    return <div className="flex items-center justify-center min-h-screen">Loading authentication...</div>;
   }
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, user, login, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-
-// Custom hook for using Auth Context
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
   return context;
 };
