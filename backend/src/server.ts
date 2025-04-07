@@ -1,5 +1,3 @@
-// server.ts 
-// Entry point for the express server
 import express, { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import Sprintrouter from './routes/sprint.route';
@@ -8,6 +6,7 @@ import Taskrouter from './routes/task.route';
 import MemberRoute from './routes/member.route';
 import DeveloperRouter from './routes/developer.route';
 import UserRouter from './routes/user.route';
+import ProjectReviewRouter from './routes/project_review_route'; // Added import
 import cors from 'cors';
 import { MetricsClient } from '@prisma/client/runtime/library';
 import PaymentRoute from './routes/payments';
@@ -21,7 +20,7 @@ app.use(express.json());
 // CORS configuration
 app.use(cors({
   origin: 'http://localhost:5173',
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'], 
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }))
 
@@ -31,7 +30,10 @@ app.use('/user', UserRouter);
 // Mount project related routes
 app.use('/project', ProjectRouter);
 
-// Mount project related routes
+// Mount project review related routes
+app.use('/project-review', ProjectReviewRouter); // Added route
+
+// Mount task related routes
 app.use('/task', Taskrouter);
 
 // Mount member related routes
