@@ -35,6 +35,7 @@ model User {
   comments          Comment[]
   notifications     Notification[]
   sprints           Sprint[]
+  codeSuggestions   CodeSuggestion[]
   
   @@unique([email, role])
   @@index([email])
@@ -203,4 +204,14 @@ model LoginAttempt {
   @@index([email])
   @@index([ipAddress])
   @@index([createdAt])
+}
+
+model CodeSuggestion {
+  id          String    @id @default(uuid())
+  userId      String
+  issueType   String
+  description String
+  createdAt   DateTime  @default(now())   
+
+  user        User      @relation(fields: [userId], references: [id])
 }

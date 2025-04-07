@@ -1,0 +1,61 @@
+{
+  "name": "qubiq-extension",
+  "displayName": "Qubiq-extension",
+  "description": "",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.98.2"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished",
+    "onDidSaveTextDocument"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "qubiq-extension.helloWorld",
+        "title": "Hello World"
+      }
+    ],
+    "configuration": {
+      "properties": {
+        "qubiq-extension.enableCodeAnalysisOnSave": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable code analysis on save."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.23.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "20.x",
+    "@types/vscode": "^1.99.0",
+    "@typescript-eslint/eslint-plugin": "^8.29.0",
+    "@typescript-eslint/parser": "^8.29.0",
+    "@vscode/test-cli": "^0.0.10",
+    "@vscode/test-electron": "^2.4.1",
+    "eslint": "^9.24.0",
+    "globals": "^16.0.0",
+    "typescript": "^5.8.2",
+    "typescript-eslint": "^8.29.0"
+  },
+  "dependencies": {
+    "axios": "^1.8.4",
+    "complexity-report": "^2.0.0-alpha",
+    "plato": "^1.7.0"
+  }
+}

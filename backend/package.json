@@ -25,6 +25,7 @@
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
     "nodemailer": "^6.10.0",
+    "openai": "^4.91.1",
     "prisma": "^6.5.0",
     "stripe": "^17.7.0",
     "tsconfig-paths": "^4.2.0"
