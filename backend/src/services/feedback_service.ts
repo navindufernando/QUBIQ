@@ -9,7 +9,7 @@ export class FeedbackService {
         content: string,
         sentiment: string,
         date: string
-    ): Promise<FeedbackItem> {
+    ): Promise<FeedbackItem & { author: { firstName: string; lastName: string; role: string } }> {
         try {
             return await prisma.feedbackItem.create({
                 data: {
@@ -18,6 +18,11 @@ export class FeedbackService {
                     content,
                     sentiment,
                     date,
+                },
+                include: {
+                    author: {
+                        select: { firstName: true, lastName: true, role: true },
+                    },
                 },
             });
         } catch (error) {
@@ -29,11 +34,16 @@ export class FeedbackService {
         }
     }
 
-    async updateFeedback(id: string, content: string, sentiment: string, date: string): Promise<FeedbackItem> {
+    async updateFeedback(id: string, content: string, sentiment: string, date: string): Promise<FeedbackItem & { author: { firstName: string; lastName: string; role: string } }> {
         try {
             return await prisma.feedbackItem.update({
                 where: { id },
                 data: { content, sentiment, date },
+                include: {
+                    author: {
+                        select: { firstName: true, lastName: true, role: true },
+                    },
+                },
             });
         } catch (error) {
             if (error instanceof Error) {
@@ -58,7 +68,7 @@ export class FeedbackService {
         }
     }
 
-    async createReply(feedbackItemId: string, authorId: string, content: string, date: string): Promise<Reply> {
+    async createReply(feedbackItemId: string, authorId: string, content: string, date: string): Promise<Reply & { author: { firstName: string; lastName: string; role: string } }> {
         try {
             return await prisma.reply.create({
                 data: {
@@ -66,6 +76,11 @@ export class FeedbackService {
                     authorId,
                     content,
                     date,
+                },
+                include: {
+                    author: {
+                        select: { firstName: true, lastName: true, role: true },
+                    },
                 },
             });
         } catch (error) {

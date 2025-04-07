@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   Container, Paper, Typography, Box, Divider, Tabs, Tab, IconButton, Button, Menu, MenuItem
 } from "@mui/material";
@@ -12,6 +12,7 @@ import InfoIcon from "@mui/icons-material/Info";
 import ForumIcon from "@mui/icons-material/Forum";
 import GroupIcon from "@mui/icons-material/Group";
 import BusinessIcon from "@mui/icons-material/Business";
+import DeleteIcon from "@mui/icons-material/Delete"; // Added for reset button
 import TabPanel from "./reusablecomponents/TabPanel";
 import EditDialog from "./reusablecomponents/EditDialog";
 import ProjectSummary from "./ProjectSummary";
@@ -19,14 +20,16 @@ import CommentsFeedback from "./CommentsFeedback";
 import StakeholderCommunications from "./StakeholderCommunications";
 import TeamInsights from "./TeamInsights";
 import { ProjectData, FeedbackItem } from "./types";
-import apiService from "./../../../../../backend/src/services/apiService";
+import apiService from "../../services/apiService";
+import { useAuth } from "../Signup&Login/AuthContext";
 
-export default function ProjectReview() {
+export default function ProjectReviewComponent() {
   const [tabValue, setTabValue] = useState(0);
   const [project, setProject] = useState<ProjectData | null>(null);
   const [feedback, setFeedback] = useState<FeedbackItem[]>([]);
   const [communicationLogs, setCommunicationLogs] = useState<any[]>([]);
   const [teamInsights, setTeamInsights] = useState<any[]>([]);
+  const [projectId, setProjectId] = useState<string | null>(null);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editedProjectName, setEditedProjectName] = useState("");
@@ -36,30 +39,56 @@ export default function ProjectReview() {
   const [newObjective, setNewObjective] = useState("");
   const [newHighlight, setNewHighlight] = useState("");
   const [newRisk, setNewRisk] = useState({ severity: "", description: "" });
-  const [selectedSection, setSelectedSection] = useState<string | null>(null);
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [editFeedbackId, setEditFeedbackId] = useState<string | null>(null);
   const [editFeedbackContent, setEditFeedbackContent] = useState("");
   const [editFeedbackSentiment, setEditFeedbackSentiment] = useState("");
-
-  const { projectId } = useParams<{ projectId: string }>();
-  const token = localStorage.getItem("token") || ""; // Assume token is stored in localStorage
+  const [isLoading, setIsLoading] = useState(true);
+  const { isAuthenticated, user } = useAuth();
+  const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
 
   useEffect(() => {
     const fetchProjectData = async () => {
+      if (!isAuthenticated) {
+        return;
+      }
+      
       try {
-        if (!projectId) return;
-        const projectData = await apiService.getProjectReview(projectId, token);
-        setProject(projectData);
-        setFeedback(projectData.feedbackItems || []);
-        setCommunicationLogs(projectData.communicationLogs || []);
-        setTeamInsights(projectData.teamInsights || []);
+        setIsLoading(true);
+        
+        if (id) {
+          const projectData = await apiService.getProjectReview(id);
+          setProject(projectData);
+          setProjectId(id);
+          setFeedback(projectData.feedbackItems || []);
+          setCommunicationLogs(projectData.communicationLogs || []);
+          setTeamInsights(projectData.teamInsights || []);
+        } else {
+          const storedProjectId = localStorage.getItem('currentProjectId');
+          if (storedProjectId) {
+            const projectData = await apiService.getProjectReview(storedProjectId);
+            setProject(projectData);
+            setProjectId(storedProjectId);
+            setFeedback(projectData.feedbackItems || []);
+            setCommunicationLogs(projectData.communicationLogs || []);
+            setTeamInsights(projectData.teamInsights || []);
+          }
+        }
       } catch (error) {
         console.error("Failed to fetch project data:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
+
     fetchProjectData();
-  }, [projectId, token]);
+  }, [isAuthenticated, id]);
+
+  useEffect(() => {
+    if (projectId) {
+      localStorage.setItem('currentProjectId', projectId);
+    }
+  }, [projectId]);
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -92,27 +121,39 @@ export default function ProjectReview() {
   };
 
   const handleSaveProjectName = async () => {
-    if (!projectId || !project) return;
+    if (!user) return;
     try {
-      const updatedProject = await apiService.updateProjectReview(projectId, { name: editedProjectName }, token);
-      setProject(updatedProject);
+      let newProjectData: ProjectData;
+      if (projectId && project) {
+        newProjectData = await apiService.updateProjectReview(projectId, { name: editedProjectName });
+      } else {
+        const response = await apiService.createProjectReview({ name: editedProjectName, creatorId: user.id });
+        newProjectData = {
+          ...response,
+          creator: { firstName: user.firstName || "", lastName: user.lastName || "", role: user.role },
+          completion: 0,
+          createdAt: new Date(),
+          objectives: [],
+          risks: [],
+          highlights: [],
+          feedbackItems: [],
+          communicationLogs: [],
+          teamInsights: [],
+        };
+        setProjectId(response.id);
+      }
+      setProject(newProjectData);
+      setFeedback(newProjectData.feedbackItems || []);
+      setCommunicationLogs(newProjectData.communicationLogs || []);
+      setTeamInsights(newProjectData.teamInsights || []);
       setIsEditDialogOpen(false);
     } catch (error) {
-      console.error("Failed to update project name:", error);
+      console.error("Failed to save project name:", error);
     }
   };
 
-  const handleSelectSection = (section: string, index?: number) => {
-    setSelectedSection(section);
-    setSelectedIndex(index !== undefined ? index : null);
-  };
-
-  const handleDeselectSection = () => {
-    setSelectedSection(null);
-    setSelectedIndex(null);
-  };
-
   const handleOpenEditSection = (section: string, index?: number) => {
+    if (user?.role !== 'PM') return;
     setEditSection(section);
     setEditIndex(index !== undefined ? index : null);
     if (!project) return;
@@ -129,45 +170,43 @@ export default function ProjectReview() {
   };
 
   const handleSaveSection = async () => {
-    if (!projectId || !project) return;
+    if (!projectId || !project || user?.role !== 'PM') return;
     try {
       if (editSection === "description") {
-        const updatedProject = await apiService.updateProjectReview(projectId, { description: newDescription }, token);
+        const updatedProject = await apiService.updateProjectReview(projectId, { description: newDescription });
         setProject(updatedProject);
       } else if (editSection === "objectives") {
         if (editIndex !== null) {
           const objectiveId = project.objectives[editIndex].id;
-          const updatedObjective = await apiService.updateObjective(objectiveId, newObjective, token);
+          const updatedObjective = await apiService.updateObjective(objectiveId, newObjective);
           const updatedObjectives = project.objectives.map((obj, i) => (i === editIndex ? updatedObjective : obj));
           setProject({ ...project, objectives: updatedObjectives });
         } else {
-          const newObjectiveData = await apiService.createObjective(projectId, newObjective, token);
+          const newObjectiveData = await apiService.createObjective(projectId, newObjective);
           setProject({ ...project, objectives: [...project.objectives, newObjectiveData] });
         }
       } else if (editSection === "highlights") {
         if (editIndex !== null) {
           const highlightId = project.highlights[editIndex].id;
-          const updatedHighlight = await apiService.updateHighlight(highlightId, newHighlight, token);
+          const updatedHighlight = await apiService.updateHighlight(highlightId, newHighlight);
           const updatedHighlights = project.highlights.map((hl, i) => (i === editIndex ? updatedHighlight : hl));
           setProject({ ...project, highlights: updatedHighlights });
         } else {
-          const newHighlightData = await apiService.createHighlight(projectId, newHighlight, token);
+          const newHighlightData = await apiService.createHighlight(projectId, newHighlight);
           setProject({ ...project, highlights: [...project.highlights, newHighlightData] });
         }
       } else if (editSection === "risks") {
         if (editIndex !== null) {
           const riskId = project.risks[editIndex].id;
-          const updatedRisk = await apiService.updateRisk(riskId, newRisk.severity, newRisk.description, token);
+          const updatedRisk = await apiService.updateRisk(riskId, newRisk.severity, newRisk.description);
           const updatedRisks = project.risks.map((risk, i) => (i === editIndex ? updatedRisk : risk));
           setProject({ ...project, risks: updatedRisks });
         } else {
-          const newRiskData = await apiService.createRisk(projectId, newRisk.severity, newRisk.description, token);
+          const newRiskData = await apiService.createRisk(projectId, newRisk.severity, newRisk.description);
           setProject({ ...project, risks: [...project.risks, newRiskData] });
         }
       }
       handleCloseEditDialog();
-      setSelectedSection(null);
-      setSelectedIndex(null);
     } catch (error) {
       console.error("Failed to save section:", error);
     }
@@ -190,8 +229,7 @@ export default function ProjectReview() {
         editFeedbackId,
         editFeedbackContent,
         editFeedbackSentiment,
-        new Date().toISOString().split("T")[0],
-        token
+        new Date().toISOString().split("T")[0]
       );
       setFeedback(feedback.map((item) => (item.id === editFeedbackId ? updatedFeedback : item)));
       handleCloseEditDialog();
@@ -199,6 +237,37 @@ export default function ProjectReview() {
       console.error("Failed to update feedback:", error);
     }
   };
+
+  // New reset function
+  const handleResetProject = async () => {
+    if (!projectId || user?.role !== 'PM') return;
+    try {
+      // Optionally delete the project from the backend
+      await apiService.deleteProjectReview(projectId);
+      // Clear local state
+      setProject(null);
+      setProjectId(null);
+      setFeedback([]);
+      setCommunicationLogs([]);
+      setTeamInsights([]);
+      localStorage.removeItem('currentProjectId');
+    } catch (error) {
+      console.error("Failed to reset project:", error);
+    }
+  };
+
+  if (!isAuthenticated) {
+    navigate('/login');
+    return null;
+  }
+
+  if (isLoading) {
+    return (
+      <Container maxWidth="xl" sx={{ py: 4, minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <Typography variant="h5">Loading project data...</Typography>
+      </Container>
+    );
+  }
 
   const hasContent = project && (
     project.name ||
@@ -211,10 +280,6 @@ export default function ProjectReview() {
     teamInsights.length > 0
   );
 
-  if (!project) {
-    return <Typography>Loading...</Typography>;
-  }
-
   if (!hasContent) {
     return (
       <Container maxWidth="xl" sx={{ py: 4, minHeight: "100vh", display: "flex", alignItems: "center" }}>
@@ -224,27 +289,12 @@ export default function ProjectReview() {
           <Box sx={{ bgcolor: "rgba(0, 0, 0, 0.04)", p: 3, borderRadius: 2, mb: 4 }}>
             <Typography variant="body1" color="textSecondary" sx={{ mb: 2 }}>Once you add a project name, you can:</Typography>
             <ul style={{ listStyle: "none", padding: 0 }}>
-              <li>
-                <Typography variant="body1" sx={{ display: "flex", alignItems: "center" }}>
-                  <CheckCircleIcon fontSize="small" color="primary" sx={{ mr: 1 }} />
-                  Track progress and metrics
-                </Typography>
-              </li>
-              <li>
-                <Typography variant="body1" sx={{ display: "flex", alignItems: "center" }}>
-                  <CheckCircleIcon fontSize="small" color="primary" sx={{ mr: 1 }} />
-                  Add objectives and highlights
-                </Typography>
-              </li>
-              <li>
-                <Typography variant="body1" sx={{ display: "flex", alignItems: "center" }}>
-                  <CheckCircleIcon fontSize="small" color="primary" sx={{ mr: 1 }} />
-                  Manage risks and feedback
-                </Typography>
-              </li>
+              <li><Typography variant="body1" sx={{ display: "flex", alignItems: "center" }}><CheckCircleIcon fontSize="small" color="primary" sx={{ mr: 1 }} />Track progress and metrics</Typography></li>
+              <li><Typography variant="body1" sx={{ display: "flex", alignItems: "center" }}><CheckCircleIcon fontSize="small" color="primary" sx={{ mr: 1 }} />Add objectives and highlights</Typography></li>
+              <li><Typography variant="body1" sx={{ display: "flex", alignItems: "center" }}><CheckCircleIcon fontSize="small" color="primary" sx={{ mr: 1 }} />Manage risks and feedback</Typography></li>
             </ul>
           </Box>
-          <Button variant="contained" startIcon={<EditIcon />} onClick={handleOpenEditDialog} sx={{ borderRadius: 2, textTransform: "none", fontWeight: 500, boxShadow: 2, bgcolor: "#3b82f6", "&:hover": { bgcolor: "#2563eb" }, py: 1.5, px: 3 }}>Add Project Name</Button>
+          <Button variant="contained" startIcon={<EditIcon />} onClick={handleOpenEditDialog} sx={{ borderRadius: 2, textTransform: "none", fontWeight: 500, boxShadow: 2, bgcolor: "#3b82f6", "&:hover": { bgcolor: "#2563eb" }, py: 1.5, px: 3 }} disabled={user?.role !== 'PM'}>Add Project Name</Button>
         </Paper>
         <EditDialog
           isOpen={isEditDialogOpen}
@@ -266,7 +316,7 @@ export default function ProjectReview() {
           setNewRisk={setNewRisk}
           editedProjectName={editedProjectName}
           setEditedProjectName={setEditedProjectName}
-          project={project}
+          project={project || { id: '', name: '', completion: 0, createdAt: new Date(), creator: { firstName: user?.firstName || '', lastName: user?.lastName || '', role: user?.role || '' }, objectives: [], risks: [], highlights: [], feedbackItems: [], communicationLogs: [], teamInsights: [] }}
           onSave={handleSaveProjectName}
         />
       </Container>
@@ -279,11 +329,16 @@ export default function ProjectReview() {
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
           <Box sx={{ display: "flex", alignItems: "center" }}>
             <Typography variant="h4" component="h1" sx={{ fontWeight: 700, color: "#1e293b" }}>Project Review{project.name ? `: ${project.name}` : ""}</Typography>
-            <IconButton onClick={handleOpenEditDialog} sx={{ ml: 1 }} aria-label="edit project name"><EditIcon fontSize="small" /></IconButton>
+            {user?.role === 'PM' && (
+              <IconButton onClick={handleOpenEditDialog} sx={{ ml: 1 }} aria-label="edit project name"><EditIcon fontSize="small" /></IconButton>
+            )}
           </Box>
           <Box sx={{ display: "flex", gap: 2 }}>
             <Button variant="outlined" startIcon={<CalendarTodayIcon />} sx={{ borderRadius: 2, textTransform: "none", fontWeight: 500, borderColor: "#64748b", color: "#64748b" }}>Export Report</Button>
             <Button variant="contained" startIcon={<AssessmentIcon />} sx={{ borderRadius: 2, textTransform: "none", fontWeight: 500, boxShadow: 2, bgcolor: "#3b82f6", "&:hover": { bgcolor: "#2563eb" } }}>Generate Insights</Button>
+            {user?.role === 'PM' && ( // Only PMs can reset
+              <Button variant="outlined" startIcon={<DeleteIcon />} color="error" onClick={handleResetProject} sx={{ borderRadius: 2, textTransform: "none", fontWeight: 500 }}>Reset Project</Button>
+            )}
             <IconButton aria-label="more options" onClick={handleMenuClick} sx={{ ml: 1 }}><MoreVertIcon /></IconButton>
             <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
               <MenuItem onClick={handleMenuClose}>Print Report</MenuItem>
@@ -331,29 +386,32 @@ export default function ProjectReview() {
         setNewRisk={setNewRisk}
         editedProjectName={editedProjectName}
         setEditedProjectName={setEditedProjectName}
-        project={project}
+        project={project!}
         onSave={editFeedbackId ? handleSaveEditedFeedback : editSection ? handleSaveSection : handleSaveProjectName}
       />
 
       <TabPanel value={tabValue} index={0}>
         <ProjectSummary
-          project={project}
+          project={project!}
           setProject={setProject}
-          selectedSection={selectedSection}
-          selectedIndex={selectedIndex}
-          handleSelectSection={handleSelectSection}
-          handleDeselectSection={handleDeselectSection}
           handleOpenEditSection={handleOpenEditSection}
         />
       </TabPanel>
       <TabPanel value={tabValue} index={1}>
-        <CommentsFeedback feedback={feedback} setFeedback={setFeedback} handleEditFeedback={handleEditFeedback} />
+        {projectId && (
+          <CommentsFeedback
+            feedback={feedback}
+            setFeedback={setFeedback}
+            handleEditFeedback={handleEditFeedback}
+            projectId={projectId}
+          />
+        )}
       </TabPanel>
       <TabPanel value={tabValue} index={2}>
-        <StakeholderCommunications communicationLogs={communicationLogs} />
+        <StakeholderCommunications communicationLogs={communicationLogs} projectId={projectId!} setCommunicationLogs={setCommunicationLogs} />
       </TabPanel>
       <TabPanel value={tabValue} index={3}>
-        <TeamInsights teamInsights={teamInsights} />
+        <TeamInsights teamInsights={teamInsights} projectId={projectId!} setTeamInsights={setTeamInsights} />
       </TabPanel>
     </Container>
   );

@@ -15,7 +15,7 @@ export class CommunicationLogService {
         sentiment: string,
         summary: string,
         actionItems: string[]
-    ): Promise<CommunicationLog> {
+    ): Promise<CommunicationLog & { creator: { firstName: string; lastName: string; role: string } }> {
         try {
             return await prisma.communicationLog.create({
                 data: {
@@ -30,6 +30,11 @@ export class CommunicationLogService {
                     sentiment,
                     summary,
                     actionItems,
+                },
+                include: {
+                    creator: {
+                        select: { firstName: true, lastName: true, role: true },
+                    },
                 },
             });
         } catch (error) {

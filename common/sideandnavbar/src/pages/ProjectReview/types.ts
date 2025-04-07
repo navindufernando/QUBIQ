@@ -1,49 +1,54 @@
-export interface TabPanelProps {
-    children?: React.ReactNode;
-    index: number;
-    value: number;
-}
-
 export interface ProjectData {
     id: string;
     name: string;
     description?: string;
-    startDate?: string;
-    endDate?: string;
-    status?: string;
     completion: number;
-    budget?: string;
-    spent?: string;
     createdAt: Date;
     updatedAt?: Date;
-    creatorId: string;
+    startDate?: string;
+    endDate?: string;
+    budget?: string;
+    spent?: string;
+    status?: string;
     creator: {
         firstName: string;
         lastName: string;
         role: string;
     };
-    objectives: Array<{
-        id: string;
-        content: string;
-        createdAt: string | Date;
-        updatedAt: string | Date | null;
-    }>;
-    risks: Array<{
-        id: string;
-        severity: string;
-        description: string;
-        createdAt: string | Date;
-        updatedAt: string | Date | null;
-    }>;
-    highlights: Array<{
-        id: string;
-        content: string;
-        createdAt: string | Date;
-        updatedAt: string | Date | null;
-    }>;
+    objectives: Objective[];
+    risks: Risk[];
+    highlights: Highlight[];
     feedbackItems: FeedbackItem[];
     communicationLogs: CommunicationLog[];
     teamInsights: TeamInsight[];
+}
+
+// Alias ProjectReview to ProjectData for consistency
+export type ProjectReview = ProjectData;
+
+export interface Objective {
+    id: string;
+    content: string;
+    createdAt: Date;
+    updatedAt?: Date;
+    projectReviewId: string;
+}
+
+export interface Risk {
+    id: string;
+    severity: string;
+    description: string;
+    createdAt: Date;
+    updatedAt?: Date;
+    projectReviewId: string;
+}
+
+export interface Highlight {
+    id: string;
+    content: string;
+    createdAt: Date;
+    updatedAt?: Date;
+    projectReviewId: string;
 }
 
 export interface FeedbackItem {
@@ -51,25 +56,25 @@ export interface FeedbackItem {
     content: string;
     sentiment: string;
     date: string;
-    projectReviewId: string;
     authorId: string;
     author: {
         firstName: string;
         lastName: string;
         role: string;
-        avatar?: string | null;
     };
-    replies: Array<{
-        id: string;
-        content: string;
-        date: string;
-        author: {
-            firstName: string;
-            lastName: string;
-            role: string;
-            avatar?: string | null;
-        };
-    }>;
+    replies: Reply[];
+}
+
+export interface Reply {
+    id: string;
+    content: string;
+    date: string;
+    feedbackItemId: string;
+    author: {
+        firstName: string;
+        lastName: string;
+        role: string;
+    };
 }
 
 export interface CommunicationLog {
@@ -83,6 +88,13 @@ export interface CommunicationLog {
     sentiment: string;
     summary: string;
     actionItems: string[];
+    projectReviewId: string;
+    creatorId: string;
+    creator: {
+        firstName: string;
+        lastName: string;
+        role: string;
+    };
 }
 
 export interface TeamInsight {
@@ -93,4 +105,17 @@ export interface TeamInsight {
     rating: number;
     content: string;
     focusAreas: string[];
+    projectReviewId: string;
+    creatorId: string;
+    creator: {
+        firstName: string;
+        lastName: string;
+        role: string;
+    };
+}
+
+export interface TabPanelProps {
+    children?: React.ReactNode;
+    index: number;
+    value: number;
 }

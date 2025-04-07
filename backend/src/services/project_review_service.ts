@@ -2,7 +2,6 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-// Define the ProjectReview type based on your schema
 type ProjectReview = {
     id: string;
     name: string;
@@ -16,7 +15,6 @@ type ProjectReview = {
     createdAt: Date;
     updatedAt: Date | null;
     creatorId: string;
-    // Include relationships as needed
     objectives?: any[];
     risks?: any[];
     highlights?: any[];
@@ -26,7 +24,6 @@ type ProjectReview = {
 }
 
 export class ProjectReviewService {
-    // Create a new project review
     async createProjectReview(
         name: string,
         creatorId: string,
@@ -51,6 +48,11 @@ export class ProjectReviewService {
                     budget,
                     spent,
                 },
+                include: {
+                    creator: {
+                        select: { firstName: true, lastName: true, role: true },
+                    },
+                },
             });
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
@@ -58,7 +60,6 @@ export class ProjectReviewService {
         }
     }
 
-    // Get a project review by ID
     async getProjectReviewById(id: string): Promise<ProjectReview | null> {
         try {
             return await prisma.projectReview.findUnique({
@@ -103,7 +104,49 @@ export class ProjectReviewService {
         }
     }
 
-    // Update a project review
+    async getAllProjectReviews(): Promise<ProjectReview[]> {
+        try {
+            return await prisma.projectReview.findMany({
+                include: {
+                    objectives: true,
+                    risks: true,
+                    highlights: true,
+                    feedbackItems: {
+                        include: {
+                            author: {
+                                select: { firstName: true, lastName: true, role: true },
+                            },
+                            replies: {
+                                include: {
+                                    author: {
+                                        select: { firstName: true, lastName: true, role: true },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    communicationLogs: {
+                        include: {
+                            creator: {
+                                select: { firstName: true, lastName: true, role: true },
+                            },
+                        },
+                    },
+                    teamInsights: {
+                        include: {
+                            creator: {
+                                select: { firstName: true, lastName: true, role: true },
+                            },
+                        },
+                    },
+                },
+            });
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+            throw new Error(`Failed to fetch project reviews: ${errorMessage}`);
+        }
+    }
+
     async updateProjectReview(
         id: string,
         data: {
@@ -121,6 +164,14 @@ export class ProjectReviewService {
             return await prisma.projectReview.update({
                 where: { id },
                 data,
+                include: {
+                    objectives: true,
+                    risks: true,
+                    highlights: true,
+                    feedbackItems: true,
+                    communicationLogs: true,
+                    teamInsights: true,
+                },
             });
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
@@ -128,7 +179,6 @@ export class ProjectReviewService {
         }
     }
 
-    // Delete a project review
     async deleteProjectReview(id: string): Promise<void> {
         try {
             await prisma.projectReview.delete({

@@ -1,6 +1,7 @@
 export enum UserRole {
     DEV = 'DEV',
     PM = 'PM',
+    ADMIN = 'ADMIN',
 }
 
 export interface User {
@@ -18,7 +19,6 @@ export interface User {
     createdAt: Date;
     updatedAt?: Date | null;
     teamMemberId?: number | null;
-    userId: string;
 }
 
 export interface ProjectReview {

@@ -6,54 +6,34 @@ import Taskrouter from './routes/task.route';
 import MemberRoute from './routes/member.route';
 import DeveloperRouter from './routes/developer.route';
 import UserRouter from './routes/user.route';
-import ProjectReviewRouter from './routes/project_review_route'; // Added import
+import ProjectReviewRouter from './routes/project_review_route';
 import cors from 'cors';
-import { MetricsClient } from '@prisma/client/runtime/library';
 import PaymentRoute from './routes/payments';
 
 const app = express();
 const prisma = new PrismaClient();
 
-// Middleware to parse json requests
 app.use(express.json());
 
-// CORS configuration
 app.use(cors({
   origin: 'http://localhost:5173',
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
-}))
+}));
 
-// Mount user related routes
 app.use('/user', UserRouter);
-
-// Mount project related routes
 app.use('/project', ProjectRouter);
-
-// Mount project review related routes
-app.use('/project-review', ProjectReviewRouter); // Added route
-
-// Mount task related routes
+app.use('/project-review', ProjectReviewRouter);
 app.use('/task', Taskrouter);
-
-// Mount member related routes
 app.use('/member', MemberRoute);
-
-// Mount sprint related routes
 app.use('/sprint', Sprintrouter);
-
-// Mount developer dashboard related routes
 app.use('/dev', DeveloperRouter);
-
-// Mount payment related routes
 app.use("/api/payments", PaymentRoute);
 
-// Root endpoint
 app.get('/', (req: Request, res: Response) => {
   res.send('Hello, Prisma with Express & Node!');
 });
 
-// Start the server on the port 3000
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

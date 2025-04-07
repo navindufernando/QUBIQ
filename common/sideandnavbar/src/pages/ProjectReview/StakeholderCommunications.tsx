@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { 
-  Grid, Typography, Box, TextField, Button, Accordion, AccordionSummary, 
-  AccordionDetails, Avatar, Chip, List, ListItem, Dialog, DialogTitle, 
-  DialogContent, DialogActions, MenuItem, IconButton 
+import {
+  Grid, Typography, Box, TextField, Button, Accordion, AccordionSummary,
+  AccordionDetails, Avatar, Chip, List, ListItem, Dialog, DialogTitle,
+  DialogContent, DialogActions, MenuItem, IconButton
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import BusinessIcon from "@mui/icons-material/Business";
@@ -12,8 +12,8 @@ import SearchIcon from "@mui/icons-material/Search";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { InputAdornment } from "@mui/material";
-import apiService from "./../../../../../backend/src/services/apiService";
-import { useParams } from "react-router-dom";
+import apiService from "../../services/apiService";
+import { useAuth } from "../Signup&Login/AuthContext";
 
 interface CommunicationLog {
   id: string;
@@ -26,13 +26,22 @@ interface CommunicationLog {
   sentiment: string;
   summary: string;
   actionItems: string[];
+  projectReviewId: string;
+  creatorId: string;
+  creator: {
+    firstName: string;
+    lastName: string;
+    role: string;
+  };
 }
 
 interface StakeholderCommunicationsProps {
   communicationLogs: CommunicationLog[];
+  projectId: string;
+  setCommunicationLogs: (logs: CommunicationLog[]) => void;
 }
 
-export default function StakeholderCommunications({ communicationLogs: initialLogs }: StakeholderCommunicationsProps) {
+export default function StakeholderCommunications({ communicationLogs: initialLogs, projectId, setCommunicationLogs }: StakeholderCommunicationsProps) {
   const [allLogs, setAllLogs] = useState<CommunicationLog[]>(initialLogs);
   const [displayedLogs, setDisplayedLogs] = useState<CommunicationLog[]>(initialLogs);
   const [openDialog, setOpenDialog] = useState(false);
@@ -49,9 +58,8 @@ export default function StakeholderCommunications({ communicationLogs: initialLo
     summary: "",
     actionItems: [""]
   });
-
-  const { projectId } = useParams<{ projectId: string }>();
-  const token = localStorage.getItem("token") || ""; // Assume token is stored in localStorage
+  const { user } = useAuth();
+  const isPM = user?.role === 'PM';
 
   const handleOpenDialog = () => setOpenDialog(true);
   const handleCloseDialog = () => setOpenDialog(false);
@@ -72,7 +80,7 @@ export default function StakeholderCommunications({ communicationLogs: initialLo
   };
 
   const handleSubmit = async () => {
-    if (!projectId) return;
+    if (!projectId || !isPM) return;
     try {
       const newLog = await apiService.createCommunicationLog(
         projectId,
@@ -84,11 +92,11 @@ export default function StakeholderCommunications({ communicationLogs: initialLo
         newCommunication.channel,
         newCommunication.sentiment,
         newCommunication.summary,
-        newCommunication.actionItems.filter(item => item.trim() !== ""),
-        token
+        newCommunication.actionItems.filter(item => item.trim() !== "")
       );
       const updatedAllLogs = [newLog, ...allLogs];
       setAllLogs(updatedAllLogs);
+      setCommunicationLogs(updatedAllLogs);
       filterLogs(searchTerm, filterSentiment, updatedAllLogs);
       setNewCommunication({
         stakeholderName: "",
@@ -108,10 +116,12 @@ export default function StakeholderCommunications({ communicationLogs: initialLo
   };
 
   const handleDelete = async (id: string) => {
+    if (!isPM) return;
     try {
-      await apiService.deleteCommunicationLog(id, token);
+      await apiService.deleteCommunicationLog(id);
       const updatedAllLogs = allLogs.filter(log => log.id !== id);
       setAllLogs(updatedAllLogs);
+      setCommunicationLogs(updatedAllLogs);
       filterLogs(searchTerm, filterSentiment, updatedAllLogs);
     } catch (error) {
       console.error("Failed to delete communication log:", error);
@@ -134,19 +144,16 @@ export default function StakeholderCommunications({ communicationLogs: initialLo
 
   const filterLogs = (search: string, sentiment: string | null, logs: CommunicationLog[]) => {
     let filtered = [...logs];
-    
     if (search) {
-      filtered = filtered.filter(log => 
+      filtered = filtered.filter(log =>
         log.stakeholderName.toLowerCase().includes(search) ||
         log.contactPerson.toLowerCase().includes(search) ||
         log.summary.toLowerCase().includes(search)
       );
     }
-
     if (sentiment) {
       filtered = filtered.filter(log => log.sentiment === sentiment);
     }
-
     setDisplayedLogs(filtered);
   };
 
@@ -170,7 +177,7 @@ export default function StakeholderCommunications({ communicationLogs: initialLo
               value={searchTerm}
               onChange={handleSearch}
               sx={{ width: 220, "& .MuiOutlinedInput-root": { borderRadius: 2 } }}
-              InputProps={{ 
+              InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
                     <SearchIcon fontSize="small" />
@@ -178,24 +185,26 @@ export default function StakeholderCommunications({ communicationLogs: initialLo
                 )
               }}
             />
-            <Button 
-              variant="outlined" 
-              startIcon={<FilterListIcon />} 
+            <Button
+              variant="outlined"
+              startIcon={<FilterListIcon />}
               onClick={handleFilter}
               sx={{ borderRadius: 2, textTransform: "none", fontWeight: 500 }}
             >
               {filterSentiment ? `Filter: ${filterSentiment}` : "Filter"}
             </Button>
-            <Button 
-              variant="contained" 
-              onClick={handleOpenDialog}
-              sx={{ borderRadius: 2, textTransform: "none", fontWeight: 500 }}
-            >
-              Record New Communication
-            </Button>
+            {isPM && (
+              <Button
+                variant="contained"
+                onClick={handleOpenDialog}
+                sx={{ borderRadius: 2, textTransform: "none", fontWeight: 500 }}
+              >
+                Record New Communication
+              </Button>
+            )}
             {(searchTerm || filterSentiment) && (
-              <Button 
-                variant="text" 
+              <Button
+                variant="text"
                 onClick={resetFilters}
                 sx={{ textTransform: "none" }}
               >
@@ -205,7 +214,6 @@ export default function StakeholderCommunications({ communicationLogs: initialLo
           </Box>
         </Box>
 
-        {/* Dialog for new communication */}
         <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
           <DialogTitle>Record New Communication</DialogTitle>
           <DialogContent>
@@ -300,24 +308,23 @@ export default function StakeholderCommunications({ communicationLogs: initialLo
           </DialogActions>
         </Dialog>
 
-        {/* Existing communication logs display */}
         {displayedLogs.length > 0 ? (
           displayedLogs.map((log) => (
-            <Accordion 
-              key={log.id} 
-              elevation={0} 
-              sx={{ 
-                mb: 2, 
-                borderRadius: "12px !important", 
-                overflow: "hidden", 
-                boxShadow: "0 2px 20px rgba(0,0,0,0.05)", 
-                "&:before": { display: "none" } 
+            <Accordion
+              key={log.id}
+              elevation={0}
+              sx={{
+                mb: 2,
+                borderRadius: "12px !important",
+                overflow: "hidden",
+                boxShadow: "0 2px 20px rgba(0,0,0,0.05)",
+                "&:before": { display: "none" }
               }}
             >
-              <AccordionSummary 
-                expandIcon={<ExpandMoreIcon />} 
-                aria-controls={`panel-${log.id}-content`} 
-                id={`panel-${log.id}-header`} 
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls={`panel-${log.id}-content`}
+                id={`panel-${log.id}-header`}
                 sx={{ px: 3 }}
               >
                 <Box sx={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -331,21 +338,23 @@ export default function StakeholderCommunications({ communicationLogs: initialLo
                     </Box>
                   </Box>
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <Chip 
-                      label={log.sentiment} 
-                      size="small" 
-                      color={log.sentiment === "positive" ? "success" : log.sentiment === "negative" ? "error" : "default"} 
-                      sx={{ textTransform: "capitalize", fontWeight: 500 }} 
+                    <Chip
+                      label={log.sentiment}
+                      size="small"
+                      color={log.sentiment === "positive" ? "success" : log.sentiment === "negative" ? "error" : "default"}
+                      sx={{ textTransform: "capitalize", fontWeight: 500 }}
                     />
-                    <IconButton 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDelete(log.id);
-                      }}
-                      color="error"
-                    >
-                      <DeleteIcon />
-                    </IconButton>
+                    {isPM && (
+                      <IconButton
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(log.id);
+                        }}
+                        color="error"
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    )}
                   </Box>
                 </Box>
               </AccordionSummary>
@@ -354,7 +363,7 @@ export default function StakeholderCommunications({ communicationLogs: initialLo
                 <Typography variant="body1" paragraph><strong>Summary:</strong> {log.summary}</Typography>
                 <Typography variant="subtitle2" sx={{ mt: 2, mb: 1 }}>Action Items:</Typography>
                 <List disablePadding>
-                  {log.actionItems.map((item: string, index: number) => (
+                  {log.actionItems.map((item, index) => (
                     <ListItem key={index} sx={{ py: 0.5, px: 0, display: "flex", alignItems: "center" }}>
                       <CheckCircleIcon fontSize="small" color="primary" sx={{ mr: 1 }} />
                       <Typography variant="body2">{item}</Typography>
@@ -366,7 +375,9 @@ export default function StakeholderCommunications({ communicationLogs: initialLo
           ))
         ) : (
           <Box sx={{ textAlign: "center", py: 4 }}>
-            <Typography variant="body1" color="textSecondary">No communications recorded yet.</Typography>
+            <Typography variant="body1" color="textSecondary">
+              No communication logs match the current filters.
+            </Typography>
           </Box>
         )}
       </Grid>
