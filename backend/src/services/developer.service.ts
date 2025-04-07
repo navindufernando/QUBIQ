@@ -146,26 +146,26 @@ export class DeveloperService {
 
     async getSprintsForDeveloper(userId: string, timePeriod: string) {
         
-        const sprints = await prisma.sprint.findMany({
-            where: {
-                tasks: {
-                    some: {
-                        assigneeId: userId,
-                    }, 
-                },
-            },
-            include: {
-                tasks: true
-            }
-        });
+        // const sprints = await prisma.sprint.findMany({
+        //     where: {
+        //         tasks: {
+        //             some: {
+        //                 assigneeId: userId,
+        //             }, 
+        //         },
+        //     },
+        //     include: {
+        //         tasks: true
+        //     }
+        // });
 
-        // Filter tasks for the developer
-        const developerSprints = sprints.map(sprint => ({
-            ...sprint,
-            tasks: sprint.tasks.filter(task => task.developer === developerName),
-        }));
+        // // Filter tasks for the developer
+        // const developerSprints = sprints.map(sprint => ({
+        //     ...sprint,
+        //     tasks: sprint.tasks.filter(task => task.developer === developerName),
+        // }));
 
-        return developerSprints;
+        // return developerSprints;
     }
 
     async updateTaskStatus(id: number, data: any) {
