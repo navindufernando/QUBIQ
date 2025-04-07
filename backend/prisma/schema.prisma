@@ -191,6 +191,14 @@ model EfficiencyRecord {
   createdAt  DateTime  @default(now())
   updatedAt  DateTime? @updatedAt
 }
+model Message {
+  id         String   @id @default(uuid())
+  text       String
+  createdAt  DateTime @default(now())
+  isRead     Boolean  @default(false)
+  senderId   String
+  receiverId String
+}
 
 model LoginAttempt {
   id        String    @id @default(uuid())
@@ -199,8 +207,3 @@ model LoginAttempt {
   ipAddress String?
   userAgent String?
   createdAt DateTime  @default(now())
-  
-  @@index([email])
-  @@index([ipAddress])
-  @@index([createdAt])
-}
