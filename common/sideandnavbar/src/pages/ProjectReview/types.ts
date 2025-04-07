@@ -2,41 +2,65 @@ export interface ProjectData {
     id: string;
     name: string;
     description?: string;
-    completion: number;
-    createdAt: Date;
-    updatedAt?: Date;
     startDate?: string;
     endDate?: string;
+    status?: string;
+    completion: number;
     budget?: string;
     spent?: string;
-    status?: string;
+    createdAt: Date;
+    updatedAt?: Date;
+    creatorId: string;
     creator: {
         firstName: string;
         lastName: string;
         role: string;
     };
-    objectives: {
-        id: string;
-        content: string;
-        createdAt: Date;
-        updatedAt?: Date;
-    }[];
-    risks: {
-        id: string;
-        severity: string;
-        description: string;
-        createdAt: Date;
-        updatedAt?: Date;
-    }[];
-    highlights: {
-        id: string;
-        content: string;
-        createdAt: Date;
-        updatedAt?: Date;
-    }[];
+    objectives: Array<Objective>;
+    risks: Array<Risk>;
+    highlights: Array<Highlight>;
     feedbackItems: FeedbackItem[];
     communicationLogs: CommunicationLog[];
     teamInsights: TeamInsight[];
+}
+
+export interface ProjectReview {
+    id: string;
+    projectId: string;
+    createdAt: Date;
+    updatedAt?: Date;
+    creatorId: string;
+    objectives: Objective[];
+    risks: Risk[];
+    highlights: Highlight[];
+    feedbackItems: FeedbackItem[];
+    communicationLogs: CommunicationLog[];
+    teamInsights: TeamInsight[];
+}
+
+export interface Objective {
+    id: string;
+    content: string;
+    createdAt: Date;
+    updatedAt?: Date;
+    projectReviewId: string;
+}
+
+export interface Risk {
+    id: string;
+    severity: string;
+    description: string;
+    createdAt: Date;
+    updatedAt?: Date;
+    projectReviewId: string;
+}
+
+export interface Highlight {
+    id: string;
+    content: string;
+    createdAt: Date;
+    updatedAt?: Date;
+    projectReviewId: string;
 }
 
 export interface FeedbackItem {
@@ -44,22 +68,28 @@ export interface FeedbackItem {
     content: string;
     sentiment: string;
     date: string;
+    projectReviewId: string;
     authorId: string;
     author: {
         firstName: string;
         lastName: string;
         role: string;
+        avatar?: string | null;
     };
-    replies: {
-        id: string;
-        content: string;
-        date: string;
-        author: {
-            firstName: string;
-            lastName: string;
-            role: string;
-        };
-    }[];
+    replies: Array<Reply>;
+}
+
+export interface Reply {
+    id: string;
+    content: string;
+    date: string;
+    feedbackItemId: string;
+    author: {
+        firstName: string;
+        lastName: string;
+        role: string;
+        avatar?: string | null;
+    };
 }
 
 export interface CommunicationLog {
