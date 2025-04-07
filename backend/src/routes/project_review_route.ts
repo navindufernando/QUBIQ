@@ -18,7 +18,6 @@ const feedbackController = new FeedbackController();
 const communicationLogController = new CommunicationLogController();
 const teamInsightController = new TeamInsightController();
 
-// Project Review routes
 router.post(
     '/',
     AuthMiddleware.authenticate,
@@ -31,6 +30,13 @@ router.get(
     AuthMiddleware.authenticate,
     AuthMiddleware.authorize([UserRole.PM, UserRole.DEV]),
     projectReviewController.getProjectReview.bind(projectReviewController)
+);
+
+router.get(
+    '/',
+    AuthMiddleware.authenticate,
+    AuthMiddleware.authorize([UserRole.PM, UserRole.DEV]),
+    projectReviewController.getAllProjectReviews.bind(projectReviewController)
 );
 
 router.put(
@@ -47,7 +53,6 @@ router.delete(
     projectReviewController.deleteProjectReview.bind(projectReviewController)
 );
 
-// Objective routes
 router.post(
     '/:projectId/objectives',
     AuthMiddleware.authenticate,
@@ -69,7 +74,6 @@ router.delete(
     objectiveController.deleteObjective.bind(objectiveController)
 );
 
-// Risk routes
 router.post(
     '/:projectId/risks',
     AuthMiddleware.authenticate,
@@ -91,7 +95,6 @@ router.delete(
     riskController.deleteRisk.bind(riskController)
 );
 
-// Highlight routes
 router.post(
     '/:projectId/highlights',
     AuthMiddleware.authenticate,
@@ -113,7 +116,6 @@ router.delete(
     highlightController.deleteHighlight.bind(highlightController)
 );
 
-// Feedback routes
 router.post(
     '/:projectId/feedback',
     AuthMiddleware.authenticate,
@@ -149,7 +151,6 @@ router.delete(
     feedbackController.deleteReply.bind(feedbackController)
 );
 
-// Communication Log routes
 router.post(
     '/:projectId/communication-logs',
     AuthMiddleware.authenticate,
@@ -164,7 +165,6 @@ router.delete(
     communicationLogController.deleteCommunicationLog.bind(communicationLogController)
 );
 
-// Team Insight routes
 router.post(
     '/:projectId/team-insights',
     AuthMiddleware.authenticate,
