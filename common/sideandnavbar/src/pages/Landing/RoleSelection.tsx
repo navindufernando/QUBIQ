@@ -156,7 +156,7 @@ const RoleSelection = () => {
 
         console.log('response:', response);
 
-        console.log('token:', response.token);
+        console.log('token:', response.data.data.token);
 
         if (response.success && response.data.data && response.data.data.token) {
           console.log('User data before login:', response.data);

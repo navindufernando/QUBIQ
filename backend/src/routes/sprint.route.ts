@@ -1,13 +1,17 @@
 import { Router } from "express";
 import { SprintController } from "../contollers/sprint.controller";
+import AuthMiddleware from "../middleware/auth.middleware";
 
 const SprintRouter = Router();
 
+SprintRouter.use(AuthMiddleware.authenticate);
+
 // Routes for sprint-related operations (PM Dashboard)
-SprintRouter.post("/", (req, res) => SprintController.createSprint(req, res));  // Create sprint
-SprintRouter.get("/", (req, res) => SprintController.getAllSprints(req, res));  // Get all sprints with userId query
-SprintRouter.get("/:id", (req, res) => SprintController.getSprintById(req, res));  // Get a sprint by ID
-SprintRouter.put("/:id", (req, res) => SprintController.updateSprint(req, res));  // Update sprint by ID
-SprintRouter.delete("/:id", (req, res) => SprintController.deleteSprint(req, res));  // Delete sprint by ID
+SprintRouter.post("/", SprintController.createSprint);  // Create sprint
+SprintRouter.get("/", SprintController.getAllSprints);  // Get all sprints with userId query
+SprintRouter.get("/active", SprintController.getActiveSprint); // GET /sprint/active
+SprintRouter.get("/:id", SprintController.getSprintById);  // Get a sprint by ID
+SprintRouter.put("/:id", SprintController.updateSprint);  // Update sprint by ID
+SprintRouter.delete("/:id", SprintController.deleteSprint);  // Delete sprint by ID
 
 export default SprintRouter;
