@@ -15,6 +15,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import SearchIcon from "@mui/icons-material/Search";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import { FeedbackItem } from "./types";
+import apiService from "./../../../../../backend/src/services/apiService";
+import { useParams } from "react-router-dom";
 
 interface CommentsFeedbackProps {
   feedback: FeedbackItem[];
@@ -31,19 +33,25 @@ export default function CommentsFeedback({ feedback, setFeedback, handleEditFeed
   const [replyInputs, setReplyInputs] = useState<{ [key: string]: string }>({});
   const [showReplyInput, setShowReplyInput] = useState<{ [key: string]: boolean }>({});
 
-  const handleAddComment = () => {
-    if (!newComment.trim()) return;
-    const newFeedbackItem: FeedbackItem = {
-      id: `f${feedback.length + 1}`,
-      author: { name: "Current User", avatar: null, role: "Your Role" },
-      date: new Date().toISOString().split("T")[0],
-      content: newComment,
-      sentiment: newSentiment,
-      replies: [],
-    };
-    setFeedback([newFeedbackItem, ...feedback]);
-    setNewComment("");
-    setNewSentiment("neutral");
+  const { projectId } = useParams<{ projectId: string }>();
+  const token = localStorage.getItem("token") || ""; // Assume token is stored in localStorage
+
+  const handleAddComment = async () => {
+    if (!newComment.trim() || !projectId) return;
+    try {
+      const newFeedbackItem = await apiService.createFeedback(
+        projectId,
+        newComment,
+        newSentiment,
+        new Date().toISOString().split("T")[0],
+        token
+      );
+      setFeedback([newFeedbackItem, ...feedback]);
+      setNewComment("");
+      setNewSentiment("neutral");
+    } catch (error) {
+      console.error("Failed to add feedback:", error);
+    }
   };
 
   const handleFilterClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -67,24 +75,31 @@ export default function CommentsFeedback({ feedback, setFeedback, handleEditFeed
     setReplyInputs((prev) => ({ ...prev, [feedbackId]: value }));
   };
 
-  const handleAddReply = (feedbackId: string) => {
+  const handleAddReply = async (feedbackId: string) => {
     const replyText = replyInputs[feedbackId]?.trim();
     if (!replyText) return;
-
-    const newReply = {
-      id: `r${Date.now()}`,
-      author: { name: "Team Member", avatar: null, role: "Member" },
-      date: new Date().toISOString().split("T")[0],
-      content: replyText,
-    };
-
-    setFeedback(feedback.map((item) => item.id === feedbackId ? { ...item, replies: [...item.replies, newReply] } : item));
-    setReplyInputs((prev) => ({ ...prev, [feedbackId]: "" }));
-    setShowReplyInput((prev) => ({ ...prev, [feedbackId]: false }));
+    try {
+      const newReply = await apiService.createReply(
+        feedbackId,
+        replyText,
+        new Date().toISOString().split("T")[0],
+        token
+      );
+      setFeedback(feedback.map((item) => item.id === feedbackId ? { ...item, replies: [...item.replies, newReply] } : item));
+      setReplyInputs((prev) => ({ ...prev, [feedbackId]: "" }));
+      setShowReplyInput((prev) => ({ ...prev, [feedbackId]: false }));
+    } catch (error) {
+      console.error("Failed to add reply:", error);
+    }
   };
 
-  const handleDeleteFeedback = (id: string) => {
-    setFeedback(feedback.filter((item) => item.id !== id));
+  const handleDeleteFeedback = async (id: string) => {
+    try {
+      await apiService.deleteFeedback(id, token);
+      setFeedback(feedback.filter((item) => item.id !== id));
+    } catch (error) {
+      console.error("Failed to delete feedback:", error);
+    }
   };
 
   const getSentimentIcon = (sentiment: string) => {
@@ -159,9 +174,9 @@ export default function CommentsFeedback({ feedback, setFeedback, handleEditFeed
             <Paper key={item.id} elevation={0} sx={{ p: 3, borderRadius: 3, boxShadow: "0 2px 20px rgba(0,0,0,0.05)", mb: 3 }}>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 2 }}>
                 <Box sx={{ display: "flex", alignItems: "center" }}>
-                  <Avatar sx={{ bgcolor: "#3b82f6", width: 40, height: 40, mr: 2 }}>{item.author.name.charAt(0)}</Avatar>
+                  <Avatar sx={{ bgcolor: "#3b82f6", width: 40, height: 40, mr: 2 }}>{item.author.firstName.charAt(0)}</Avatar>
                   <Box>
-                    <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>{item.author.name}</Typography>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>{`${item.author.firstName} ${item.author.lastName}`}</Typography>
                     <Typography variant="body2" color="textSecondary">{item.author.role} • {item.date}</Typography>
                   </Box>
                 </Box>
@@ -201,9 +216,9 @@ export default function CommentsFeedback({ feedback, setFeedback, handleEditFeed
                   {item.replies.map((reply) => (
                     <Box key={reply.id} sx={{ mb: 3 }}>
                       <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                        <Avatar sx={{ bgcolor: "#10b981", width: 32, height: 32, mr: 1.5 }}>{reply.author.name.charAt(0)}</Avatar>
+                        <Avatar sx={{ bgcolor: "#10b981", width: 32, height: 32, mr: 1.5 }}>{reply.author.firstName.charAt(0)}</Avatar>
                         <Box>
-                          <Typography variant="subtitle2">{reply.author.name}</Typography>
+                          <Typography variant="subtitle2">{`${reply.author.firstName} ${reply.author.lastName}`}</Typography>
                           <Typography variant="caption" color="textSecondary">{reply.author.role} • {reply.date}</Typography>
                         </Box>
                       </Box>
