@@ -15,46 +15,49 @@ import apiService from "../../services/apiService";
 interface ProjectSummaryProps {
   project: ProjectData;
   setProject: (project: ProjectData) => void;
-  selectedSection: string | null;
-  selectedIndex: number | null;
-  handleSelectSection: (section: string, index?: number) => void;
-  handleDeselectSection: () => void;
   handleOpenEditSection: (section: string, index?: number) => void;
 }
 
 export default function ProjectSummary({
   project,
   setProject,
-  selectedSection,
-  selectedIndex,
-  handleSelectSection,
-  handleDeselectSection,
   handleOpenEditSection,
 }: ProjectSummaryProps) {
-  const token = localStorage.getItem("token") || ""; // Assume token is stored in localStorage
+  const [selectedSection, setSelectedSection] = useState<string | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+
+  const handleSelectSection = (section: string, index?: number) => {
+    setSelectedSection(section);
+    setSelectedIndex(index !== undefined ? index : null);
+  };
+
+  const handleDeselectSection = () => {
+    setSelectedSection(null);
+    setSelectedIndex(null);
+  };
 
   const handleDeleteItem = async (section: string, index?: number) => {
     try {
       if (section === "objectives" && index !== undefined) {
         const objectiveId = project.objectives[index].id;
-        await apiService.deleteObjective(objectiveId, token);
+        await apiService.deleteObjective(objectiveId);
         setProject({
           ...project,
-          objectives: project.objectives.filter((_: any, i: number) => i !== index),
+          objectives: project.objectives.filter((_, i) => i !== index),
         });
       } else if (section === "highlights" && index !== undefined) {
         const highlightId = project.highlights[index].id;
-        await apiService.deleteHighlight(highlightId, token);
+        await apiService.deleteHighlight(highlightId);
         setProject({
           ...project,
-          highlights: project.highlights.filter((_: any, i: number) => i !== index),
+          highlights: project.highlights.filter((_, i) => i !== index),
         });
       } else if (section === "risks" && index !== undefined) {
         const riskId = project.risks[index].id;
-        await apiService.deleteRisk(riskId, token);
+        await apiService.deleteRisk(riskId);
         setProject({
           ...project,
-          risks: project.risks.filter((_: any, i: number) => i !== index),
+          risks: project.risks.filter((_, i) => i !== index),
         });
       }
     } catch (error) {
@@ -111,7 +114,7 @@ export default function ProjectSummary({
             </Box>
             <List disablePadding>
               {project.objectives.length > 0 ? (
-                project.objectives.map((objective: any, index: number) => (
+                project.objectives.map((objective, index) => (
                   <Box
                     key={index}
                     sx={{ py: 0.5, px: 1, cursor: "pointer", bgcolor: selectedSection === "objectives" && selectedIndex === index ? "rgba(0, 0, 0, 0.04)" : "transparent", borderRadius: 1 }}
@@ -152,7 +155,7 @@ export default function ProjectSummary({
             </Box>
             <List disablePadding>
               {project.highlights.length > 0 ? (
-                project.highlights.map((highlight: any, index: number) => (
+                project.highlights.map((highlight, index) => (
                   <Box
                     key={index}
                     sx={{ py: 0.5, px: 1, cursor: "pointer", bgcolor: selectedSection === "highlights" && selectedIndex === index ? "rgba(0, 0, 0, 0.04)" : "transparent", borderRadius: 1 }}
@@ -202,7 +205,7 @@ export default function ProjectSummary({
                 </TableHead>
                 <TableBody>
                   {project.risks.length > 0 ? (
-                    project.risks.map((risk: any, index: number) => (
+                    project.risks.map((risk, index) => (
                       <Box
                         key={index}
                         sx={{ cursor: "pointer", bgcolor: selectedSection === "risks" && selectedIndex === index ? "rgba(0, 0, 0, 0.04)" : "transparent" }}

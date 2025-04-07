@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Container, Paper, Typography, Box, Divider, Tabs, Tab, IconButton, Button, Menu, MenuItem
 } from "@mui/material";
@@ -18,16 +18,17 @@ import ProjectSummary from "./ProjectSummary";
 import CommentsFeedback from "./CommentsFeedback";
 import StakeholderCommunications from "./StakeholderCommunications";
 import TeamInsights from "./TeamInsights";
-import { ProjectReview, FeedbackItem } from "./types";
+import { ProjectData, FeedbackItem } from "./types";
 import apiService from "../../services/apiService";
-import { useAuth } from "./../Signup&Login/AuthContext";
+import { useAuth } from "../Signup&Login/AuthContext";
 
-export default function ProjectReviewComponent() { 
+export default function ProjectReviewComponent() {
   const [tabValue, setTabValue] = useState(0);
-  const [project, setProject] = useState<ProjectReview | null>(null); 
+  const [project, setProject] = useState<ProjectData | null>(null);
   const [feedback, setFeedback] = useState<FeedbackItem[]>([]);
   const [communicationLogs, setCommunicationLogs] = useState<any[]>([]);
   const [teamInsights, setTeamInsights] = useState<any[]>([]);
+  const [projectId, setProjectId] = useState<string | null>(null);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editedProjectName, setEditedProjectName] = useState("");
@@ -37,42 +38,11 @@ export default function ProjectReviewComponent() {
   const [newObjective, setNewObjective] = useState("");
   const [newHighlight, setNewHighlight] = useState("");
   const [newRisk, setNewRisk] = useState({ severity: "", description: "" });
-  const [selectedSection, setSelectedSection] = useState<string | null>(null);
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [editFeedbackId, setEditFeedbackId] = useState<string | null>(null);
   const [editFeedbackContent, setEditFeedbackContent] = useState("");
   const [editFeedbackSentiment, setEditFeedbackSentiment] = useState("");
-
-  const { projectId } = useParams<{ projectId: string }>();
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      console.log("Not authenticated, redirecting to /login");
-      navigate('/login');
-      return;
-    }
-
-    const fetchProjectData = async () => {
-      try {
-        if (!projectId) {
-          console.log("No projectId provided, skipping fetch");
-          return;
-        }
-        console.log("Fetching project data for ID:", projectId);
-        const projectData = await apiService.getProjectReview(projectId);
-        console.log("Project data fetched:", projectData);
-        setProject(projectData);
-        setFeedback(projectData.feedbackItems || []);
-        setCommunicationLogs(projectData.communicationLogs || []);
-        setTeamInsights(projectData.teamInsights || []);
-      } catch (error) {
-        console.error("Failed to fetch project data:", error);
-      }
-    };
-    if (projectId) fetchProjectData();
-  }, [projectId, isAuthenticated, navigate]);
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -105,42 +75,35 @@ export default function ProjectReviewComponent() {
   };
 
   const handleSaveProjectName = async () => {
-    if (!user) {
-      console.log("No user found, aborting save");
-      return;
-    }
+    if (!user) return;
     try {
-      let newProjectData: ProjectReview;
+      let newProjectData: ProjectData;
       if (projectId && project) {
-        console.log("Updating existing project:", projectId);
         newProjectData = await apiService.updateProjectReview(projectId, { name: editedProjectName });
-        console.log("Updated project:", newProjectData);
       } else {
-        console.log("Creating new project with name:", editedProjectName);
-        const response = await apiService.createProjectReview({ name: editedProjectName });
-        console.log("Raw API response:", response);
-        newProjectData = response; // Assume flat response; adjust if nested
-        console.log("New project data:", newProjectData);
+        const response = await apiService.createProjectReview({ name: editedProjectName, creatorId: user.id });
+        newProjectData = {
+          ...response,
+          creator: { firstName: user.firstName || "", lastName: user.lastName || "", role: user.role },
+          completion: 0,
+          createdAt: new Date(),
+          objectives: [],
+          risks: [],
+          highlights: [],
+          feedbackItems: [],
+          communicationLogs: [],
+          teamInsights: [],
+        };
+        setProjectId(response.id); // Set projectId after creation
       }
       setProject(newProjectData);
       setFeedback(newProjectData.feedbackItems || []);
       setCommunicationLogs(newProjectData.communicationLogs || []);
       setTeamInsights(newProjectData.teamInsights || []);
       setIsEditDialogOpen(false);
-      console.log("Save completed, new project state:", newProjectData);
     } catch (error) {
       console.error("Failed to save project name:", error);
     }
-  };
-
-  const handleSelectSection = (section: string, index?: number) => {
-    setSelectedSection(section);
-    setSelectedIndex(index !== undefined ? index : null);
-  };
-
-  const handleDeselectSection = () => {
-    setSelectedSection(null);
-    setSelectedIndex(null);
   };
 
   const handleOpenEditSection = (section: string, index?: number) => {
@@ -161,10 +124,10 @@ export default function ProjectReviewComponent() {
   };
 
   const handleSaveSection = async () => {
-    if (!project?.id || !project || user?.role !== 'PM') return;
+    if (!projectId || !project || user?.role !== 'PM') return;
     try {
       if (editSection === "description") {
-        const updatedProject = await apiService.updateProjectReview(project.id, { description: newDescription });
+        const updatedProject = await apiService.updateProjectReview(projectId, { description: newDescription });
         setProject(updatedProject);
       } else if (editSection === "objectives") {
         if (editIndex !== null) {
@@ -173,7 +136,7 @@ export default function ProjectReviewComponent() {
           const updatedObjectives = project.objectives.map((obj, i) => (i === editIndex ? updatedObjective : obj));
           setProject({ ...project, objectives: updatedObjectives });
         } else {
-          const newObjectiveData = await apiService.createObjective(project.id, newObjective);
+          const newObjectiveData = await apiService.createObjective(projectId, newObjective);
           setProject({ ...project, objectives: [...project.objectives, newObjectiveData] });
         }
       } else if (editSection === "highlights") {
@@ -183,7 +146,7 @@ export default function ProjectReviewComponent() {
           const updatedHighlights = project.highlights.map((hl, i) => (i === editIndex ? updatedHighlight : hl));
           setProject({ ...project, highlights: updatedHighlights });
         } else {
-          const newHighlightData = await apiService.createHighlight(project.id, newHighlight);
+          const newHighlightData = await apiService.createHighlight(projectId, newHighlight);
           setProject({ ...project, highlights: [...project.highlights, newHighlightData] });
         }
       } else if (editSection === "risks") {
@@ -193,13 +156,11 @@ export default function ProjectReviewComponent() {
           const updatedRisks = project.risks.map((risk, i) => (i === editIndex ? updatedRisk : risk));
           setProject({ ...project, risks: updatedRisks });
         } else {
-          const newRiskData = await apiService.createRisk(project.id, newRisk.severity, newRisk.description);
+          const newRiskData = await apiService.createRisk(projectId, newRisk.severity, newRisk.description);
           setProject({ ...project, risks: [...project.risks, newRiskData] });
         }
       }
       handleCloseEditDialog();
-      setSelectedSection(null);
-      setSelectedIndex(null);
     } catch (error) {
       console.error("Failed to save section:", error);
     }
@@ -216,7 +177,7 @@ export default function ProjectReviewComponent() {
   };
 
   const handleSaveEditedFeedback = async () => {
-    if (!editFeedbackContent.trim() || !editFeedbackId || !project?.id) return;
+    if (!editFeedbackContent.trim() || !editFeedbackId || !projectId) return;
     try {
       const updatedFeedback = await apiService.updateFeedback(
         editFeedbackId,
@@ -241,16 +202,13 @@ export default function ProjectReviewComponent() {
     communicationLogs.length > 0 ||
     teamInsights.length > 0
   );
-  console.log("hasContent:", hasContent, "project:", project);
 
-  if (!isAuthenticated) return null;
-
-  if (!project && projectId) {
-    return <Typography>Loading...</Typography>;
+  if (!isAuthenticated) {
+    navigate('/login');
+    return null;
   }
 
   if (!hasContent) {
-    console.log("Rendering Welcome screen");
     return (
       <Container maxWidth="xl" sx={{ py: 4, minHeight: "100vh", display: "flex", alignItems: "center" }}>
         <Paper elevation={0} sx={{ p: 4, borderRadius: 3, boxShadow: "0 2px 20px rgba(0,0,0,0.05)", width: "100%", maxWidth: 600, mx: "auto", textAlign: "center", bgcolor: "#fafafa" }}>
@@ -286,14 +244,13 @@ export default function ProjectReviewComponent() {
           setNewRisk={setNewRisk}
           editedProjectName={editedProjectName}
           setEditedProjectName={setEditedProjectName}
-          project={project || { id: '', name: '', completion: 0, createdAt: new Date(), creator: { firstName: '', lastName: '', role: '' }, objectives: [], risks: [], highlights: [], feedbackItems: [], communicationLogs: [], teamInsights: [] }}
+          project={project || { id: '', name: '', completion: 0, createdAt: new Date(), creator: { firstName: user?.firstName || '', lastName: user?.lastName || '', role: user?.role || '' }, objectives: [], risks: [], highlights: [], feedbackItems: [], communicationLogs: [], teamInsights: [] }}
           onSave={handleSaveProjectName}
         />
       </Container>
     );
   }
 
-  console.log("Rendering project details");
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
       <Paper elevation={0} sx={{ p: 3, mb: 4, borderRadius: 3, boxShadow: "0 2px 20px rgba(0,0,0,0.05)", bgcolor: "#fafafa" }}>
@@ -354,29 +311,32 @@ export default function ProjectReviewComponent() {
         setNewRisk={setNewRisk}
         editedProjectName={editedProjectName}
         setEditedProjectName={setEditedProjectName}
-        project={project}
+        project={project!}
         onSave={editFeedbackId ? handleSaveEditedFeedback : editSection ? handleSaveSection : handleSaveProjectName}
       />
 
       <TabPanel value={tabValue} index={0}>
         <ProjectSummary
-          project={project}
+          project={project!}
           setProject={setProject}
-          selectedSection={selectedSection}
-          selectedIndex={selectedIndex}
-          handleSelectSection={handleSelectSection}
-          handleDeselectSection={handleDeselectSection}
           handleOpenEditSection={handleOpenEditSection}
         />
       </TabPanel>
       <TabPanel value={tabValue} index={1}>
-        <CommentsFeedback feedback={feedback} setFeedback={setFeedback} handleEditFeedback={handleEditFeedback} />
+        {projectId && (
+          <CommentsFeedback
+            feedback={feedback}
+            setFeedback={setFeedback}
+            handleEditFeedback={handleEditFeedback}
+            projectId={projectId}
+          />
+        )}
       </TabPanel>
       <TabPanel value={tabValue} index={2}>
-        <StakeholderCommunications communicationLogs={communicationLogs} />
+        <StakeholderCommunications communicationLogs={communicationLogs} projectId={projectId!} setCommunicationLogs={setCommunicationLogs} />
       </TabPanel>
       <TabPanel value={tabValue} index={3}>
-        <TeamInsights teamInsights={teamInsights} />
+        <TeamInsights teamInsights={teamInsights} projectId={projectId!} setTeamInsights={setTeamInsights} />
       </TabPanel>
     </Container>
   );

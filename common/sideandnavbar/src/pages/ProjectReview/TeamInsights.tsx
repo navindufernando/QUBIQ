@@ -1,13 +1,13 @@
 import { useState } from "react";
-import { 
-  Grid, Typography, Box, Button, Card, CardContent, Avatar, Rating, 
-  Chip, TextField, Dialog, DialogTitle, DialogContent, DialogActions, 
-  IconButton, MenuItem 
+import {
+  Grid, Typography, Box, Button, Card, CardContent, Avatar, Rating,
+  Chip, TextField, Dialog, DialogTitle, DialogContent, DialogActions,
+  IconButton, MenuItem
 } from "@mui/material";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import DeleteIcon from "@mui/icons-material/Delete";
 import apiService from "../../services/apiService";
-import { useParams } from "react-router-dom";
+import { useAuth } from "../Signup&Login/AuthContext";
 
 interface TeamInsight {
   id: string;
@@ -17,13 +17,22 @@ interface TeamInsight {
   rating: number;
   content: string;
   focusAreas: string[];
+  projectReviewId: string;
+  creatorId: string;
+  creator: {
+    firstName: string;
+    lastName: string;
+    role: string;
+  };
 }
 
 interface TeamInsightsProps {
   teamInsights: TeamInsight[];
+  projectId: string;
+  setTeamInsights: (insights: TeamInsight[]) => void;
 }
 
-export default function TeamInsights({ teamInsights: initialInsights }: TeamInsightsProps) {
+export default function TeamInsights({ teamInsights: initialInsights, projectId, setTeamInsights }: TeamInsightsProps) {
   const [allInsights, setAllInsights] = useState<TeamInsight[]>(initialInsights);
   const [displayedInsights, setDisplayedInsights] = useState<TeamInsight[]>(initialInsights);
   const [openDialog, setOpenDialog] = useState(false);
@@ -36,16 +45,19 @@ export default function TeamInsights({ teamInsights: initialInsights }: TeamInsi
     content: "",
     focusAreas: [""]
   });
-
-  const { projectId } = useParams<{ projectId: string }>();
-  const token = localStorage.getItem("token") || ""; // Assume token is stored in localStorage
+  const { user } = useAuth();
+  const isPM = user?.role === 'PM';
 
   const handleOpenDialog = () => setOpenDialog(true);
   const handleCloseDialog = () => setOpenDialog(false);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setNewInsight({ ...newInsight, [name]: value });
+  };
+
+  const handleRatingChange = (event: React.ChangeEvent<{}>, value: number | null) => {
+    setNewInsight({ ...newInsight, rating: value || 0 });
   };
 
   const handleFocusAreaChange = (index: number, value: string) => {
@@ -59,7 +71,7 @@ export default function TeamInsights({ teamInsights: initialInsights }: TeamInsi
   };
 
   const handleSubmit = async () => {
-    if (!projectId) return;
+    if (!projectId || !isPM) return;
     try {
       const newInsightData = await apiService.createTeamInsight(
         projectId,
@@ -68,11 +80,11 @@ export default function TeamInsights({ teamInsights: initialInsights }: TeamInsi
         newInsight.date,
         newInsight.rating,
         newInsight.content,
-        newInsight.focusAreas.filter(area => area.trim() !== ""),
-        token
+        newInsight.focusAreas.filter(area => area.trim() !== "")
       );
       const updatedAllInsights = [newInsightData, ...allInsights];
       setAllInsights(updatedAllInsights);
+      setTeamInsights(updatedAllInsights);
       filterInsights(filterName, updatedAllInsights);
       setNewInsight({
         memberName: "",
@@ -89,10 +101,12 @@ export default function TeamInsights({ teamInsights: initialInsights }: TeamInsi
   };
 
   const handleDelete = async (id: string) => {
+    if (!isPM) return;
     try {
-      await apiService.deleteTeamInsight(id, token);
+      await apiService.deleteTeamInsight(id);
       const updatedInsights = allInsights.filter(insight => insight.id !== id);
       setAllInsights(updatedInsights);
+      setTeamInsights(updatedInsights);
       filterInsights(filterName, updatedInsights);
     } catch (error) {
       console.error("Failed to delete team insight:", error);
@@ -108,7 +122,7 @@ export default function TeamInsights({ teamInsights: initialInsights }: TeamInsi
   const filterInsights = (name: string, insights: TeamInsight[]) => {
     let filtered = [...insights];
     if (name) {
-      filtered = filtered.filter(insight => 
+      filtered = filtered.filter(insight =>
         insight.memberName.toLowerCase().includes(name.toLowerCase())
       );
     }
@@ -138,16 +152,18 @@ export default function TeamInsights({ teamInsights: initialInsights }: TeamInsi
                 )
               }}
             />
-            <Button 
-              variant="contained" 
-              onClick={handleOpenDialog}
-              sx={{ borderRadius: 2, textTransform: "none", fontWeight: 500 }}
-            >
-              Request New Insights
-            </Button>
+            {isPM && (
+              <Button
+                variant="contained"
+                onClick={handleOpenDialog}
+                sx={{ borderRadius: 2, textTransform: "none", fontWeight: 500 }}
+              >
+                Add New Insight
+              </Button>
+            )}
             {filterName && (
-              <Button 
-                variant="text" 
+              <Button
+                variant="text"
                 onClick={resetFilter}
                 sx={{ textTransform: "none" }}
               >
@@ -157,9 +173,8 @@ export default function TeamInsights({ teamInsights: initialInsights }: TeamInsi
           </Box>
         </Box>
 
-        {/* Dialog for new insight */}
         <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-          <DialogTitle>Record New Team Insight</DialogTitle>
+          <DialogTitle>Add New Team Insight</DialogTitle>
           <DialogContent>
             <TextField
               fullWidth
@@ -187,18 +202,16 @@ export default function TeamInsights({ teamInsights: initialInsights }: TeamInsi
               margin="normal"
               InputLabelProps={{ shrink: true }}
             />
-            <Box sx={{ mt: 2, mb: 2 }}>
-              <Typography variant="subtitle2">Rating</Typography>
-              <Rating
-                name="rating"
-                value={newInsight.rating}
-                precision={0.5}
-                onChange={(_, value) => setNewInsight({ ...newInsight, rating: value || 0 })}
-              />
-            </Box>
+            <Typography component="legend" sx={{ mt: 2 }}>Performance Rating</Typography>
+            <Rating
+              name="rating"
+              value={newInsight.rating}
+              onChange={handleRatingChange}
+              precision={0.5}
+            />
             <TextField
               fullWidth
-              label="Content"
+              label="Insight Content"
               name="content"
               value={newInsight.content}
               onChange={handleInputChange}
@@ -221,50 +234,67 @@ export default function TeamInsights({ teamInsights: initialInsights }: TeamInsi
           </DialogContent>
           <DialogActions>
             <Button onClick={handleCloseDialog}>Cancel</Button>
-            <Button onClick={handleSubmit} variant="contained">Save</Button>
+            <Button
+              onClick={handleSubmit}
+              variant="contained"
+              disabled={!newInsight.memberName.trim() || !newInsight.content.trim()}
+            >
+              Save
+            </Button>
           </DialogActions>
         </Dialog>
 
         {displayedInsights.length > 0 ? (
           displayedInsights.map((insight) => (
-            <Card key={insight.id} elevation={0} sx={{ borderRadius: 3, boxShadow: "0 2px 20px rgba(0,0,0,0.05)", mb: 3, overflow: "visible" }}>
-              <CardContent sx={{ p: 3 }}>
-                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 2 }}>
+            <Card
+              key={insight.id}
+              elevation={0}
+              sx={{ mb: 3, borderRadius: 3, boxShadow: "0 2px 20px rgba(0,0,0,0.05)" }}
+            >
+              <CardContent>
+                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
                   <Box sx={{ display: "flex", alignItems: "center" }}>
-                    <Avatar sx={{ bgcolor: "#6366f1", width: 40, height: 40, mr: 2 }}>{insight.memberName.charAt(0)}</Avatar>
+                    <Avatar sx={{ bgcolor: "#10b981", width: 40, height: 40, mr: 2 }}>
+                      {insight.memberName.charAt(0)}
+                    </Avatar>
                     <Box>
-                      <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>{insight.memberName}</Typography>
-                      <Typography variant="body2" color="textSecondary">{insight.memberRole} • {insight.date}</Typography>
+                      <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                        {insight.memberName}
+                      </Typography>
+                      <Typography variant="body2" color="textSecondary">
+                        {insight.memberRole} • {insight.date}
+                      </Typography>
                     </Box>
                   </Box>
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <Box sx={{ display: "flex", alignItems: "center", bgcolor: "rgba(99, 102, 241, 0.1)", p: 1, borderRadius: 2 }}>
-                      <Rating value={insight.rating} precision={0.5} readOnly size="small" />
-                      <Typography variant="body2" sx={{ fontWeight: 500, ml: 1 }}>{insight.rating.toFixed(1)}</Typography>
-                    </Box>
+                  {isPM && (
                     <IconButton
                       onClick={() => handleDelete(insight.id)}
                       color="error"
                     >
                       <DeleteIcon />
                     </IconButton>
-                  </Box>
+                  )}
                 </Box>
-                <Typography variant="body1" paragraph sx={{ mt: 2 }}>{insight.content}</Typography>
-                <Box sx={{ mt: 3 }}>
-                  <Typography variant="subtitle2" sx={{ mb: 1 }}>Focus Areas:</Typography>
-                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-                    {insight.focusAreas.map((area: string, index: number) => (
-                      <Chip key={index} label={area} size="small" sx={{ borderRadius: 2, bgcolor: "rgba(99, 102, 241, 0.1)", color: "#6366f1", fontWeight: 500 }} />
-                    ))}
-                  </Box>
+                <Rating value={insight.rating} readOnly precision={0.5} sx={{ mb: 2 }} />
+                <Typography variant="body1" paragraph>{insight.content}</Typography>
+                <Box>
+                  {insight.focusAreas.map((area, index) => (
+                    <Chip
+                      key={index}
+                      label={area}
+                      size="small"
+                      sx={{ mr: 1, mb: 1, bgcolor: "rgba(59, 130, 246, 0.1)", color: "#3b82f6" }}
+                    />
+                  ))}
                 </Box>
               </CardContent>
             </Card>
           ))
         ) : (
           <Box sx={{ textAlign: "center", py: 4 }}>
-            <Typography variant="body1" color="textSecondary">No team insights available yet.</Typography>
+            <Typography variant="body1" color="textSecondary">
+              No team insights available yet.
+            </Typography>
           </Box>
         )}
       </Grid>

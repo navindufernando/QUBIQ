@@ -16,16 +16,16 @@ import SearchIcon from "@mui/icons-material/Search";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import { FeedbackItem } from "./types";
 import apiService from "../../services/apiService";
-import { useParams } from "react-router-dom";
-import { useAuth } from './../Signup&Login/AuthContext';
+import { useAuth } from "../Signup&Login/AuthContext";
 
 interface CommentsFeedbackProps {
   feedback: FeedbackItem[];
   setFeedback: (feedback: FeedbackItem[]) => void;
   handleEditFeedback: (id: string) => void;
+  projectId: string;
 }
 
-export default function CommentsFeedback({ feedback, setFeedback, handleEditFeedback }: CommentsFeedbackProps) {
+export default function CommentsFeedback({ feedback, setFeedback, handleEditFeedback, projectId }: CommentsFeedbackProps) {
   const [newComment, setNewComment] = useState("");
   const [newSentiment, setNewSentiment] = useState("neutral");
   const [filterAnchorEl, setFilterAnchorEl] = useState<null | HTMLElement>(null);
@@ -33,8 +33,6 @@ export default function CommentsFeedback({ feedback, setFeedback, handleEditFeed
   const [searchTerm, setSearchTerm] = useState("");
   const [replyInputs, setReplyInputs] = useState<{ [key: string]: string }>({});
   const [showReplyInput, setShowReplyInput] = useState<{ [key: string]: boolean }>({});
-
-  const { projectId } = useParams<{ projectId: string }>();
   const { user } = useAuth();
 
   const handleAddComment = async () => {

@@ -13,8 +13,7 @@ import FilterListIcon from "@mui/icons-material/FilterList";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { InputAdornment } from "@mui/material";
 import apiService from "../../services/apiService";
-import { useParams } from "react-router-dom";
-import { useAuth } from './../Signup&Login/AuthContext';
+import { useAuth } from "../Signup&Login/AuthContext";
 
 interface CommunicationLog {
   id: string;
@@ -38,9 +37,11 @@ interface CommunicationLog {
 
 interface StakeholderCommunicationsProps {
   communicationLogs: CommunicationLog[];
+  projectId: string;
+  setCommunicationLogs: (logs: CommunicationLog[]) => void;
 }
 
-export default function StakeholderCommunications({ communicationLogs: initialLogs }: StakeholderCommunicationsProps) {
+export default function StakeholderCommunications({ communicationLogs: initialLogs, projectId, setCommunicationLogs }: StakeholderCommunicationsProps) {
   const [allLogs, setAllLogs] = useState<CommunicationLog[]>(initialLogs);
   const [displayedLogs, setDisplayedLogs] = useState<CommunicationLog[]>(initialLogs);
   const [openDialog, setOpenDialog] = useState(false);
@@ -57,8 +58,6 @@ export default function StakeholderCommunications({ communicationLogs: initialLo
     summary: "",
     actionItems: [""]
   });
-
-  const { projectId } = useParams<{ projectId: string }>();
   const { user } = useAuth();
   const isPM = user?.role === 'PM';
 
@@ -97,6 +96,7 @@ export default function StakeholderCommunications({ communicationLogs: initialLo
       );
       const updatedAllLogs = [newLog, ...allLogs];
       setAllLogs(updatedAllLogs);
+      setCommunicationLogs(updatedAllLogs);
       filterLogs(searchTerm, filterSentiment, updatedAllLogs);
       setNewCommunication({
         stakeholderName: "",
@@ -121,6 +121,7 @@ export default function StakeholderCommunications({ communicationLogs: initialLo
       await apiService.deleteCommunicationLog(id);
       const updatedAllLogs = allLogs.filter(log => log.id !== id);
       setAllLogs(updatedAllLogs);
+      setCommunicationLogs(updatedAllLogs);
       filterLogs(searchTerm, filterSentiment, updatedAllLogs);
     } catch (error) {
       console.error("Failed to delete communication log:", error);
@@ -143,7 +144,6 @@ export default function StakeholderCommunications({ communicationLogs: initialLo
 
   const filterLogs = (search: string, sentiment: string | null, logs: CommunicationLog[]) => {
     let filtered = [...logs];
-
     if (search) {
       filtered = filtered.filter(log =>
         log.stakeholderName.toLowerCase().includes(search) ||
@@ -151,11 +151,9 @@ export default function StakeholderCommunications({ communicationLogs: initialLo
         log.summary.toLowerCase().includes(search)
       );
     }
-
     if (sentiment) {
       filtered = filtered.filter(log => log.sentiment === sentiment);
     }
-
     setDisplayedLogs(filtered);
   };
 
