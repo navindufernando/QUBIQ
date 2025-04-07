@@ -18,13 +18,13 @@ import ProjectSummary from "./ProjectSummary";
 import CommentsFeedback from "./CommentsFeedback";
 import StakeholderCommunications from "./StakeholderCommunications";
 import TeamInsights from "./TeamInsights";
-import { ProjectData, FeedbackItem } from "./types";
+import { ProjectReview, FeedbackItem } from "./types";
 import apiService from "../../services/apiService";
-import { useAuth } from './../Signup&Login/AuthContext';
+import { useAuth } from "./../Signup&Login/AuthContext";
 
-export default function ProjectReview() {
+export default function ProjectReviewComponent() { 
   const [tabValue, setTabValue] = useState(0);
-  const [project, setProject] = useState<ProjectData | null>(null);
+  const [project, setProject] = useState<ProjectReview | null>(null); 
   const [feedback, setFeedback] = useState<FeedbackItem[]>([]);
   const [communicationLogs, setCommunicationLogs] = useState<any[]>([]);
   const [teamInsights, setTeamInsights] = useState<any[]>([]);
@@ -110,22 +110,24 @@ export default function ProjectReview() {
       return;
     }
     try {
+      let newProjectData: ProjectReview;
       if (projectId && project) {
         console.log("Updating existing project:", projectId);
-        const updatedProject = await apiService.updateProjectReview(projectId, { name: editedProjectName });
-        console.log("Updated project:", updatedProject);
-        setProject(updatedProject);
+        newProjectData = await apiService.updateProjectReview(projectId, { name: editedProjectName });
+        console.log("Updated project:", newProjectData);
       } else {
         console.log("Creating new project with name:", editedProjectName);
-        const newProject = await apiService.createProjectReview({ name: editedProjectName });
-        console.log("New project response:", newProject);
-        setProject(newProject);
-        setFeedback(newProject.feedbackItems || []);
-        setCommunicationLogs(newProject.communicationLogs || []);
-        setTeamInsights(newProject.teamInsights || []);
+        const response = await apiService.createProjectReview({ name: editedProjectName });
+        console.log("Raw API response:", response);
+        newProjectData = response; // Assume flat response; adjust if nested
+        console.log("New project data:", newProjectData);
       }
+      setProject(newProjectData);
+      setFeedback(newProjectData.feedbackItems || []);
+      setCommunicationLogs(newProjectData.communicationLogs || []);
+      setTeamInsights(newProjectData.teamInsights || []);
       setIsEditDialogOpen(false);
-      console.log("Save completed, project state:", project);
+      console.log("Save completed, new project state:", newProjectData);
     } catch (error) {
       console.error("Failed to save project name:", error);
     }

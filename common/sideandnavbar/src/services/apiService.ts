@@ -55,7 +55,7 @@ const apiService = {
     // Project Review
     async createProjectReview(data: Partial<ProjectReview>): Promise<ProjectReview> {
         const response = await api.post('/', data);
-        return response.data;
+        return response.data; // Axios wraps response in { data: ... }
     },
 
     async getProjectReview(projectId: string): Promise<ProjectReview> {
