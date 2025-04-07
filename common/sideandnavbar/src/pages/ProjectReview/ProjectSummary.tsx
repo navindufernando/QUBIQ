@@ -18,6 +18,13 @@ interface ProjectSummaryProps {
   handleOpenEditSection: (section: string, index?: number) => void;
 }
 
+// Utility function to safely format dates
+const formatDate = (date: any): string => {
+  if (!date) return "N/A";
+  const parsedDate = new Date(date);
+  return isNaN(parsedDate.getTime()) ? "Invalid Date" : parsedDate.toLocaleDateString();
+};
+
 export default function ProjectSummary({
   project,
   setProject,
@@ -90,7 +97,7 @@ export default function ProjectSummary({
               <>
                 <Typography variant="body1" paragraph>{project.description}</Typography>
                 <Typography variant="caption" color="textSecondary">
-                  Created: {project.createdAt.toLocaleDateString()} | Updated: {project.updatedAt ? project.updatedAt.toLocaleDateString() : "N/A"}
+                  Created: {formatDate(project.createdAt)} | Updated: {formatDate(project.updatedAt)}
                 </Typography>
               </>
             ) : (
@@ -125,7 +132,7 @@ export default function ProjectSummary({
                       <CheckCircleIcon fontSize="small" color="primary" sx={{ mr: 1 }} />
                       <ListItemText
                         primary={objective.content}
-                        secondary={`Created: ${new Date(objective.createdAt).toLocaleDateString()} | Updated: ${objective.updatedAt ? new Date(objective.updatedAt).toLocaleDateString() : "N/A"}`}
+                        secondary={`Created: ${formatDate(objective.createdAt)} | Updated: ${formatDate(objective.updatedAt)}`}
                       />
                     </ListItem>
                     {selectedSection === "objectives" && selectedIndex === index && (
@@ -166,7 +173,7 @@ export default function ProjectSummary({
                       <InfoIcon fontSize="small" color="primary" sx={{ mr: 1 }} />
                       <ListItemText
                         primary={highlight.content}
-                        secondary={`Created: ${new Date(highlight.createdAt).toLocaleDateString()} | Updated: ${highlight.updatedAt ? new Date(highlight.updatedAt).toLocaleDateString() : "N/A"}`}
+                        secondary={`Created: ${formatDate(highlight.createdAt)} | Updated: ${formatDate(highlight.updatedAt)}`}
                       />
                     </ListItem>
                     {selectedSection === "highlights" && selectedIndex === index && (
@@ -222,7 +229,7 @@ export default function ProjectSummary({
                           <TableCell>{risk.description}</TableCell>
                           <TableCell>
                             <Typography variant="caption" color="textSecondary">
-                              Created: {new Date(risk.createdAt).toLocaleDateString()}<br />Updated: {risk.updatedAt ? new Date(risk.updatedAt).toLocaleDateString() : "N/A"}
+                              Created: {formatDate(risk.createdAt)}<br />Updated: {formatDate(risk.updatedAt)}
                             </Typography>
                           </TableCell>
                         </TableRow>
