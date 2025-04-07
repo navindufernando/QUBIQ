@@ -18,14 +18,15 @@ import ProjectSummary from "./ProjectSummary";
 import CommentsFeedback from "./CommentsFeedback";
 import StakeholderCommunications from "./StakeholderCommunications";
 import TeamInsights from "./TeamInsights";
-import { mockProjectData, mockFeedback, mockCommunicationLogs, mockTeamInsights, ProjectData, FeedbackItem } from "./types";
+import { ProjectData, FeedbackItem } from "./types";
+import apiService from "./../../../../../backend/src/services/apiService";
 
 export default function ProjectReview() {
   const [tabValue, setTabValue] = useState(0);
-  const [project, setProject] = useState<ProjectData>(mockProjectData);
-  const [feedback, setFeedback] = useState<FeedbackItem[]>(mockFeedback);
-  const [communicationLogs, setCommunicationLogs] = useState<any[]>(mockCommunicationLogs);
-  const [teamInsights, setTeamInsights] = useState<any[]>(mockTeamInsights);
+  const [project, setProject] = useState<ProjectData | null>(null);
+  const [feedback, setFeedback] = useState<FeedbackItem[]>([]);
+  const [communicationLogs, setCommunicationLogs] = useState<any[]>([]);
+  const [teamInsights, setTeamInsights] = useState<any[]>([]);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editedProjectName, setEditedProjectName] = useState("");
@@ -41,14 +42,24 @@ export default function ProjectReview() {
   const [editFeedbackContent, setEditFeedbackContent] = useState("");
   const [editFeedbackSentiment, setEditFeedbackSentiment] = useState("");
 
-  const { projectId } = useParams();
+  const { projectId } = useParams<{ projectId: string }>();
+  const token = localStorage.getItem("token") || ""; // Assume token is stored in localStorage
 
   useEffect(() => {
-    setProject(mockProjectData);
-    setFeedback(mockFeedback);
-    setCommunicationLogs(mockCommunicationLogs);
-    setTeamInsights(mockTeamInsights);
-  }, [projectId]);
+    const fetchProjectData = async () => {
+      try {
+        if (!projectId) return;
+        const projectData = await apiService.getProjectReview(projectId, token);
+        setProject(projectData);
+        setFeedback(projectData.feedbackItems || []);
+        setCommunicationLogs(projectData.communicationLogs || []);
+        setTeamInsights(projectData.teamInsights || []);
+      } catch (error) {
+        console.error("Failed to fetch project data:", error);
+      }
+    };
+    fetchProjectData();
+  }, [projectId, token]);
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -63,7 +74,7 @@ export default function ProjectReview() {
   };
 
   const handleOpenEditDialog = () => {
-    setEditedProjectName(project.name);
+    setEditedProjectName(project?.name || "");
     setIsEditDialogOpen(true);
   };
 
@@ -80,9 +91,15 @@ export default function ProjectReview() {
     setEditFeedbackSentiment("");
   };
 
-  const handleSaveProjectName = () => {
-    setProject({ ...project, name: editedProjectName });
-    setIsEditDialogOpen(false);
+  const handleSaveProjectName = async () => {
+    if (!projectId || !project) return;
+    try {
+      const updatedProject = await apiService.updateProjectReview(projectId, { name: editedProjectName }, token);
+      setProject(updatedProject);
+      setIsEditDialogOpen(false);
+    } catch (error) {
+      console.error("Failed to update project name:", error);
+    }
   };
 
   const handleSelectSection = (section: string, index?: number) => {
@@ -98,8 +115,9 @@ export default function ProjectReview() {
   const handleOpenEditSection = (section: string, index?: number) => {
     setEditSection(section);
     setEditIndex(index !== undefined ? index : null);
+    if (!project) return;
     if (section === "description") {
-      setNewDescription(project.description.content);
+      setNewDescription(project.description || "");
     } else if (section === "objectives" && index !== undefined) {
       setNewObjective(project.objectives[index].content);
     } else if (section === "highlights" && index !== undefined) {
@@ -110,41 +128,49 @@ export default function ProjectReview() {
     setIsEditDialogOpen(true);
   };
 
-  const handleSaveSection = () => {
-    const currentDate = new Date().toISOString();
-    if (editSection === "description") {
-      setProject({
-        ...project,
-        description: { content: newDescription, createdAt: project.description.createdAt || currentDate, updatedAt: project.description.createdAt ? currentDate : null },
-      });
-    } else if (editSection === "objectives") {
-      if (editIndex !== null) {
-        const updatedObjectives = [...project.objectives];
-        updatedObjectives[editIndex] = { ...updatedObjectives[editIndex], content: newObjective, updatedAt: currentDate };
-        setProject({ ...project, objectives: updatedObjectives });
-      } else {
-        setProject({ ...project, objectives: [...project.objectives, { content: newObjective, createdAt: currentDate, updatedAt: null }] });
+  const handleSaveSection = async () => {
+    if (!projectId || !project) return;
+    try {
+      if (editSection === "description") {
+        const updatedProject = await apiService.updateProjectReview(projectId, { description: newDescription }, token);
+        setProject(updatedProject);
+      } else if (editSection === "objectives") {
+        if (editIndex !== null) {
+          const objectiveId = project.objectives[editIndex].id;
+          const updatedObjective = await apiService.updateObjective(objectiveId, newObjective, token);
+          const updatedObjectives = project.objectives.map((obj, i) => (i === editIndex ? updatedObjective : obj));
+          setProject({ ...project, objectives: updatedObjectives });
+        } else {
+          const newObjectiveData = await apiService.createObjective(projectId, newObjective, token);
+          setProject({ ...project, objectives: [...project.objectives, newObjectiveData] });
+        }
+      } else if (editSection === "highlights") {
+        if (editIndex !== null) {
+          const highlightId = project.highlights[editIndex].id;
+          const updatedHighlight = await apiService.updateHighlight(highlightId, newHighlight, token);
+          const updatedHighlights = project.highlights.map((hl, i) => (i === editIndex ? updatedHighlight : hl));
+          setProject({ ...project, highlights: updatedHighlights });
+        } else {
+          const newHighlightData = await apiService.createHighlight(projectId, newHighlight, token);
+          setProject({ ...project, highlights: [...project.highlights, newHighlightData] });
+        }
+      } else if (editSection === "risks") {
+        if (editIndex !== null) {
+          const riskId = project.risks[editIndex].id;
+          const updatedRisk = await apiService.updateRisk(riskId, newRisk.severity, newRisk.description, token);
+          const updatedRisks = project.risks.map((risk, i) => (i === editIndex ? updatedRisk : risk));
+          setProject({ ...project, risks: updatedRisks });
+        } else {
+          const newRiskData = await apiService.createRisk(projectId, newRisk.severity, newRisk.description, token);
+          setProject({ ...project, risks: [...project.risks, newRiskData] });
+        }
       }
-    } else if (editSection === "highlights") {
-      if (editIndex !== null) {
-        const updatedHighlights = [...project.highlights];
-        updatedHighlights[editIndex] = { ...updatedHighlights[editIndex], content: newHighlight, updatedAt: currentDate };
-        setProject({ ...project, highlights: updatedHighlights });
-      } else {
-        setProject({ ...project, highlights: [...project.highlights, { content: newHighlight, createdAt: currentDate, updatedAt: null }] });
-      }
-    } else if (editSection === "risks") {
-      if (editIndex !== null) {
-        const updatedRisks = [...project.risks];
-        updatedRisks[editIndex] = { ...updatedRisks[editIndex], severity: newRisk.severity, description: newRisk.description, updatedAt: currentDate };
-        setProject({ ...project, risks: updatedRisks });
-      } else {
-        setProject({ ...project, risks: [...project.risks, { severity: newRisk.severity, description: newRisk.description, createdAt: currentDate, updatedAt: null }] });
-      }
+      handleCloseEditDialog();
+      setSelectedSection(null);
+      setSelectedIndex(null);
+    } catch (error) {
+      console.error("Failed to save section:", error);
     }
-    handleCloseEditDialog();
-    setSelectedSection(null);
-    setSelectedIndex(null);
   };
 
   const handleEditFeedback = (id: string) => {
@@ -157,17 +183,37 @@ export default function ProjectReview() {
     }
   };
 
-  const handleSaveEditedFeedback = () => {
-    if (!editFeedbackContent.trim() || !editFeedbackId) return;
-    setFeedback(
-      feedback.map((item) =>
-        item.id === editFeedbackId ? { ...item, content: editFeedbackContent, sentiment: editFeedbackSentiment, date: new Date().toISOString().split("T")[0] } : item
-      )
-    );
-    handleCloseEditDialog();
+  const handleSaveEditedFeedback = async () => {
+    if (!editFeedbackContent.trim() || !editFeedbackId || !projectId) return;
+    try {
+      const updatedFeedback = await apiService.updateFeedback(
+        editFeedbackId,
+        editFeedbackContent,
+        editFeedbackSentiment,
+        new Date().toISOString().split("T")[0],
+        token
+      );
+      setFeedback(feedback.map((item) => (item.id === editFeedbackId ? updatedFeedback : item)));
+      handleCloseEditDialog();
+    } catch (error) {
+      console.error("Failed to update feedback:", error);
+    }
   };
 
-  const hasContent = project.name || project.description.content || project.objectives.length > 0 || project.highlights.length > 0 || project.risks.length > 0 || feedback.length > 0 || communicationLogs.length > 0 || teamInsights.length > 0;
+  const hasContent = project && (
+    project.name ||
+    project.description ||
+    project.objectives.length > 0 ||
+    project.highlights.length > 0 ||
+    project.risks.length > 0 ||
+    feedback.length > 0 ||
+    communicationLogs.length > 0 ||
+    teamInsights.length > 0
+  );
+
+  if (!project) {
+    return <Typography>Loading...</Typography>;
+  }
 
   if (!hasContent) {
     return (
