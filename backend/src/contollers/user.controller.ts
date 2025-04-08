@@ -1,21 +1,23 @@
-// user.controller.ts
-
 import { Request, Response } from "express";
 import { UserService } from "../services/user.service";
 import { UserRole } from "../types/types";
 import { sendPswResetEmail } from "../utils/email";
 import jwt from 'jsonwebtoken';
+import multer from 'multer';
 
 const service = new UserService();
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
-export class UserController {
+// Configure multer for file uploads
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 
+export class UserController {
     static async signin(req: Request, res: Response): Promise<any> {
         try {
             const { email, password, role } = req.body;
             if (!email || !password || !role) {
-                return res.status(400).json({ error: 'Email, password, and role are required'});
+                return res.status(400).json({ error: 'Email, password, and role are required' });
             }
 
             const user = await service.findUserByEmailAndRole(email, role as UserRole);
@@ -33,7 +35,7 @@ export class UserController {
                 email: user.email,
                 role: user.role as UserRole
             });
-            
+
             res.status(200).json({
                 success: true,
                 data: {
@@ -56,11 +58,11 @@ export class UserController {
         try {
             const { firstName, lastName, email, password, confirmPassword, role } = req.body;
             if (!firstName || !lastName || !email || !password || !confirmPassword || !role) {
-                return res.status(400).json({ error: 'All fields are required'});
+                return res.status(400).json({ error: 'All fields are required' });
             }
 
-            if(password !== confirmPassword) {
-                return res.status(400).json({ error: 'Passwords do not match '});
+            if (password !== confirmPassword) {
+                return res.status(400).json({ error: 'Passwords do not match ' });
             }
 
             const existingUser = await service.findUserByEmailAndRole(email, role as UserRole);
@@ -81,7 +83,7 @@ export class UserController {
                 email: newUser.email,
                 role: newUser.role as UserRole
             });
-            
+
             res.status(200).json({
                 success: true,
                 data: {
@@ -103,14 +105,12 @@ export class UserController {
 
     static async forgotPassword(req: Request, res: Response): Promise<any> {
         try {
-            const { email, role } =  req.body;
-
-            if(!email || !role) {
-                return res.status(400).json({ error: 'Email and role are required'});
+            const { email, role } = req.body;
+            if (!email || !role) {
+                return res.status(400).json({ error: 'Email and role are required' });
             }
 
             const user = await service.findUserByEmailAndRole(email, role as UserRole);
-
             if (!user) {
                 return res.status(200).json({
                     success: true,
@@ -118,18 +118,13 @@ export class UserController {
                 });
             }
 
-            const resetToken = jwt.sign(
-                { id: user.id },
-                JWT_SECRET,
-                { expiresIn: '1h' }
-              );
-          
+            const resetToken = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '1h' });
             await service.updateUserResetToken(user.id, resetToken);
             await sendPswResetEmail(email, resetToken, user.id);
-          
-            res.status(200).json({ 
+
+            res.status(200).json({
                 success: true,
-                message: 'Password reset instructions sent! Please check your email.' 
+                message: 'Password reset instructions sent! Please check your email.'
             });
         } catch (error) {
             console.error('Forgot password error:', error);
@@ -140,19 +135,17 @@ export class UserController {
     static async resetPassword(req: Request, res: Response): Promise<any> {
         try {
             const { userId, token, newPassword } = req.body;
-            
             if (!userId || !token || !newPassword) {
                 return res.status(400).json({ error: 'User ID, token, and new password are required' });
             }
-            
+
             const user = await service.findUserByResetToken(userId, token);
-            
             if (!user) {
                 return res.status(400).json({ error: 'Invalid or expired reset token' });
             }
-            
+
             await service.updateUserPassword(userId, newPassword);
-            
+
             res.status(200).json({
                 success: true,
                 message: 'Password reset successful'
@@ -166,31 +159,29 @@ export class UserController {
     static async refreshToken(req: Request, res: Response): Promise<any> {
         try {
             const { refreshToken } = req.body;
-    
-            if(!refreshToken) {
+            if (!refreshToken) {
                 return res.status(400).json({ error: 'Refresh token is required' });
             }
-    
+
             try {
                 const decoded = service.verifyRefreshToken(refreshToken);
                 const user = await service.findUserById(decoded.id);
-    
-                if(!user) {
+
+                if (!user) {
                     return res.status(404).json({ error: 'User not found' });
                 }
-    
-                // Generate both new access token and refresh token
+
                 const { token, refreshToken: newRefreshToken } = service.generateTokens({
                     id: user.id,
                     email: user.email,
                     role: user.role as UserRole
                 });
-    
+
                 res.status(200).json({
                     success: true,
-                    data: { 
-                        token, 
-                        refreshToken: newRefreshToken 
+                    data: {
+                        token,
+                        refreshToken: newRefreshToken
                     }
                 });
             } catch (error) {
@@ -206,13 +197,10 @@ export class UserController {
     static async googleAuth(req: Request, res: Response): Promise<any> {
         try {
             const { googleToken, role } = req.body;
-
-            if(!googleToken || !role) {
+            if (!googleToken || !role) {
                 return res.status(400).json({ error: 'Google token and role are required' });
             }
 
-            // In a real implementation, you would verify the googleToken
-            // and extract user information from it
             const payLoad = {
                 email: 'user-from-google@gmail.com',
                 first_name: 'Google',
@@ -255,9 +243,8 @@ export class UserController {
     static async verifyemail(req: Request, res: Response): Promise<any> {
         try {
             const { token } = req.params;
-
-            if(!token) {
-                return res.status(400).json({error: 'Verification token is required' });
+            if (!token) {
+                return res.status(400).json({ error: 'Verification token is required' });
             }
 
             const decoded = jwt.verify(token, JWT_SECRET) as { email: string };
@@ -282,39 +269,118 @@ export class UserController {
             const { currentPassword, newPassword } = req.body;
             const userId = req.user?.id;
 
-            if(!userId) {
+            if (!userId) {
                 return res.status(401).json({ error: 'Not authenticated.' });
             }
 
-            if(!currentPassword || !newPassword) {
+            if (!currentPassword || !newPassword) {
                 return res.status(400).json({ error: 'Current and New passwords are required' });
             }
 
             try {
                 await service.changeUserPassword(userId, currentPassword, newPassword);
-                
-                res.status(200).json({ 
-                  success: true,
-                  message: 'Password changed successfully' 
+                res.status(200).json({
+                    success: true,
+                    message: 'Password changed successfully'
                 });
             } catch (error) {
                 if (error instanceof Error) {
-                  if (error.message === 'User not found') {
-                    return res.status(404).json({ error: 'User not found' });
-                  } else if (error.message === 'Current password is incorrect') {
-                    return res.status(401).json({ error: 'Current password is incorrect' });
-                  } else {
+                    if (error.message === 'User not found') {
+                        return res.status(404).json({ error: 'User not found' });
+                    } else if (error.message === 'Current password is incorrect') {
+                        return res.status(401).json({ error: 'Current password is incorrect' });
+                    }
                     throw error;
-                  }
-                } else {
-                  throw error;
                 }
+                throw error;
             }
         } catch (error) {
             console.error('Change password error:', error);
             res.status(500).json({ error: 'Internal server error' });
         }
     }
+
+    static async getProfile(req: Request, res: Response): Promise<any> {
+        try {
+            const userId = req.user?.id;
+            if (!userId) {
+                return res.status(401).json({ error: 'Not authenticated' });
+            }
+
+            const user = await service.findUserById(userId);
+            if (!user) {
+                return res.status(404).json({ error: 'User not found' });
+            }
+
+            res.status(200).json({
+                success: true,
+                data: {
+                    id: user.id,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    email: user.email,
+                    role: user.role,
+                    phone: user.phone || '',
+                    bio: user.bio || '',
+                    picture: user.picture || null,
+                    city: user.city || '',
+                    country: user.country || '',
+                    team: user.team || '',
+                    project: user.project || ''
+                }
+            });
+        } catch (error) {
+            console.error('Get profile error:', error);
+            res.status(500).json({ error: 'Internal server error' });
+        }
+    }
+
+    static async updateProfile(req: Request, res: Response): Promise<any> {
+        try {
+            const userId = req.user?.id;
+            if (!userId) {
+                return res.status(401).json({ error: 'Not authenticated' });
+            }
+
+            const profileData = req.body;
+            const updatedUser = await service.updateUserProfile(userId, profileData);
+
+            res.status(200).json({
+                success: true,
+                data: updatedUser,
+                message: 'Profile updated successfully'
+            });
+        } catch (error) {
+            console.error('Update profile error:', error);
+            res.status(500).json({ error: 'Internal server error' });
+        }
+    }
+
+    static uploadProfilePicture = [
+        upload.single('picture'),
+        async (req: Request, res: Response): Promise<any> => {
+            try {
+                const userId = req.user?.id;
+                if (!userId) {
+                    return res.status(401).json({ error: 'Not authenticated' });
+                }
+
+                if (!req.file) {
+                    return res.status(400).json({ error: 'No file uploaded' });
+                }
+
+                const picture = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+                const updatedUser = await service.updateUserPicture(userId, picture);
+
+                res.status(200).json({
+                    success: true,
+                    data: updatedUser,
+                    message: 'Profile picture updated successfully'
+                });
+            } catch (error) {
+                console.error('Upload profile picture error:', error);
+                res.status(500).json({ error: 'Internal server error' });
+            }
+        }
+    ];
 }
-
-

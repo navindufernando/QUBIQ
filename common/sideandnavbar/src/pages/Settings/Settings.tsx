@@ -9,31 +9,27 @@ import CreditCardIcon from "@mui/icons-material/CreditCard";
 import WbSunnyIcon from "@mui/icons-material/WbSunny";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import PaletteIcon from "@mui/icons-material/Palette";
+import { getProfile, updateProfile, uploadProfilePicture } from '../../services/authAPI';
+import { useAuth } from '../Signup&Login/AuthContext';
 
-// Simple state management using a shared store
-const profileStore = {
-  profile: {
+const Settings = () => {
+  const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState("profile");
+  const [profile, setProfile] = useState({
     firstName: "",
     lastName: "",
     email: "",
     phone: "",
     bio: "",
-    picture: null,
+    picture: null as string | null,
     city: "",
     country: "",
     role: "",
     team: "",
     project: ""
-  },
-  setProfile: (newProfile) => {
-    profileStore.profile = { ...profileStore.profile, ...newProfile };
-  }
-};
-
-const Settings = () => {
-  const [activeTab, setActiveTab] = useState("profile");
-  const [profilePic, setProfilePic] = useState(null);
-  const [saveStatus, setSaveStatus] = useState(null);
+  });
+  const [profilePic, setProfilePic] = useState<string | null>(null);
+  const [saveStatus, setSaveStatus] = useState<string | null>(null);
 
   const tabs = [
     { id: "profile", label: "Profile", icon: "user" },
@@ -43,42 +39,18 @@ const Settings = () => {
     { id: "billing", label: "Billing", icon: "credit-card" },
   ];
 
-  const renderIcon = (iconName) => {
-    switch (iconName) {
-      case "user":
-        return <PersonIcon className="h-5 w-5" />;
-      case "bell":
-        return <NotificationsIcon className="h-5 w-5" />;
-      case "shield":
-        return <SecurityIcon className="h-5 w-5" />;
-      case "eye":
-        return <VisibilityIcon className="h-5 w-5" />;
-      case "credit-card":
-        return <CreditCardIcon className="h-5 w-5" />;
-      default:
-        return null;
-    }
-  };
-
-  const handleProfileSave = (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const updatedProfile = {
-      firstName: formData.get("firstName"),
-      lastName: formData.get("lastName"),
-      email: formData.get("email"),
-      phone: formData.get("phone"),
-      bio: formData.get("bio"),
-      picture: profilePic || profileStore.profile.picture,
-      city: formData.get("city"),
-      country: formData.get("country"),
-      role: formData.get("role"),
-      team: formData.get("team"),
-      project: formData.get("project")
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await getProfile();
+        setProfile(response.data);
+        setProfilePic(response.data.picture);
+      } catch (error) {
+        console.error('Failed to fetch profile:', error);
+      }
     };
-    profileStore.setProfile(updatedProfile);
-    setSaveStatus("Profile saved successfully!");
-  };
+    fetchProfile();
+  }, []);
 
   useEffect(() => {
     if (saveStatus) {
@@ -87,14 +59,55 @@ const Settings = () => {
     }
   }, [saveStatus]);
 
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
+  const renderIcon = (iconName: string) => {
+    switch (iconName) {
+      case "user": return <PersonIcon className="h-5 w-5" />;
+      case "bell": return <NotificationsIcon className="h-5 w-5" />;
+      case "shield": return <SecurityIcon className="h-5 w-5" />;
+      case "eye": return <VisibilityIcon className="h-5 w-5" />;
+      case "credit-card": return <CreditCardIcon className="h-5 w-5" />;
+      default: return null;
+    }
+  };
+
+  const handleProfileSave = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const updatedProfile = {
+      firstName: formData.get("firstName") as string,
+      lastName: formData.get("lastName") as string,
+      email: formData.get("email") as string,
+      phone: formData.get("phone") as string,
+      bio: formData.get("bio") as string,
+      city: formData.get("city") as string,
+      country: formData.get("country") as string,
+      role: formData.get("role") as string,
+      team: formData.get("team") as string,
+      project: formData.get("project") as string
+    };
+
+    try {
+      await updateProfile(updatedProfile);
+      setProfile({ ...profile, ...updatedProfile });
+      setSaveStatus("Profile saved successfully!");
+    } catch (error) {
+      console.error('Failed to save profile:', error);
+      setSaveStatus("Failed to save profile");
+    }
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfilePic(reader.result);
-      };
-      reader.readAsDataURL(file);
+      try {
+        const response = await uploadProfilePicture(file);
+        setProfilePic(response.data.picture);
+        setProfile({ ...profile, picture: response.data.picture });
+        setSaveStatus("Profile picture updated successfully!");
+      } catch (error) {
+        console.error('Failed to upload picture:', error);
+        setSaveStatus("Failed to upload picture");
+      }
     }
   };
 
@@ -109,15 +122,15 @@ const Settings = () => {
               </h2>
 
               {saveStatus && (
-                <div className="mb-4 p-3 bg-green-100 text-green-700 rounded-md">
+                <div className={`mb-4 p-3 rounded-md ${saveStatus.includes('Failed') ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
                   {saveStatus}
                 </div>
               )}
 
               <div className="flex mb-8 items-center">
                 <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mr-6">
-                  {profilePic || profileStore.profile.picture ? (
-                    <img src={profilePic || profileStore.profile.picture} alt="Profile" className="w-full h-full rounded-full object-cover" />
+                  {profilePic ? (
+                    <img src={profilePic} alt="Profile" className="w-full h-full rounded-full object-cover" />
                   ) : (
                     <PersonIcon className="h-12 w-12 text-gray-400" />
                   )}
@@ -128,14 +141,14 @@ const Settings = () => {
                     type="file"
                     accept="image/*"
                     onChange={handleImageUpload}
-                    className="hidden" // Hide the default file input
+                    className="hidden"
                     id="profile-pic-upload"
                   />
                   <label htmlFor="profile-pic-upload">
                     <button
                       type="button"
                       className="mt-2 px-4 py-2 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-700"
-                      onClick={() => document.getElementById("profile-pic-upload").click()}
+                      onClick={() => document.getElementById("profile-pic-upload")?.click()}
                     >
                       Upload Picture
                     </button>
@@ -152,7 +165,7 @@ const Settings = () => {
                     name="firstName"
                     type="text"
                     className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    defaultValue={profileStore.profile.firstName}
+                    defaultValue={profile.firstName}
                   />
                 </div>
                 <div>
@@ -163,7 +176,7 @@ const Settings = () => {
                     name="lastName"
                     type="text"
                     className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    defaultValue={profileStore.profile.lastName}
+                    defaultValue={profile.lastName}
                   />
                 </div>
                 <div>
@@ -174,7 +187,7 @@ const Settings = () => {
                     name="email"
                     type="email"
                     className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    defaultValue={profileStore.profile.email}
+                    defaultValue={profile.email}
                   />
                 </div>
                 <div>
@@ -185,7 +198,7 @@ const Settings = () => {
                     name="phone"
                     type="tel"
                     className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    defaultValue={profileStore.profile.phone}
+                    defaultValue={profile.phone}
                   />
                 </div>
                 <div>
@@ -196,7 +209,7 @@ const Settings = () => {
                     name="city"
                     type="text"
                     className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    defaultValue={profileStore.profile.city}
+                    defaultValue={profile.city}
                   />
                 </div>
                 <div>
@@ -207,7 +220,7 @@ const Settings = () => {
                     name="country"
                     type="text"
                     className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    defaultValue={profileStore.profile.country}
+                    defaultValue={profile.country}
                   />
                 </div>
                 <div>
@@ -218,7 +231,7 @@ const Settings = () => {
                     name="role"
                     type="text"
                     className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    defaultValue={profileStore.profile.role}
+                    defaultValue={profile.role}
                   />
                 </div>
                 <div>
@@ -229,7 +242,7 @@ const Settings = () => {
                     name="team"
                     type="text"
                     className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    defaultValue={profileStore.profile.team}
+                    defaultValue={profile.team}
                   />
                 </div>
                 <div>
@@ -240,7 +253,7 @@ const Settings = () => {
                     name="project"
                     type="text"
                     className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    defaultValue={profileStore.profile.project}
+                    defaultValue={profile.project}
                   />
                 </div>
                 <div className="col-span-2">
@@ -250,7 +263,7 @@ const Settings = () => {
                   <textarea
                     name="bio"
                     className="w-full border border-gray-300 rounded-md px-3 py-2 h-24"
-                    defaultValue={profileStore.profile.bio}
+                    defaultValue={profile.bio}
                   ></textarea>
                   <p className="text-xs text-gray-500 mt-1">
                     Brief description for your profile. URLs are hyperlinked.
@@ -289,10 +302,7 @@ const Settings = () => {
                     />
                   </div>
                   <div className="ml-3">
-                    <label
-                      htmlFor="comments"
-                      className="font-medium text-gray-700"
-                    >
+                    <label htmlFor="comments" className="font-medium text-gray-700">
                       Comments
                     </label>
                     <p className="text-gray-500 text-sm">
@@ -311,10 +321,7 @@ const Settings = () => {
                     />
                   </div>
                   <div className="ml-3">
-                    <label
-                      htmlFor="mentions"
-                      className="font-medium text-gray-700"
-                    >
+                    <label htmlFor="mentions" className="font-medium text-gray-700">
                       Mentions
                     </label>
                     <p className="text-gray-500 text-sm">
@@ -333,10 +340,7 @@ const Settings = () => {
                     />
                   </div>
                   <div className="ml-3">
-                    <label
-                      htmlFor="tasks"
-                      className="font-medium text-gray-700"
-                    >
+                    <label htmlFor="tasks" className="font-medium text-gray-700">
                       Task assignments
                     </label>
                     <p className="text-gray-500 text-sm">
@@ -355,10 +359,7 @@ const Settings = () => {
                     />
                   </div>
                   <div className="ml-3">
-                    <label
-                      htmlFor="deadlines"
-                      className="font-medium text-gray-700"
-                    >
+                    <label htmlFor="deadlines" className="font-medium text-gray-700">
                       Deadlines
                     </label>
                     <p className="text-gray-500 text-sm">
@@ -386,10 +387,7 @@ const Settings = () => {
                     className="h-4 w-4 text-indigo-600 border-gray-300"
                     defaultChecked
                   />
-                  <label
-                    htmlFor="push-everything"
-                    className="ml-3 font-medium text-gray-700"
-                  >
+                  <label htmlFor="push-everything" className="ml-3 font-medium text-gray-700">
                     Everything
                   </label>
                 </div>
@@ -401,10 +399,7 @@ const Settings = () => {
                     type="radio"
                     className="h-4 w-4 text-indigo-600 border-gray-300"
                   />
-                  <label
-                    htmlFor="push-email"
-                    className="ml-3 font-medium text-gray-700"
-                  >
+                  <label htmlFor="push-email" className="ml-3 font-medium text-gray-700">
                     Same as email
                   </label>
                 </div>
@@ -416,10 +411,7 @@ const Settings = () => {
                     type="radio"
                     className="h-4 w-4 text-indigo-600 border-gray-300"
                   />
-                  <label
-                    htmlFor="push-nothing"
-                    className="ml-3 font-medium text-gray-700"
-                  >
+                  <label htmlFor="push-nothing" className="ml-3 font-medium text-gray-700">
                     No push notifications
                   </label>
                 </div>
@@ -657,27 +649,32 @@ const Settings = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="bg-white rounded-lg shadow">
-          <div className="border-b border-gray-200">
-            <nav className="flex -mb-px">
+        <div className="flex flex-col md:flex-row">
+          {/* Sidebar */}
+          <div className="md:w-1/4 bg-white shadow-sm rounded-lg p-6 mr-6 mb-6 md:mb-0">
+            <h1 className="text-2xl font-medium text-gray-800 mb-6">Settings</h1>
+            <nav className="space-y-2">
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`group inline-flex items-center px-6 py-4 border-b-2 font-medium text-sm ${
+                  className={`w-full flex items-center px-4 py-2 text-sm font-medium rounded-md ${
                     activeTab === tab.id
-                      ? "border-indigo-500 text-indigo-600"
-                      : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                      ? 'bg-indigo-50 text-indigo-600'
+                      : 'text-gray-600 hover:bg-gray-50'
                   }`}
                 >
-                  <span className="mr-2">{renderIcon(tab.icon)}</span>
-                  {tab.label}
+                  {renderIcon(tab.icon)}
+                  <span className="ml-3">{tab.label}</span>
                 </button>
               ))}
             </nav>
           </div>
 
-          <div className="p-8">{renderContent()}</div>
+          {/* Main Content */}
+          <div className="md:w-3/4 bg-white shadow-sm rounded-lg p-6">
+            {renderContent()}
+          </div>
         </div>
       </div>
     </div>
@@ -685,4 +682,3 @@ const Settings = () => {
 };
 
 export default Settings;
-export { profileStore };
