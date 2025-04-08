@@ -1,5 +1,4 @@
-// user.service.ts
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, UserRole as PrismaUserRole, Prisma } from "@prisma/client";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { UserRole } from "src/types/types";
@@ -9,10 +8,9 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 const REFRESH_SECRET = process.env.REFRESH_SECRET || 'your-refresh-secret-key';
 
 export class UserService {
-
     async findUserByEmailAndRole(email: string, role: UserRole) {
         return await prisma.user.findFirst({
-            where: {email, role}
+            where: { email, role: role as PrismaUserRole }
         });
     }
 
@@ -27,15 +25,17 @@ export class UserService {
         const hashedPassword = await bcrypt.hash(data.password, salt);
         const verificationToken = jwt.sign({ email: data.email }, JWT_SECRET, { expiresIn: '356d' });
 
-        return await prisma.user.create({ data: {
-            firstName: data.firstName,
-            lastName: data.lastName,
-            email: data.email,
-            password: hashedPassword,
-            role: data.role,
-            emailVerified: false,
-            verificationToken: verificationToken!
-        }});
+        return await prisma.user.create({
+            data: {
+                firstName: data.firstName,
+                lastName: data.lastName,
+                email: data.email,
+                password: hashedPassword,
+                role: data.role as PrismaUserRole,
+                emailVerified: false,
+                verificationToken: verificationToken!
+            }
+        });
     }
 
     async validatePassword(password: string, hashedPassword: string) {
@@ -49,7 +49,7 @@ export class UserService {
             { expiresIn: '356d' }
         );
         const refreshToken = jwt.sign(
-            { id: user.id }, 
+            { id: user.id },
             REFRESH_SECRET,
             { expiresIn: '356d' }
         );
@@ -71,9 +71,7 @@ export class UserService {
             where: {
                 id: userId,
                 resetToken: token,
-                resetTokenExpiry: {
-                    gt: new Date(),
-                },
+                resetTokenExpiry: { gt: new Date() },
             },
         });
     }
@@ -101,26 +99,20 @@ export class UserService {
     verifyRefreshToken = (refreshToken: string) => {
         return jwt.verify(refreshToken, REFRESH_SECRET) as { id: string };
     };
-      
+
     verifyToken = (token: string) => {
         return jwt.verify(token, JWT_SECRET) as { id: string; email: string; role: UserRole };
     };
 
     async findUserByEmailTokenAndVerify(email: string, token: string) {
         const user = await prisma.user.findFirst({
-            where: {
-                email,
-                verificationToken: token,
-            },
+            where: { email, verificationToken: token },
         });
 
         if (user) {
             return await prisma.user.update({
                 where: { id: user.id },
-                data: {
-                    emailVerified: true,
-                    verificationToken: null,
-                },
+                data: { emailVerified: true, verificationToken: null },
             });
         }
     }
@@ -133,7 +125,6 @@ export class UserService {
         role: UserRole;
     }) {
         const existingUser = await this.findUserByEmailAndRole(data.email, data.role);
-
         if (!existingUser) {
             return await prisma.user.create({
                 data: {
@@ -141,7 +132,7 @@ export class UserService {
                     lastName: data.lastName,
                     email: data.email,
                     password: '',
-                    role: data.role,
+                    role: data.role as PrismaUserRole,
                     googleId: data.googleId,
                     emailVerified: true,
                 },
@@ -151,20 +142,17 @@ export class UserService {
                 where: { id: existingUser.id },
                 data: { googleId: data.googleId },
             });
-        } 
-
+        }
         return existingUser;
     }
 
     async changeUserPassword(userId: string, currentPassword: string, newPassword: string) {
         const user = await this.findUserById(userId);
-
         if (!user) {
             throw new Error('User not found');
         }
 
         const isPasswordValid = await this.validatePassword(currentPassword, user.password || '');
-
         if (!isPasswordValid) {
             throw new Error('Current password is incorrect');
         }
@@ -175,6 +163,57 @@ export class UserService {
         return await prisma.user.update({
             where: { id: userId },
             data: { password: hashedPassword },
+        });
+    }
+
+    async updateUserProfile(userId: string, data: {
+        firstName?: string;
+        lastName?: string;
+        email?: string;
+        phone?: string;
+        bio?: string;
+        city?: string;
+        country?: string;
+        role?: UserRole;
+        team?: string;
+        project?: string;
+    }) {
+        // Create a properly typed update object
+        const updateData: Prisma.UserUpdateInput = {};
+
+        if (data.firstName !== undefined) updateData.firstName = data.firstName;
+        if (data.lastName !== undefined) updateData.lastName = data.lastName;
+        if (data.email !== undefined) updateData.email = data.email;
+        if (data.bio !== undefined) updateData.bio = data.bio;
+        if (data.city !== undefined) updateData.city = data.city;
+        if (data.country !== undefined) updateData.country = data.country;
+        if (data.team !== undefined) updateData.team = data.team;
+        if (data.project !== undefined) updateData.project = data.project;
+
+        // Handle phone separately since it might be causing issues
+        if (data.phone !== undefined) {
+            (updateData as any).phone = data.phone;
+        }
+
+        // Handle role separately as it needs type conversion
+        if (data.role !== undefined) {
+            updateData.role = data.role as PrismaUserRole;
+        }
+
+        return await prisma.user.update({
+            where: { id: userId },
+            data: updateData,
+        });
+    }
+
+    async updateUserPicture(userId: string, picture: string) {
+        // Use a cast to get around the type checking for this specific field
+        const updateData: Prisma.UserUpdateInput = {};
+        (updateData as any).picture = picture;
+
+        return await prisma.user.update({
+            where: { id: userId },
+            data: updateData,
         });
     }
 }

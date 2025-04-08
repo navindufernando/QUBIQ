@@ -15,10 +15,15 @@ UserRouter.post('/google-auth', UserController.googleAuth);
 UserRouter.get('/verify-email/:token', UserController.verifyemail);
 
 // Protected routes (require authentication)
-UserRouter.post('/change-password', 
-  AuthMiddleware.authenticate, 
-  ValidationMiddleware.validate('changePassword'), 
+UserRouter.post('/change-password',
+  AuthMiddleware.authenticate,
+  ValidationMiddleware.validate('changePassword'),
   UserController.changePassword
 );
+
+// New profile-related routes
+UserRouter.get('/profile', AuthMiddleware.authenticate, UserController.getProfile);
+UserRouter.put('/profile', AuthMiddleware.authenticate, UserController.updateProfile);
+UserRouter.post('/profile/picture', AuthMiddleware.authenticate, UserController.uploadProfilePicture);
 
 export default UserRouter;
