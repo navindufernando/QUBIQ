@@ -44,8 +44,6 @@ const Navbar: React.FC<NavBarProps> = ({ toggleSidebar }) => {
   }, [user]);
 
   const backgroundColor = 'rgba(123, 104, 238, 0.38)';
-
-  // Dynamic user display
   const displayName = user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'User' : 'Guest';
   const displayRole = user?.role || 'Unknown Role';
 
@@ -107,7 +105,6 @@ const Navbar: React.FC<NavBarProps> = ({ toggleSidebar }) => {
 
         {/* User profile section with improved spacing */}
         <div className='flex items-center relative ml-8'>
-          {/* Hide text on smaller screens */}
           <div className='text-right mr-4 hidden md:block'>
             <p className='font-medium text-sm'>{displayName}</p>
             <p className='text-xs text-gray-500 mt-0.5'>{displayRole}</p>
@@ -121,7 +118,6 @@ const Navbar: React.FC<NavBarProps> = ({ toggleSidebar }) => {
             />
           </button>
 
-          {/* Dropdown menu */}
           {isDropdownOpen && (
             <div className='absolute z-10 mt-2 bg-white rounded-lg shadow w-32 top-full right-0'>
               <ul className='text-[#1A1A1A]'>
